@@ -1,0 +1,31 @@
+[
+  {
+    "id": "tomsk-portraits",
+    "type": "series",
+    "name": "Томские портреты",
+    "color": "#4DB8FF",
+    "description": "Серия портретов жителей города на фасадах деревянных домов.",
+    "year_start": 2020,
+    "organizer_or_author": "Коллектив авторов",
+    "status": "active",
+    "created_at": "2025-01-01T00:00:00.000Z",
+    "updated_at": "2025-01-01T00:00:00.000Z",
+    "created_by": "system",
+    "updated_by": "system"
+  },
+  {
+    "id": "street-vision-2023",
+    "type": "festival",
+    "name": "Street Vision 2023",
+    "color": "#FF6B1A",
+    "description": "Фестиваль уличного искусства 2023 года.",
+    "year_start": 2023,
+    "year_end": 2023,
+    "organizer_or_author": "Городская администрация",
+    "status": "active",
+    "created_at": "2025-01-01T00:00:00.000Z",
+    "updated_at": "2025-01-01T00:00:00.000Z",
+    "created_by": "system",
+    "updated_by": "system"
+  }
+]

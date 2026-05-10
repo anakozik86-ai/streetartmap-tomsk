@@ -1,0 +1,48 @@
+{
+  "name": "streetartmap-tomsk",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Интерактивная карта стрит-арта Томска",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b --noEmit && vite build",
+    "build:nocheck": "vite build",
+    "preview": "vite preview --port 4173",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "type-check": "tsc -b --noEmit",
+    "validate:data": "tsx scripts/validate-data.ts",
+    "validate": "pnpm format:check && pnpm lint && pnpm type-check && pnpm validate:data"
+  },
+  "dependencies": {
+    "@preact/signals": "^1.3.0",
+    "leaflet": "^1.9.4",
+    "lucide": "^0.468.0",
+    "preact": "^10.22.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.10.0",
+    "@preact/preset-vite": "^2.9.0",
+    "@types/leaflet": "^1.9.12",
+    "@types/node": "^22.5.0",
+    "ajv": "^8.17.0",
+    "ajv-formats": "^3.0.0",
+    "eslint": "^9.10.0",
+    "eslint-config-prettier": "^9.1.0",
+    "globals": "^15.9.0",
+    "prettier": "^3.3.3",
+    "tsx": "^4.19.0",
+    "typescript": "^5.6.0",
+    "typescript-eslint": "^8.4.0",
+    "vite": "^5.4.0",
+    "vite-plugin-static-copy": "^1.0.6"
+  },
+  "engines": {
+    "node": ">=20",
+    "pnpm": ">=9"
+  },
+  "packageManager": "pnpm@9.10.0"
+}

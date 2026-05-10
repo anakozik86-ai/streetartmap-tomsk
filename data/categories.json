@@ -1,0 +1,98 @@
+[
+  {
+    "id": "mural",
+    "name": "Мурал",
+    "icon": "paintbrush",
+    "description": "Крупная настенная живопись, обычно согласованная.",
+    "order": 1,
+    "status": "active",
+    "created_at": "2025-01-01T00:00:00.000Z",
+    "updated_at": "2025-01-01T00:00:00.000Z",
+    "created_by": "system",
+    "updated_by": "system"
+  },
+  {
+    "id": "graffiti",
+    "name": "Граффити",
+    "icon": "spray-can",
+    "description": "Спрей-работы: тэги, throw-up, piece, wildstyle.",
+    "order": 2,
+    "status": "active",
+    "created_at": "2025-01-01T00:00:00.000Z",
+    "updated_at": "2025-01-01T00:00:00.000Z",
+    "created_by": "system",
+    "updated_by": "system"
+  },
+  {
+    "id": "stencil",
+    "name": "Трафарет",
+    "icon": "square-dashed",
+    "description": "Стенсил-арт.",
+    "order": 3,
+    "status": "active",
+    "created_at": "2025-01-01T00:00:00.000Z",
+    "updated_at": "2025-01-01T00:00:00.000Z",
+    "created_by": "system",
+    "updated_by": "system"
+  },
+  {
+    "id": "paste-up",
+    "name": "Паста-ап",
+    "icon": "scroll-text",
+    "description": "Бумажные постеры, наклеенные на клейстер.",
+    "order": 4,
+    "status": "active",
+    "created_at": "2025-01-01T00:00:00.000Z",
+    "updated_at": "2025-01-01T00:00:00.000Z",
+    "created_by": "system",
+    "updated_by": "system"
+  },
+  {
+    "id": "sticker",
+    "name": "Стикер",
+    "icon": "sticker",
+    "description": "Виниловые и бумажные наклейки.",
+    "order": 5,
+    "status": "active",
+    "created_at": "2025-01-01T00:00:00.000Z",
+    "updated_at": "2025-01-01T00:00:00.000Z",
+    "created_by": "system",
+    "updated_by": "system"
+  },
+  {
+    "id": "sculpture",
+    "name": "Скульптура",
+    "icon": "box",
+    "description": "Объёмные работы и инсталляции в городском пространстве.",
+    "order": 6,
+    "status": "active",
+    "created_at": "2025-01-01T00:00:00.000Z",
+    "updated_at": "2025-01-01T00:00:00.000Z",
+    "created_by": "system",
+    "updated_by": "system"
+  },
+  {
+    "id": "mosaic",
+    "name": "Мозаика",
+    "icon": "grid-3x3",
+    "description": "Плиточные и керамические работы.",
+    "order": 7,
+    "status": "active",
+    "created_at": "2025-01-01T00:00:00.000Z",
+    "updated_at": "2025-01-01T00:00:00.000Z",
+    "created_by": "system",
+    "updated_by": "system"
+  },
+  {
+    "id": "other",
+    "name": "Другое",
+    "icon": "more-horizontal",
+    "description": "Ярн-бомбинг, световое искусство, реверс-граффити и редкие техники.",
+    "order": 8,
+    "status": "active",
+    "created_at": "2025-01-01T00:00:00.000Z",
+    "updated_at": "2025-01-01T00:00:00.000Z",
+    "created_by": "system",
+    "updated_by": "system"
+  }
+]

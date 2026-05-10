@@ -1,0 +1,132 @@
+/* ============================================================
+ * App layout — карта на весь экран, плавающая шапка поверх.
+ * ============================================================ */
+
+.app {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+}
+
+.app-header {
+  position: absolute;
+  top: calc(1rem + var(--safe-top));
+  left: calc(1rem + var(--safe-left));
+  right: calc(1rem + var(--safe-right));
+  z-index: var(--z-header);
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  pointer-events: none; /* пропускаем клики по свободному пространству к карте */
+}
+
+.app-header > * {
+  pointer-events: auto;
+}
+
+.app-main {
+  flex: 1 1 auto;
+  position: relative;
+  min-height: 0;
+}
+
+/* ---- Логотип ---- */
+
+.logo {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.0625rem;
+  letter-spacing: -0.02em;
+  color: var(--text);
+  text-decoration: none;
+  background: var(--surface);
+  padding: 0.625rem 1rem;
+  border-radius: var(--radius-pill);
+  box-shadow: var(--shadow-md);
+  transition:
+    background-color var(--duration-fast) var(--ease-out),
+    transform var(--duration-fast) var(--ease-out),
+    box-shadow var(--duration-fast) var(--ease-out);
+  white-space: nowrap;
+  user-select: none;
+}
+
+.logo:hover {
+  background: var(--surface-alt);
+  color: var(--text);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-lg);
+}
+
+.logo:active {
+  transform: translateY(0);
+}
+
+/* ---- Переключатель темы ---- */
+
+.theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  background: var(--surface);
+  border-radius: var(--radius-pill);
+  padding: 4px;
+  box-shadow: var(--shadow-md);
+  gap: 2px;
+}
+
+.theme-toggle__option {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-pill);
+  color: var(--text-muted);
+  cursor: pointer;
+  transition:
+    color var(--duration-fast) var(--ease-out),
+    background-color var(--duration-fast) var(--ease-out);
+}
+
+.theme-toggle__option:hover {
+  color: var(--text);
+  background: var(--surface-alt);
+}
+
+.theme-toggle__option.is-active {
+  color: var(--accent-text);
+  background: var(--accent);
+}
+
+.theme-toggle__option.is-active:hover {
+  background: var(--accent-hover);
+}
+
+.theme-toggle__option svg {
+  width: 18px;
+  height: 18px;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  fill: none;
+}
+
+/* На очень узких экранах переключатель прячет часть опций */
+@media (max-width: 380px) {
+  .theme-toggle__option {
+    width: 32px;
+    height: 32px;
+  }
+  .theme-toggle__option svg {
+    width: 16px;
+    height: 16px;
+  }
+}

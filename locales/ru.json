@@ -1,0 +1,56 @@
+{
+  "common": {
+    "save": "Сохранить",
+    "cancel": "Отмена",
+    "delete": "Удалить",
+    "archive": "Архивировать",
+    "unarchive": "Разархивировать",
+    "edit": "Редактировать",
+    "create": "Создать",
+    "search": "Поиск",
+    "loading": "Загрузка…",
+    "error": "Ошибка",
+    "confirm": "Подтвердить"
+  },
+  "filters": {
+    "title": "Фильтры",
+    "categories": "Категории",
+    "festivals": "Фестивали",
+    "series": "Серии",
+    "show_lost": "Показать утраченные",
+    "reset": "Сбросить"
+  },
+  "states": {
+    "intact": "В порядке",
+    "damaged": "Повреждена",
+    "restored": "Восстановлена",
+    "painted_over": "Закрашена",
+    "removed": "Удалена",
+    "unknown": "Состояние неизвестно"
+  },
+  "accessibility": {
+    "street": "Видно с улицы",
+    "courtyard": "Во дворе",
+    "interior": "Внутри здания",
+    "restricted": "Закрытый объект",
+    "unknown": "Доступность неизвестна"
+  },
+  "popup": {
+    "author": "Автор",
+    "year": "Год",
+    "dimensions": "Размер",
+    "materials": "Материалы",
+    "checked_at": "Проверено",
+    "build_route": "Проложить маршрут",
+    "share": "Поделиться"
+  },
+  "admin": {
+    "title": "streetartmap — админка",
+    "login_with_pat": "Войти через Personal Access Token",
+    "categories": "Категории",
+    "collections": "Коллекции",
+    "authors": "Авторы",
+    "points": "Точки",
+    "routes": "Маршруты"
+  }
+}

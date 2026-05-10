@@ -1,0 +1,105 @@
+/* ============================================================
+ * Маркеры точек на карте.
+ *
+ * Структура (innerHTML внутри Leaflet-контейнера .marker):
+ *   <div class="marker__ring" style="background: ...">
+ *     <div class="marker__inner">
+ *       <svg class="marker__icon">…lucide…</svg>
+ *     </div>
+ *   </div>
+ *   <svg class="marker__warn">…</svg>   (только если state=damaged)
+ *
+ * Внешний div (.marker) — это сам элемент Leaflet-divIcon, к нему
+ * Leaflet добавляет leaflet-marker-icon и применяет transform для
+ * позиционирования. Анимацию scale на hover/active вешаем НЕ на него,
+ * а на .marker__ring, чтобы не конфликтовать с leaflet-овским transform.
+ * ============================================================ */
+
+.marker {
+  /* Сбрасываем дефолтные стили leaflet-div-icon */
+  background: transparent !important;
+  border: none !important;
+  position: relative;
+  cursor: pointer;
+}
+
+.marker__ring {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  padding: 3px;
+  background: var(--border-strong);
+  box-shadow: var(--shadow-md);
+  transform-origin: center center;
+  transition:
+    transform var(--duration-base) var(--ease-spring),
+    box-shadow var(--duration-base) var(--ease-out);
+  will-change: transform;
+}
+
+.marker__inner {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: var(--surface);
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.marker__icon {
+  width: 18px;
+  height: 18px;
+  display: block;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* ---- Hover (только видимый scale, без z-index возни — у Leaflet есть riseOnHover) ---- */
+.marker:hover .marker__ring {
+  transform: scale(1.15);
+  box-shadow: var(--shadow-lg);
+}
+
+/* ---- Active (попап открыт) — пригодится в 5c, готовим класс заранее ---- */
+.marker.is-active .marker__ring {
+  transform: scale(1.2);
+  box-shadow:
+    var(--shadow-lg),
+    0 0 0 4px color-mix(in srgb, var(--accent) 35%, transparent);
+}
+
+/* ---- Damaged: маленький треугольник-предупреждение в углу ---- */
+.marker__warn {
+  position: absolute;
+  bottom: -2px;
+  right: -2px;
+  width: 14px;
+  height: 14px;
+  pointer-events: none;
+  filter: drop-shadow(0 1px 2px rgb(0 0 0 / 0.35));
+}
+
+.marker__warn-shape {
+  fill: var(--state-damaged);
+  stroke: var(--surface);
+}
+
+/* ---- Lost (painted_over/removed) — пока не рендерим, но класс зарезервирован ---- */
+.marker--lost .marker__ring {
+  opacity: 0.45;
+  background: var(--state-lost);
+  border: 1px dashed var(--state-lost);
+}
+
+/* На совсем мелких экранах слегка ужимаем */
+@media (max-width: 380px) {
+  .marker__icon {
+    width: 16px;
+    height: 16px;
+  }
+}

@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="theme-color" content="#0E1116" media="(prefers-color-scheme: dark)" />
+    <meta name="theme-color" content="#F7F5F0" media="(prefers-color-scheme: light)" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+    <title>streetartmap — Томск</title>
+    <meta
+      name="description"
+      content="Карта стрит-арта Томска: муралы, граффити, инсталляции, фестивали и серии работ."
+    />
+
+    <!-- OpenGraph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="streetartmap — Томск" />
+    <meta
+      property="og:description"
+      content="Карта стрит-арта Томска: муралы, граффити, инсталляции, фестивали и серии работ."
+    />
+    <meta property="og:locale" content="ru_RU" />
+
+    <!-- Шрифты подключаем здесь, чтобы избежать FOUT.
+         Точные подсемейства подберём на этапе дизайна; пока заглушки. -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700&family=Unbounded:wght@500;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- FOUC prevention: выставляем тему до рендера -->
+    <script>
+      (function () {
+        try {
+          var stored = localStorage.getItem('streetartmap.theme');
+          var theme;
+          if (stored === 'light' || stored === 'dark') {
+            theme = stored;
+          } else {
+            theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+          }
+          document.documentElement.dataset.theme = theme;
+        } catch (e) {
+          /* localStorage недоступен — оставим светлую */
+        }
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="app"></div>
+    <script type="module" src="/src/public/main.tsx"></script>
+  </body>
+</html>

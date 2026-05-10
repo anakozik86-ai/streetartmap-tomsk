@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "city": {
+    "name": "Томск",
+    "name_en": "Tomsk",
+    "center": { "lat": 56.4847, "lng": 84.9482 },
+    "default_zoom": 13,
+    "bounds": {
+      "sw": { "lat": 56.42, "lng": 84.85 },
+      "ne": { "lat": 56.55, "lng": 85.05 }
+    }
+  },
+  "site": {
+    "title": "streetartmap — Томск",
+    "description": "Карта стрит-арта Томска: муралы, граффити, инсталляции, фестивали и серии работ.",
+    "default_locale": "ru"
+  },
+  "features": {
+    "show_lost_works_default": false,
+    "max_visible_collection_colors": 4
+  }
+}

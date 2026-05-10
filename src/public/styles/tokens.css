@@ -1,0 +1,107 @@
+/* ============================================================
+ * Design tokens — единый источник правды для цветов, теней,
+ * радиусов, типографики и motion.
+ *
+ * Базовая (светлая) тема — на :root.
+ * Тёмная тема — на [data-theme='dark'] (атрибут ставится либо
+ * inline-скриптом в index.html до рендера, либо useTheme.ts).
+ * ============================================================ */
+
+:root {
+  /* ---- цвета: поверхности и текст ---- */
+  --bg: #f7f5f0;
+  --bg-elevated: #ffffff;
+  --surface: #ffffff;
+  --surface-alt: #f0ede5;
+  --surface-hover: #ebe8df;
+
+  --text: #1a1d22;
+  --text-muted: #6b6e73;
+  --text-subtle: #9a9ea3;
+
+  --border: #e0ddd5;
+  --border-strong: #c8c4b8;
+
+  /* ---- акцент (кислотно-зелёный) ---- */
+  --accent: #b8ff3d;
+  --accent-hover: #a8f02e;
+  --accent-active: #98e01e;
+  --accent-text: #0e1116; /* тёмный текст на акценте */
+
+  /* ---- семантические состояния ---- */
+  --state-damaged: #e8a338;
+  --state-lost: #8a8e94;
+
+  /* ---- тени ---- */
+  --shadow-sm: 0 1px 2px rgb(0 0 0 / 0.06);
+  --shadow-md: 0 2px 8px rgb(0 0 0 / 0.08), 0 1px 2px rgb(0 0 0 / 0.04);
+  --shadow-lg: 0 8px 32px rgb(0 0 0 / 0.12), 0 2px 6px rgb(0 0 0 / 0.06);
+  --shadow-popup: 0 12px 48px rgb(0 0 0 / 0.16), 0 4px 12px rgb(0 0 0 / 0.08);
+
+  /* ---- радиусы ---- */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 18px;
+  --radius-pill: 9999px;
+
+  /* ---- шрифты ---- */
+  --font-body:
+    'Onest', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --font-display:
+    'Unbounded', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+
+  /* ---- motion ---- */
+  --ease-out: cubic-bezier(0.32, 0.72, 0, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --duration-fast: 120ms;
+  --duration-base: 200ms;
+  --duration-slow: 320ms;
+
+  /* ---- z-index слои ---- */
+  --z-map: 1;
+  --z-overlay: 100;
+  --z-header: 1000;
+  --z-popup: 2000;
+  --z-modal: 3000;
+
+  /* ---- safe-area для notch / home indicator ---- */
+  --safe-top: env(safe-area-inset-top, 0);
+  --safe-right: env(safe-area-inset-right, 0);
+  --safe-bottom: env(safe-area-inset-bottom, 0);
+  --safe-left: env(safe-area-inset-left, 0);
+}
+
+[data-theme='dark'] {
+  --bg: #0e1116;
+  --bg-elevated: #161a20;
+  --surface: #161a20;
+  --surface-alt: #1f242c;
+  --surface-hover: #262c35;
+
+  --text: #e8e8e5;
+  --text-muted: #8a8e94;
+  --text-subtle: #5e6168;
+
+  --border: #2a2f38;
+  --border-strong: #3a4049;
+
+  --accent: #b8ff3d;
+  --accent-hover: #c5ff5a;
+  --accent-active: #d2ff77;
+  --accent-text: #0e1116;
+
+  --state-damaged: #f0b045;
+  --state-lost: #6b6e73;
+
+  --shadow-sm: 0 1px 2px rgb(0 0 0 / 0.3);
+  --shadow-md: 0 2px 8px rgb(0 0 0 / 0.4), 0 1px 2px rgb(0 0 0 / 0.2);
+  --shadow-lg: 0 8px 32px rgb(0 0 0 / 0.5), 0 2px 6px rgb(0 0 0 / 0.25);
+  --shadow-popup: 0 12px 48px rgb(0 0 0 / 0.6), 0 4px 12px rgb(0 0 0 / 0.3);
+}
+
+/* ---- система предпочтений по умолчанию (когда атрибут data-theme не выставлен) ---- */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) {
+    color-scheme: dark;
+  }
+}
