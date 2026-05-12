@@ -9,7 +9,6 @@
    `streetartmap-<city>`, например `streetartmap-novosibirsk`.
 
 2. **Очистите данные.** Замените содержимое:
-
    - `data/config.json` — пропишите свой город:
      ```json
      {

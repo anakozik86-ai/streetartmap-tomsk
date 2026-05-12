@@ -54,13 +54,30 @@
   color: var(--text);
   vertical-align: middle;
 }
-.admin-table tr:last-child td { border-bottom: none; }
-.admin-table tr:hover td { background: var(--surface-hover); }
-.admin-table--muted td { color: var(--text-muted); }
+.admin-table tr:last-child td {
+  border-bottom: none;
+}
+.admin-table tr:hover td {
+  background: var(--surface-hover);
+}
+.admin-table--muted td {
+  color: var(--text-muted);
+}
 
-.admin-table__id    { font-family: monospace; font-size: 0.8125rem; color: var(--text-muted); }
-.admin-table__mono  { font-family: monospace; font-size: 0.8125rem; }
-.admin-table__actions { width: 5rem; text-align: right; white-space: nowrap; }
+.admin-table__id {
+  font-family: monospace;
+  font-size: 0.8125rem;
+  color: var(--text-muted);
+}
+.admin-table__mono {
+  font-family: monospace;
+  font-size: 0.8125rem;
+}
+.admin-table__actions {
+  width: 5rem;
+  text-align: right;
+  white-space: nowrap;
+}
 
 /* Icon buttons */
 .admin-btn-icon {
@@ -71,12 +88,21 @@
   padding: 0.25rem 0.375rem;
   border-radius: var(--radius-sm);
   font-size: 0.9375rem;
-  transition: color var(--duration-fast) var(--ease-out),
-              background var(--duration-fast) var(--ease-out);
+  transition:
+    color var(--duration-fast) var(--ease-out),
+    background var(--duration-fast) var(--ease-out);
 }
-.admin-btn-icon:hover         { color: var(--text); background: var(--surface-hover); }
-.admin-btn-icon--danger:hover { color: var(--state-damaged); }
-.admin-btn-icon:disabled      { opacity: 0.4; cursor: not-allowed; }
+.admin-btn-icon:hover {
+  color: var(--text);
+  background: var(--surface-hover);
+}
+.admin-btn-icon--danger:hover {
+  color: var(--state-damaged);
+}
+.admin-btn-icon:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
 
 /* Color swatch */
 .admin-color-swatch {

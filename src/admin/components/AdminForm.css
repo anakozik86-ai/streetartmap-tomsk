@@ -4,15 +4,23 @@
   gap: 0.375rem;
   margin-bottom: 1rem;
 }
-.admin-field:last-of-type { margin-bottom: 0; }
+.admin-field:last-of-type {
+  margin-bottom: 0;
+}
 
 .admin-field__label {
   font-size: 0.8125rem;
   font-weight: 500;
   color: var(--text-muted);
 }
-.admin-field__required { color: var(--state-damaged); margin-left: 0.2em; }
-.admin-field__error    { font-size: 0.75rem; color: var(--state-damaged); }
+.admin-field__required {
+  color: var(--state-damaged);
+  margin-left: 0.2em;
+}
+.admin-field__error {
+  font-size: 0.75rem;
+  color: var(--state-damaged);
+}
 
 .admin-input,
 .admin-select,
@@ -35,10 +43,16 @@
   border-color: var(--accent);
 }
 .admin-input--error,
-.admin-select--error { border-color: var(--state-damaged); }
+.admin-select--error {
+  border-color: var(--state-damaged);
+}
 
-.admin-textarea { resize: vertical; }
-.admin-select   { cursor: pointer; }
+.admin-textarea {
+  resize: vertical;
+}
+.admin-select {
+  cursor: pointer;
+}
 
 .admin-form-actions {
   display: flex;
@@ -57,23 +71,32 @@
   font-size: 0.875rem;
   font-weight: 500;
   padding: 0.5rem 1.25rem;
-  transition: background var(--duration-fast) var(--ease-out),
-              opacity var(--duration-fast) var(--ease-out);
+  transition:
+    background var(--duration-fast) var(--ease-out),
+    opacity var(--duration-fast) var(--ease-out);
 }
-.admin-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.admin-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
 
 .admin-btn--primary {
   background: var(--accent);
   color: var(--accent-text);
 }
-.admin-btn--primary:hover:not(:disabled) { filter: brightness(0.92); }
+.admin-btn--primary:hover:not(:disabled) {
+  filter: brightness(0.92);
+}
 
 .admin-btn--ghost {
   background: transparent;
   color: var(--text-muted);
   border: 1px solid var(--border);
 }
-.admin-btn--ghost:hover:not(:disabled) { background: var(--surface-hover); color: var(--text); }
+.admin-btn--ghost:hover:not(:disabled) {
+  background: var(--surface-hover);
+  color: var(--text);
+}
 
 .admin-btn--danger {
   background: transparent;

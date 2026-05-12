@@ -28,8 +28,7 @@ export function PointPopup() {
   const photos = p.photos.slice(0, 3);
   const extraPhotos = p.photos.length - 3;
 
-  const stateLabel =
-    ru.states[p.state as keyof typeof ru.states] ?? ru.states.unknown;
+  const stateLabel = ru.states[p.state as keyof typeof ru.states] ?? ru.states.unknown;
   const stateClass = `point-popup__state point-popup__state--${p.state}`;
 
   const handleClose = () => {

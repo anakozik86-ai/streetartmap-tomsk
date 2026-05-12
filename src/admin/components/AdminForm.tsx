@@ -12,7 +12,8 @@ export function Field({ label, error, required, children }: FieldProps): JSX.Ele
   return (
     <div class={`admin-field${error ? ' admin-field--error' : ''}`}>
       <label class="admin-field__label">
-        {label}{required && <span class="admin-field__required">*</span>}
+        {label}
+        {required && <span class="admin-field__required">*</span>}
       </label>
       {children}
       {error && <span class="admin-field__error">{error}</span>}
@@ -46,14 +47,11 @@ export function Select({ error, class: cls, children, ...rest }: SelectProps): J
   );
 }
 
-export function Textarea({ class: cls, ...rest }: JSX.HTMLAttributes<HTMLTextAreaElement>): JSX.Element {
-  return (
-    <textarea
-      class={`admin-textarea${cls ? ` ${String(cls)}` : ''}`}
-      rows={4}
-      {...rest}
-    />
-  );
+export function Textarea({
+  class: cls,
+  ...rest
+}: JSX.HTMLAttributes<HTMLTextAreaElement>): JSX.Element {
+  return <textarea class={`admin-textarea${cls ? ` ${String(cls)}` : ''}`} rows={4} {...rest} />;
 }
 
 interface FormActionsProps {

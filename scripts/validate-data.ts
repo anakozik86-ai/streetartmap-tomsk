@@ -323,7 +323,10 @@ function checkUnique<T extends { id: string }>(file: string, items: T[]): void {
   }
 }
 
-function geometryHashFor(pointIds: string[], coords: Map<string, { lat: number; lng: number }>): string {
+function geometryHashFor(
+  pointIds: string[],
+  coords: Map<string, { lat: number; lng: number }>,
+): string {
   const payload = pointIds
     .map((id) => {
       const c = coords.get(id);
@@ -394,7 +397,10 @@ function main(): void {
     if (p.status === 'archived') continue;
 
     if (!activeCategories.has(p.category_id))
-      err(`points.json[id=${p.id}]`, `category_id "${p.category_id}" не существует или архивирована`);
+      err(
+        `points.json[id=${p.id}]`,
+        `category_id "${p.category_id}" не существует или архивирована`,
+      );
 
     for (const cid of p.collection_ids) {
       if (!activeCollections.has(cid))
@@ -410,8 +416,7 @@ function main(): void {
     if (r.status === 'archived') continue;
 
     for (const pid of r.point_ids) {
-      if (!allPointIds.has(pid))
-        err(`routes.json[id=${r.id}]`, `point_id "${pid}" не существует`);
+      if (!allPointIds.has(pid)) err(`routes.json[id=${r.id}]`, `point_id "${pid}" не существует`);
     }
 
     // geometry_hash — мягкая проверка

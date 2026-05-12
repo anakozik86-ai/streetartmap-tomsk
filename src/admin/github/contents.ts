@@ -5,11 +5,7 @@ export interface GitHubFile {
   content: string; // base64
 }
 
-export async function getFile(
-  owner: string,
-  repo: string,
-  path: string,
-): Promise<GitHubFile> {
+export async function getFile(owner: string, repo: string, path: string): Promise<GitHubFile> {
   const data = await request<GitHubFile>(`/repos/${owner}/${repo}/contents/${path}`);
   return data;
 }

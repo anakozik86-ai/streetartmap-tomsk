@@ -36,9 +36,7 @@ export function LoginScreen() {
     <div class="login">
       <div class="login__card">
         <div class="login__logo">streetartmap</div>
-        <p class="login__hint">
-          Введи GitHub Personal Access Token с правом записи в репозиторий.
-        </p>
+        <p class="login__hint">Введи GitHub Personal Access Token с правом записи в репозиторий.</p>
         <div class="login__field">
           <input
             class={`login__input${error ? ' login__input--error' : ''}`}
@@ -53,7 +51,11 @@ export function LoginScreen() {
             spellcheck={false}
           />
         </div>
-        {error && <p class="login__error" role="alert">{error}</p>}
+        {error && (
+          <p class="login__error" role="alert">
+            {error}
+          </p>
+        )}
         <button
           class="login__btn"
           onClick={() => void handleSubmit()}

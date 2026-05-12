@@ -68,20 +68,9 @@ export interface Author extends Auditable {
 
 // ----- точки -----
 
-export type PointAccessibility =
-  | 'street'
-  | 'courtyard'
-  | 'interior'
-  | 'restricted'
-  | 'unknown';
+export type PointAccessibility = 'street' | 'courtyard' | 'interior' | 'restricted' | 'unknown';
 
-export type PointState =
-  | 'intact'
-  | 'damaged'
-  | 'restored'
-  | 'painted_over'
-  | 'removed'
-  | 'unknown';
+export type PointState = 'intact' | 'damaged' | 'restored' | 'painted_over' | 'removed' | 'unknown';
 
 export interface PointPhoto {
   filename: string; // "2025-01-15-front.webp" — базовое имя

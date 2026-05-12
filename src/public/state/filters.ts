@@ -5,10 +5,7 @@ export const activeCollections = signal<ReadonlySet<string>>(new Set());
 export const showLost = signal<boolean>(false);
 
 export const hasActiveFilters = computed(
-  () =>
-    activeCategories.value.size > 0 ||
-    activeCollections.value.size > 0 ||
-    showLost.value,
+  () => activeCategories.value.size > 0 || activeCollections.value.size > 0 || showLost.value,
 );
 
 export function resetFilters(): void {

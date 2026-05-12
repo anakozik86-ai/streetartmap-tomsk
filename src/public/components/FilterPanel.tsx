@@ -1,5 +1,11 @@
 import { useEffect, useState } from 'preact/hooks';
-import { loadCatalog, categories, collections, routes, catalogError } from '../state/catalogState.ts';
+import {
+  loadCatalog,
+  categories,
+  collections,
+  routes,
+  catalogError,
+} from '../state/catalogState.ts';
 import {
   activeCategories,
   activeCollections,
@@ -38,9 +44,7 @@ export function FilterPanel() {
     <>
       {/* ── Десктоп: боковая панель ── */}
       <aside class="filter-panel filter-panel--desktop" aria-label={ru.filters.title}>
-        {catalogError.value && (
-          <p class="filter-panel__error">{ru.filters.load_error}</p>
-        )}
+        {catalogError.value && <p class="filter-panel__error">{ru.filters.load_error}</p>}
 
         <section class="filter-panel__section">
           <p class="filter-panel__label">{ru.filters.categories}</p>
@@ -117,7 +121,9 @@ export function FilterPanel() {
             type="button"
             class={`filter-panel__item${showLost.value ? ' is-active' : ''}`}
             aria-pressed={showLost.value}
-            onClick={() => { showLost.value = !showLost.value; }}
+            onClick={() => {
+              showLost.value = !showLost.value;
+            }}
           >
             <span class="filter-panel__item-label">{ru.filters.show_lost}</span>
           </button>
@@ -152,13 +158,7 @@ export function FilterPanel() {
       </div>
 
       {/* Bottom sheet */}
-      {sheetOpen && (
-        <div
-          class="filter-sheet-backdrop"
-          onClick={closeSheet}
-          aria-hidden="true"
-        />
-      )}
+      {sheetOpen && <div class="filter-sheet-backdrop" onClick={closeSheet} aria-hidden="true" />}
       <div
         class={`filter-sheet${sheetOpen ? ' is-open' : ''}`}
         role="dialog"
@@ -173,7 +173,9 @@ export function FilterPanel() {
             <button
               type="button"
               class="filter-sheet__reset"
-              onClick={() => { resetFilters(); }}
+              onClick={() => {
+                resetFilters();
+              }}
             >
               {ru.filters.reset}
             </button>
@@ -181,9 +183,7 @@ export function FilterPanel() {
         </div>
 
         <div class="filter-sheet__body">
-          {catalogError.value && (
-            <p class="filter-panel__error">{ru.filters.load_error}</p>
-          )}
+          {catalogError.value && <p class="filter-panel__error">{ru.filters.load_error}</p>}
 
           {/* Типы */}
           <section class="filter-sheet__section">
@@ -270,7 +270,9 @@ export function FilterPanel() {
                 type="button"
                 class={`filter-sheet__chip${showLost.value ? ' is-active' : ''}`}
                 aria-pressed={showLost.value}
-                onClick={() => { showLost.value = !showLost.value; }}
+                onClick={() => {
+                  showLost.value = !showLost.value;
+                }}
               >
                 {ru.filters.show_lost}
               </button>

@@ -17,7 +17,10 @@ export function Modal({ title, onClose, children, wide }: Props): JSX.Element {
     dialogRef.current?.focus();
 
     function onKey(e: KeyboardEvent): void {
-      if (e.key === 'Escape') { onClose(); return; }
+      if (e.key === 'Escape') {
+        onClose();
+        return;
+      }
       if (e.key !== 'Tab') return;
 
       const focusable = dialogRef.current?.querySelectorAll<HTMLElement>(
@@ -25,17 +28,26 @@ export function Modal({ title, onClose, children, wide }: Props): JSX.Element {
       );
       if (!focusable?.length) return;
       const first = focusable[0];
-      const last  = focusable[focusable.length - 1];
+      const last = focusable[focusable.length - 1];
 
       if (e.shiftKey) {
-        if (document.activeElement === first) { e.preventDefault(); last.focus(); }
+        if (document.activeElement === first) {
+          e.preventDefault();
+          last.focus();
+        }
       } else {
-        if (document.activeElement === last) { e.preventDefault(); first.focus(); }
+        if (document.activeElement === last) {
+          e.preventDefault();
+          first.focus();
+        }
       }
     }
 
     window.addEventListener('keydown', onKey);
-    return () => { window.removeEventListener('keydown', onKey); prev?.focus(); };
+    return () => {
+      window.removeEventListener('keydown', onKey);
+      prev?.focus();
+    };
   }, [onClose]);
 
   return (
@@ -51,7 +63,9 @@ export function Modal({ title, onClose, children, wide }: Props): JSX.Element {
       >
         <div class="modal__header">
           <h2 class="modal__title">{title}</h2>
-          <button class="modal__close" onClick={onClose} aria-label="Закрыть">✕</button>
+          <button class="modal__close" onClick={onClose} aria-label="Закрыть">
+            ✕
+          </button>
         </div>
         <div class="modal__body">{children}</div>
       </div>

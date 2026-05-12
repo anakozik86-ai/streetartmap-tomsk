@@ -21,7 +21,9 @@
   outline: none;
 }
 
-.modal--wide { max-width: 680px; }
+.modal--wide {
+  max-width: 680px;
+}
 
 .modal__header {
   display: flex;
@@ -49,8 +51,9 @@
   padding: 0.25rem;
   line-height: 1;
   border-radius: var(--radius-sm);
-  transition: color var(--duration-fast) var(--ease-out),
-              background var(--duration-fast) var(--ease-out);
+  transition:
+    color var(--duration-fast) var(--ease-out),
+    background var(--duration-fast) var(--ease-out);
 }
 
 .modal__close:hover {
