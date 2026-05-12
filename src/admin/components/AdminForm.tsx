@@ -21,7 +21,7 @@ export function Field({ label, error, required, children }: FieldProps): JSX.Ele
   );
 }
 
-interface InputProps extends JSX.HTMLAttributes<HTMLInputElement> {
+interface InputProps extends JSX.HTMLAttributes<HTMLInputElement> { value?: string | undefined; type?: string | undefined;
   error?: boolean;
 }
 export function Input({ error, class: cls, ...rest }: InputProps): JSX.Element {
@@ -33,7 +33,7 @@ export function Input({ error, class: cls, ...rest }: InputProps): JSX.Element {
   );
 }
 
-interface SelectProps extends JSX.HTMLAttributes<HTMLSelectElement> {
+interface SelectProps extends JSX.HTMLAttributes<HTMLSelectElement> { value?: string | undefined;
   error?: boolean;
 }
 export function Select({ error, class: cls, children, ...rest }: SelectProps): JSX.Element {
