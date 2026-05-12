@@ -74,8 +74,8 @@ export function AuthorsEditor(): JSX.Element {
       name: a.name,
       bio: a.bio ?? '',
       origin: a.origin ?? '',
-      year_start: a.active_years?.start != null ? String(a.active_years.start) : '',
-      year_end: a.active_years?.end != null ? String(a.active_years.end) : '',
+      year_start: a.active_years?.start !== undefined && a.active_years?.start !== null ? String(a.active_years.start) : '',
+      year_end: a.active_years?.end !== undefined && a.active_years?.end !== null ? String(a.active_years.end) : '',
       status: a.status,
     });
     setIsNew(false);
