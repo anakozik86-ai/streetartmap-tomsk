@@ -1,0 +1,286 @@
+/* ============================================================
+ * PointPopup — боковая панель с деталями точки.
+ * Десктоп: справа, от шапки до нижнего отступа.
+ * Мобайл (≤640px): снизу, max-height 55dvh.
+ * ============================================================ */
+
+.point-popup {
+  position: absolute;
+  top: calc(1rem + var(--safe-top));
+  right: calc(1rem + var(--safe-right));
+  bottom: calc(1rem + var(--safe-bottom));
+  z-index: var(--z-popup);
+  width: 320px;
+  background: var(--surface);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-popup);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: popup-slide-in var(--duration-slow) var(--ease-spring) both;
+}
+
+@keyframes popup-slide-in {
+  from {
+    opacity: 0;
+    transform: translateX(24px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+}
+
+/* ---- Header (кнопка закрытия) ---- */
+
+.point-popup__header {
+  display: flex;
+  justify-content: flex-end;
+  padding: 0.5rem 0.5rem 0;
+  flex-shrink: 0;
+}
+
+.point-popup__close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-sm);
+  color: var(--text-muted);
+  cursor: pointer;
+  transition:
+    background-color var(--duration-fast) var(--ease-out),
+    color var(--duration-fast) var(--ease-out);
+}
+
+.point-popup__close:hover {
+  background: var(--surface-alt);
+  color: var(--text);
+}
+
+.point-popup__close svg {
+  width: 18px;
+  height: 18px;
+  stroke: currentColor;
+  stroke-linecap: round;
+}
+
+/* ---- Фото ---- */
+
+.point-popup__photos {
+  display: flex;
+  gap: 4px;
+  padding: 0.5rem 0.75rem;
+  flex-shrink: 0;
+}
+
+.point-popup__photo-wrap {
+  flex: 1 1 0;
+  min-width: 0;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  aspect-ratio: 4/3;
+  background: var(--surface-alt);
+  position: relative;
+}
+
+.point-popup__photo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* Overlay "+N" поверх третьей фотографии */
+.point-popup__photo-more {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-sm);
+  background: color-mix(in srgb, var(--text) 45%, transparent);
+  color: #ffffff;
+  font-size: 1rem;
+  font-weight: 700;
+  pointer-events: none;
+}
+
+/* ---- Body ---- */
+
+.point-popup__body {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  padding: 0.25rem 0.75rem 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.point-popup__title {
+  font-family: var(--font-display);
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1.25;
+  color: var(--text);
+  margin: 0;
+}
+
+.point-popup__description {
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+/* ---- Метаданные ---- */
+
+.point-popup__meta {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.25rem 0.75rem;
+  margin: 0;
+  font-size: 0.8125rem;
+}
+
+.point-popup__meta dt {
+  color: var(--text-subtle);
+  white-space: nowrap;
+}
+
+.point-popup__meta dd {
+  color: var(--text-muted);
+  margin: 0;
+}
+
+/* ---- Бейдж состояния ---- */
+
+.point-popup__state {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.2rem 0.6rem;
+  border-radius: var(--radius-pill);
+  font-size: 0.75rem;
+  font-weight: 600;
+  align-self: flex-start;
+}
+
+.point-popup__state--intact {
+  background: color-mix(in srgb, var(--accent) 20%, transparent);
+  color: var(--text);
+}
+
+.point-popup__state--damaged {
+  background: color-mix(in srgb, var(--state-damaged) 20%, transparent);
+  color: var(--state-damaged);
+}
+
+.point-popup__state--restored {
+  background: color-mix(in srgb, var(--accent) 15%, transparent);
+  color: var(--text-muted);
+}
+
+.point-popup__state--painted_over,
+.point-popup__state--removed,
+.point-popup__state--unknown {
+  background: var(--surface-alt);
+  color: var(--text-subtle);
+}
+
+/* ---- Секция маршрутов ---- */
+
+.point-popup__routes {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.point-popup__routes-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-subtle);
+}
+
+.point-popup__routes-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+}
+
+.point-popup__route-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  background: var(--surface-alt);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  font-size: 0.875rem;
+  font-weight: 500;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    background-color var(--duration-fast) var(--ease-out),
+    border-color var(--duration-fast) var(--ease-out),
+    color var(--duration-fast) var(--ease-out);
+}
+
+.point-popup__route-btn::before {
+  content: '';
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: var(--border-strong);
+  transition: background-color var(--duration-fast) var(--ease-out);
+}
+
+.point-popup__route-btn:hover {
+  background: var(--surface-hover);
+  border-color: var(--border-strong);
+}
+
+.point-popup__route-btn.is-active {
+  background: color-mix(in srgb, var(--accent) 15%, var(--surface));
+  border-color: var(--accent);
+  color: var(--text);
+}
+
+.point-popup__route-btn.is-active::before {
+  background: var(--accent);
+}
+
+/* ---- Мобайл ---- */
+
+@media (max-width: 640px) {
+  .point-popup {
+    top: auto;
+    right: calc(0.75rem + var(--safe-right));
+    left: calc(0.75rem + var(--safe-left));
+    bottom: calc(1rem + var(--safe-bottom));
+    width: auto;
+    max-height: 55dvh;
+    animation: popup-slide-up var(--duration-slow) var(--ease-spring) both;
+  }
+
+  @keyframes popup-slide-up {
+    from {
+      opacity: 0;
+      transform: translateY(24px) scale(0.97);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+}

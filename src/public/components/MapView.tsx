@@ -1,15 +1,16 @@
 import { useEffect, useRef } from 'preact/hooks';
-import { effect } from '@preact/signals';
+import { effect, signal } from '@preact/signals';
 import L from 'leaflet';
-import { effectiveTheme, type EffectiveTheme } from '../hooks/useTheme.ts';
+import { themeMode } from '../hooks/useTheme.ts';
 import { loadConfig } from '@shared/utils/loadConfig.ts';
-import {
-  loadCategories,
-  loadCollections,
-  loadPoints,
-} from '@shared/utils/loadData.ts';
-import type { Category, Collection, Point } from '@shared/types/index.ts';
+import { loadPoints, loadRoutes } from '@shared/utils/loadData.ts';
+import type { Point, Route } from '@shared/types/index.ts';
 import { createPointIcon, isLost } from '../markers/createMarker.ts';
+import { selectedPoint } from '../state/selectedPoint.ts';
+import { activeCategories, activeCollections, showLost } from '../state/filters.ts';
+import { activeRouteIds } from '../state/routes.ts';
+import { categories, collections } from '../state/catalogState.ts';
+import { createRouteLayer } from './RouteLayer.ts';
 
 interface TileConfig {
   url: string;
@@ -17,7 +18,7 @@ interface TileConfig {
   maxZoom: number;
 }
 
-const TILE_LAYERS: Record<EffectiveTheme, TileConfig> = {
+const TILE_LAYERS: Record<'light' | 'dark', TileConfig> = {
   light: {
     url: 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',
     subdomains: 'abcd',
@@ -30,19 +31,16 @@ const TILE_LAYERS: Record<EffectiveTheme, TileConfig> = {
   },
 };
 
-function createTileLayer(theme: EffectiveTheme): L.TileLayer {
+export const mapLoadError = signal<string | null>(null);
+
+function createTileLayer(theme: 'light' | 'dark'): L.TileLayer {
   const cfg = TILE_LAYERS[theme];
   return L.tileLayer(cfg.url, {
     subdomains: cfg.subdomains,
     maxZoom: cfg.maxZoom,
-    // Без `attribution` — атрибуцию рендерим своим контролом ниже.
   });
 }
 
-/**
- * Кастомный контрол атрибуции: круглая иконка `i`, при наведении
- * раскрывается в пилюлю со ссылками на OSM и CARTO (требование лицензий).
- */
 function createAttributionControl(): L.Control {
   const control = new L.Control({ position: 'bottomleft' });
   control.onAdd = () => {
@@ -55,39 +53,75 @@ function createAttributionControl(): L.Control {
 
     const content = L.DomUtil.create('span', 'attribution-pill__content', container);
     content.innerHTML =
-      '<a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>' +
+      '<a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OSM</a>' +
       ', ' +
       '<a href="https://carto.com/attributions" target="_blank" rel="noopener">CARTO</a>';
 
-    L.DomEvent.disableClickPropagation(container);
+    // Tap-toggle для тач-устройств (hover не работает на мобайле)
+    L.DomEvent.on(container, 'click', (e) => {
+      L.DomEvent.stopPropagation(e);
+      container.classList.toggle('is-open');
+    });
+
+    // Закрывать при клике снаружи
+    document.addEventListener('click', () => {
+      container.classList.remove('is-open');
+    });
+
     L.DomEvent.disableScrollPropagation(container);
     return container;
   };
   return control;
 }
 
-/**
- * Создаёт LayerGroup с маркерами всех «видимых» точек и добавляет на карту.
- * Видимые на 5b: status=published, не утраченные (painted_over/removed),
- * категория существует и активна.
- */
+interface FilterState {
+  activeCategories: ReadonlySet<string>;
+  activeCollections: ReadonlySet<string>;
+  showLost: boolean;
+  routePointIds: ReadonlySet<string>;
+}
+
+function matchesFilter(point: Point, filters: FilterState): boolean {
+  if (point.status !== 'published') return false;
+
+  if (filters.routePointIds.has(point.id)) {
+    if (isLost(point) && !filters.showLost) return false;
+    return true;
+  }
+
+  if (isLost(point) && !filters.showLost) return false;
+  if (filters.activeCategories.size > 0 && !filters.activeCategories.has(point.category_id))
+    return false;
+  if (
+    filters.activeCollections.size > 0 &&
+    !point.collection_ids.some((id) => filters.activeCollections.has(id))
+  )
+    return false;
+  return true;
+}
+
+function clearActiveMarker(markerById: Map<string, L.Marker>): void {
+  for (const marker of markerById.values()) {
+    marker.getElement()?.classList.remove('is-active');
+  }
+}
+
 function renderMarkers(
   map: L.Map,
   points: Point[],
-  categories: Category[],
-  collections: Collection[],
+  filters: FilterState,
   opts: { maxVisibleColors: number },
-): L.LayerGroup {
-  const categoryById = new Map<string, Category>(
-    categories.filter((c) => c.status === 'active').map((c) => [c.id, c]),
+): { layer: L.LayerGroup; markerById: Map<string, L.Marker> } {
+  const categoryById = new Map(
+    categories.value.filter((c) => c.status === 'active').map((c) => [c.id, c]),
   );
-  const collectionById = new Map<string, Collection>(collections.map((c) => [c.id, c]));
+  const collectionById = new Map(collections.value.map((c) => [c.id, c]));
 
   const layer = L.layerGroup();
+  const markerById = new Map<string, L.Marker>();
 
   for (const point of points) {
-    if (point.status !== 'published') continue;
-    if (isLost(point)) continue;
+    if (!matchesFilter(point, filters)) continue;
 
     const icon = createPointIcon(point, {
       categoryById,
@@ -96,17 +130,31 @@ function renderMarkers(
     });
     if (!icon) continue;
 
-    L.marker([point.coords.lat, point.coords.lng], {
+    const marker = L.marker([point.coords.lat, point.coords.lng], {
       icon,
       title: point.title,
       alt: point.title,
-      riseOnHover: true,
+      riseOnHover: false,
       keyboard: true,
-    }).addTo(layer);
+    });
+
+    marker.on('click', (e) => {
+      L.DomEvent.stopPropagation(e);
+      if (selectedPoint.value?.id === point.id) {
+        selectedPoint.value = null;
+      } else {
+        clearActiveMarker(markerById);
+        selectedPoint.value = point;
+        marker.getElement()?.classList.add('is-active');
+      }
+    });
+
+    marker.addTo(layer);
+    markerById.set(point.id, marker);
   }
 
   layer.addTo(map);
-  return layer;
+  return { layer, markerById };
 }
 
 export function MapView() {
@@ -119,62 +167,167 @@ export function MapView() {
     let map: L.Map | null = null;
     let tileLayer: L.TileLayer | null = null;
     let markersLayer: L.LayerGroup | null = null;
-    let disposeThemeEffect: (() => void) | undefined;
+    let markerById = new Map<string, L.Marker>();
+    const routeLayers = new Map<string, L.LayerGroup>();
+    let allPoints: Point[] = [];
+    let allRoutes: Route[] = [];
+    let maxVisibleColors = 4;
+    const disposeEffects: Array<() => void> = [];
     let cancelled = false;
 
+    const handleEsc = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') selectedPoint.value = null;
+    };
+    window.addEventListener('keydown', handleEsc);
+
     (async () => {
-      const [config, categories, collections, points] = await Promise.all([
-        loadConfig(),
-        loadCategories(),
-        loadCollections(),
-        loadPoints(),
-      ]);
-      if (cancelled) return;
+      try {
+        const [config, points, routes] = await Promise.all([
+          loadConfig(),
+          loadPoints(),
+          loadRoutes(),
+        ]);
+        if (cancelled) return;
 
-      const bounds = config.city.bounds
-        ? L.latLngBounds(
-            [config.city.bounds.sw.lat, config.city.bounds.sw.lng],
-            [config.city.bounds.ne.lat, config.city.bounds.ne.lng],
-          )
-        : undefined;
-
-      map = L.map(container, {
-        center: [config.city.center.lat, config.city.center.lng],
-        zoom: config.city.default_zoom,
-        zoomControl: false,
-        attributionControl: false,
-        ...(bounds ? { maxBounds: bounds, maxBoundsViscosity: 1.0 } : {}),
-        minZoom: 11,
-      });
-
-      createAttributionControl().addTo(map);
-      L.control.zoom({ position: 'bottomright' }).addTo(map);
-
-      tileLayer = createTileLayer(effectiveTheme.value);
-      tileLayer.addTo(map);
-
-      markersLayer = renderMarkers(map, points, categories, collections, {
-        maxVisibleColors: config.features.max_visible_collection_colors,
-      });
-
-      disposeThemeEffect = effect(() => {
-        const theme = effectiveTheme.value;
-        if (!map) return;
-        if (tileLayer) {
-          map.removeLayer(tileLayer);
+        allPoints = points;
+        allRoutes = routes;
+        maxVisibleColors = config.features.max_visible_collection_colors;
+        if (config.features.show_lost_works_default && !showLost.value) {
+          showLost.value = true;
         }
-        tileLayer = createTileLayer(theme);
+
+        const bounds = config.city.bounds
+          ? L.latLngBounds(
+              [config.city.bounds.sw.lat, config.city.bounds.sw.lng],
+              [config.city.bounds.ne.lat, config.city.bounds.ne.lng],
+            )
+          : undefined;
+
+        map = L.map(container, {
+          center: [config.city.center.lat, config.city.center.lng],
+          zoom: config.city.default_zoom,
+          zoomControl: false,
+          attributionControl: false,
+          ...(bounds ? { maxBounds: bounds, maxBoundsViscosity: 1.0 } : {}),
+          minZoom: 11,
+          zoomSnap: 0.5,
+          zoomDelta: 0.5,
+          wheelPxPerZoomLevel: 100,
+        });
+
+        createAttributionControl().addTo(map);
+        L.control.zoom({ position: 'bottomright' }).addTo(map);
+
+        tileLayer = createTileLayer(themeMode.value);
         tileLayer.addTo(map);
-      });
+
+        map.on('click', () => {
+          selectedPoint.value = null;
+        });
+
+        const rebuildMarkers = () => {
+          if (!map) return;
+          markersLayer?.remove();
+
+          const routePointIds = new Set<string>();
+          for (const routeId of activeRouteIds.value) {
+            const route = allRoutes.find((r) => r.id === routeId && r.status === 'published');
+            if (route) {
+              for (const pid of route.point_ids) routePointIds.add(pid);
+            }
+          }
+
+          const filters: FilterState = {
+            activeCategories: activeCategories.value,
+            activeCollections: activeCollections.value,
+            showLost: showLost.value,
+            routePointIds,
+          };
+          const result = renderMarkers(map, allPoints, filters, { maxVisibleColors });
+          markersLayer = result.layer;
+          markerById = result.markerById;
+
+          const sp = selectedPoint.value;
+          if (sp && !matchesFilter(sp, filters)) {
+            selectedPoint.value = null;
+          }
+        };
+
+        disposeEffects.push(
+          effect(() => {
+            void activeCategories.value;
+            void activeCollections.value;
+            void showLost.value;
+            void activeRouteIds.value;
+            rebuildMarkers();
+          }),
+        );
+
+        disposeEffects.push(
+          effect(() => {
+            if (selectedPoint.value === null) {
+              clearActiveMarker(markerById);
+            }
+          }),
+        );
+
+        disposeEffects.push(
+          effect(() => {
+            if (!map) return;
+            const ids = activeRouteIds.value;
+
+            for (const [id, layer] of routeLayers) {
+              if (!ids.has(id)) {
+                layer.remove();
+                routeLayers.delete(id);
+              }
+            }
+
+            const pointsById = new Map(allPoints.map((p) => [p.id, p]));
+            for (const id of ids) {
+              if (routeLayers.has(id)) continue;
+              const route = allRoutes.find((r) => r.id === id && r.status === 'published');
+              if (!route) continue;
+              const layer = createRouteLayer({ map: map!, route, pointsById });
+              routeLayers.set(id, layer);
+            }
+          }),
+        );
+
+        disposeEffects.push(
+          effect(() => {
+            const theme = themeMode.value;
+            if (!map) return;
+            if (tileLayer) map.removeLayer(tileLayer);
+            tileLayer = createTileLayer(theme);
+            tileLayer.addTo(map);
+          }),
+        );
+      } catch (e) {
+        if (!cancelled) {
+          mapLoadError.value = e instanceof Error ? e.message : 'Ошибка загрузки карты';
+        }
+      }
     })();
 
     return () => {
       cancelled = true;
-      disposeThemeEffect?.();
+      window.removeEventListener('keydown', handleEsc);
+      disposeEffects.forEach((d) => d());
+      for (const layer of routeLayers.values()) layer.remove();
       markersLayer?.remove();
       map?.remove();
     };
   }, []);
 
-  return <div ref={containerRef} class="map" />;
+  return (
+    <>
+      <div ref={containerRef} class="map" />
+      {mapLoadError.value && (
+        <div class="map__error" role="alert">
+          {mapLoadError.value}
+        </div>
+      )}
+    </>
+  );
 }

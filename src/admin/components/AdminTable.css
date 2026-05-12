@@ -1,0 +1,90 @@
+.cat-editor__toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.25rem;
+}
+
+.cat-editor__heading {
+  font-family: var(--font-display);
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--text);
+  margin: 0;
+}
+
+.cat-editor__save-error {
+  background: color-mix(in srgb, var(--state-damaged) 12%, transparent);
+  border: 1px solid var(--state-damaged);
+  border-radius: var(--radius-sm);
+  color: var(--state-damaged);
+  font-size: 0.8125rem;
+  padding: 0.5rem 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.cat-editor__archived {
+  margin-top: 1.5rem;
+}
+.cat-editor__archived summary {
+  cursor: pointer;
+  font-size: 0.8125rem;
+  color: var(--text-muted);
+  padding: 0.25rem 0;
+  user-select: none;
+}
+
+/* Admin table */
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+.admin-table th {
+  text-align: left;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  padding: 0.375rem 0.75rem;
+  border-bottom: 1px solid var(--border);
+}
+.admin-table td {
+  padding: 0.625rem 0.75rem;
+  border-bottom: 1px solid var(--border);
+  color: var(--text);
+  vertical-align: middle;
+}
+.admin-table tr:last-child td { border-bottom: none; }
+.admin-table tr:hover td { background: var(--surface-hover); }
+.admin-table--muted td { color: var(--text-muted); }
+
+.admin-table__id    { font-family: monospace; font-size: 0.8125rem; color: var(--text-muted); }
+.admin-table__mono  { font-family: monospace; font-size: 0.8125rem; }
+.admin-table__actions { width: 5rem; text-align: right; white-space: nowrap; }
+
+/* Icon buttons */
+.admin-btn-icon {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-muted);
+  padding: 0.25rem 0.375rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.9375rem;
+  transition: color var(--duration-fast) var(--ease-out),
+              background var(--duration-fast) var(--ease-out);
+}
+.admin-btn-icon:hover         { color: var(--text); background: var(--surface-hover); }
+.admin-btn-icon--danger:hover { color: var(--state-damaged); }
+.admin-btn-icon:disabled      { opacity: 0.4; cursor: not-allowed; }
+
+/* Color swatch */
+.admin-color-swatch {
+  display: inline-block;
+  width: 1rem;
+  height: 1rem;
+  border-radius: 3px;
+  vertical-align: middle;
+  margin-right: 0.375rem;
+  border: 1px solid var(--border);
+}

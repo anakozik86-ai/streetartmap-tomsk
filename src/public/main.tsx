@@ -7,6 +7,8 @@ import './styles/base.css';
 import './styles/map.css';
 import './styles/markers.css';
 import './styles/app.css';
+import './components/FilterPanel.css';
+import './components/PointPopup.css';
 
 // Инициализируем тему (импорт инициализирует signals и подписки)
 import './hooks/useTheme.ts';

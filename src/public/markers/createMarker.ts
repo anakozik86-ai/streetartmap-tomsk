@@ -5,8 +5,9 @@ import { renderIconSvg, resolveIcon } from './icons.ts';
 export const MARKER_SIZE = 36;
 
 /**
- * Признак «утраченной» работы — для таких маркеров на 5b мы возвращаем null
- * (они не рендерятся до появления переключателя на 5d).
+ * Признак «утраченной» работы.
+ * Решение о том, рендерить ли утраченную точку — на стороне вызывающего кода (MapView).
+ * Здесь только определение факта.
  */
 export function isLost(point: Point): boolean {
   return point.state === 'painted_over' || point.state === 'removed';
@@ -21,19 +22,17 @@ export interface MarkerBuildContext {
 
 /**
  * Построить Leaflet divIcon для точки.
- * Возвращает null, если точку показывать не нужно (на 5b — утраченная или
- * без активной категории).
+ * Возвращает null только если категория не найдена или неактивна.
+ * Утраченные точки рендерятся с классом marker--lost — видимость управляется в MapView.
  */
 export function createPointIcon(point: Point, ctx: MarkerBuildContext): L.DivIcon | null {
-  if (isLost(point)) return null;
-
   const category = ctx.categoryById.get(point.category_id);
   if (!category) return null;
 
+  const lost = isLost(point);
   const ringStyle = ringBackground(point, ctx);
   const iconSvg = renderIconSvg(resolveIcon(category.icon), 'marker__icon');
 
-  // НЕ ставим обработчики — это 5c. Пока только разметка и hover (через CSS).
   const html =
     `<div class="marker__ring"${ringStyle ? ` style="${ringStyle}"` : ''}>` +
     `<div class="marker__inner">${iconSvg}</div>` +
@@ -42,7 +41,7 @@ export function createPointIcon(point: Point, ctx: MarkerBuildContext): L.DivIco
 
   const classes = ['marker'];
   if (point.state === 'damaged') classes.push('marker--damaged');
-  if (isLost(point)) classes.push('marker--lost'); // зарезервировано для 5d
+  if (lost) classes.push('marker--lost');
 
   return L.divIcon({
     html,
@@ -78,7 +77,6 @@ function collectionColors(point: Point, ctx: MarkerBuildContext): string[] {
     .filter((c): c is Collection => c !== undefined && c.status === 'active');
 
   resolved.sort((a, b) => {
-    // year_start ASC, отсутствующий — в конец
     const ay = a.year_start ?? Number.POSITIVE_INFINITY;
     const by = b.year_start ?? Number.POSITIVE_INFINITY;
     if (ay !== by) return ay - by;
@@ -90,7 +88,6 @@ function collectionColors(point: Point, ctx: MarkerBuildContext): string[] {
 
 /**
  * Маленький треугольник-предупреждение в правом нижнем углу маркера.
- * Цвета — через CSS-классы, чтобы корректно переключаться по теме.
  */
 function warnSvg(): string {
   return (

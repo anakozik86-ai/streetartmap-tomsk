@@ -1,1 +1,32 @@
-[]
+[
+  {
+    "id": "tomsk-center-walk",
+    "status": "published",
+    "name": "По центру Томска",
+    "description": "Прогулочный маршрут по центральным улицам города — от площади Ленина до Воскресенской горы.",
+    "point_ids": ["lenina-mural-1", "novosobornaya-paste-1", "voskresenskaya-sculpture-1"],
+    "geometry": null,
+    "geometry_hash": "9f85a59c7c07fe779839e9d715be59fa0b4b46c77eaf69a5c4b12fb65ed1b013",
+    "total_distance_m": 1200,
+    "total_duration_s": 900,
+    "created_at": "2025-01-01T00:00:00.000Z",
+    "updated_at": "2025-01-01T00:00:00.000Z",
+    "created_by": "system",
+    "updated_by": "system"
+  },
+  {
+    "id": "tomsk-south-walk",
+    "status": "published",
+    "name": "Южный маршрут",
+    "description": "От района ТГУ через Лагерный сад к Новособорной площади.",
+    "point_ids": ["tsu-graffiti-1", "lagernyy-stencil-1", "novosobornaya-paste-1"],
+    "geometry": null,
+    "geometry_hash": "e756bb9f7aed368f089d147ef304895cf88ac9424ed3faf026e5a77ac3657319",
+    "total_distance_m": 2800,
+    "total_duration_s": 2100,
+    "created_at": "2025-01-01T00:00:00.000Z",
+    "updated_at": "2025-01-01T00:00:00.000Z",
+    "created_by": "system",
+    "updated_by": "system"
+  }
+]

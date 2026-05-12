@@ -13,8 +13,12 @@
 
 /* ---- Кастомная атрибуция: круг с `i`, разворачивается при наведении ---- */
 .leaflet-bottom.leaflet-left {
-  margin-bottom: calc(0.75rem + var(--safe-bottom));
-  margin-left: calc(0.75rem + var(--safe-left));
+  margin-bottom: calc(1rem + var(--safe-bottom));
+  margin-left: calc(1rem + var(--safe-left));
+}
+
+.leaflet-bottom.leaflet-left .leaflet-control {
+  margin: 0;
 }
 
 .attribution-pill {
@@ -34,8 +38,9 @@
 }
 
 .attribution-pill:hover,
-.attribution-pill:focus-within {
-  max-width: 320px;
+.attribution-pill:focus-within,
+.attribution-pill.is-open {
+  max-width: 220px;
 }
 
 .attribution-pill__icon {
@@ -63,7 +68,8 @@
 }
 
 .attribution-pill:hover .attribution-pill__content,
-.attribution-pill:focus-within .attribution-pill__content {
+.attribution-pill:focus-within .attribution-pill__content,
+.attribution-pill.is-open .attribution-pill__content {
   opacity: 1;
 }
 
@@ -79,13 +85,21 @@
 }
 
 /* ---- Контролы зума ---- */
+.leaflet-bottom.leaflet-right {
+  margin-bottom: calc(1rem + var(--safe-bottom));
+  margin-right: calc(1rem + var(--safe-right));
+}
+
+.leaflet-bottom.leaflet-right .leaflet-control {
+  margin: 0;
+}
+
 .leaflet-control-zoom {
   border: none !important;
   box-shadow: var(--shadow-md) !important;
   border-radius: var(--radius-md) !important;
   overflow: hidden;
-  margin-bottom: calc(0.75rem + var(--safe-bottom)) !important;
-  margin-right: calc(0.75rem + var(--safe-right)) !important;
+  margin: 0 !important;
 }
 
 .leaflet-control-zoom a {
@@ -138,3 +152,19 @@
 .leaflet-dragging .leaflet-grab {
   cursor: grabbing;
 }
+
+/* ---- Ошибка загрузки данных ---- */
+.map__error {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--surface);
+  color: var(--text-muted);
+  font-size: 0.9375rem;
+  z-index: 1000;
+  pointer-events: none;
+}
+
+

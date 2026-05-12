@@ -1,0 +1,86 @@
+.dashboard {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  background: var(--bg);
+  color: var(--text);
+}
+
+.dashboard__header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0 1.5rem;
+  height: 3.25rem;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-elevated);
+  flex-shrink: 0;
+}
+
+.dashboard__logo {
+  font-family: var(--font-display);
+  font-size: 0.875rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--text);
+  white-space: nowrap;
+  margin-right: 0.5rem;
+}
+
+.dashboard__nav {
+  display: flex;
+  gap: 0.25rem;
+  flex: 1;
+}
+
+.dashboard__nav-btn {
+  background: none;
+  border: none;
+  border-radius: var(--radius-sm);
+  color: var(--text-muted);
+  cursor: pointer;
+  font-family: var(--font-body);
+  font-size: 0.875rem;
+  padding: 0.375rem 0.75rem;
+  transition: color var(--duration-fast) var(--ease-out),
+              background var(--duration-fast) var(--ease-out);
+}
+.dashboard__nav-btn:hover     { color: var(--text); background: var(--surface-hover); }
+.dashboard__nav-btn.is-active { color: var(--text); background: var(--surface-alt); font-weight: 500; }
+
+.dashboard__logout {
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text-muted);
+  cursor: pointer;
+  font-family: var(--font-body);
+  font-size: 0.8125rem;
+  padding: 0.3125rem 0.75rem;
+  transition: color var(--duration-fast) var(--ease-out),
+              border-color var(--duration-fast) var(--ease-out);
+}
+.dashboard__logout:hover { color: var(--text); border-color: var(--border-strong); }
+
+.dashboard__main {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1.5rem 2rem;
+}
+
+.dashboard__loader,
+.dashboard__stub {
+  font-size: 0.9375rem;
+  color: var(--text-muted);
+  padding: 2rem 0;
+}
+
+.dashboard__error {
+  color: var(--state-damaged);
+  padding: 2rem 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  align-items: flex-start;
+}
+.dashboard__error p { margin: 0; font-size: 0.9375rem; }

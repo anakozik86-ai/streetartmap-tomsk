@@ -1,7 +1,6 @@
 import { signal, effect } from '@preact/signals';
 
 export type ThemeMode = 'light' | 'dark';
-export type EffectiveTheme = 'light' | 'dark';
 
 const STORAGE_KEY = 'streetartmap.theme';
 
@@ -24,13 +23,9 @@ function loadStoredMode(): ThemeMode {
 /** Активный режим темы (выбор пользователя). */
 export const themeMode = signal<ThemeMode>(loadStoredMode());
 
-/** Реальная применённая тема — для двухрежимного toggle совпадает с themeMode. */
-export const effectiveTheme = signal<EffectiveTheme>(themeMode.value);
-
 // Применение к <html> и сохранение выбора
 effect(() => {
   const mode = themeMode.value;
-  effectiveTheme.value = mode;
   document.documentElement.dataset.theme = mode;
   try {
     localStorage.setItem(STORAGE_KEY, mode);
