@@ -74,8 +74,8 @@ export function CollectionsEditor(): JSX.Element {
       name: c.name,
       color: c.color,
       description: c.description ?? '',
-      year_start: c.year_start != null ? String(c.year_start) : '',
-      year_end: c.year_end != null ? String(c.year_end) : '',
+      year_start: c.year_start !== undefined && c.year_start !== null ? String(c.year_start) : '',
+      year_end: c.year_end !== undefined && c.year_end !== null ? String(c.year_end) : '',
       organizer_or_author: c.organizer_or_author ?? '',
       status: c.status,
     });
