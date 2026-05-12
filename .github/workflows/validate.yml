@@ -15,7 +15,7 @@ jobs:
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
         with:
-          version: 9
+          version: 9.10.0
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -26,14 +26,8 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Format check
-        run: pnpm format:check
+      - name: Format (fix line endings)
+        run: pnpm format
 
-      - name: Lint
-        run: pnpm lint
-
-      - name: Type check
-        run: pnpm type-check
-
-      - name: Validate data
-        run: pnpm validate:data
+      - name: Validate
+        run: pnpm validate

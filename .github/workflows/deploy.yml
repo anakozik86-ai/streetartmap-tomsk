@@ -38,6 +38,9 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Format (fix line endings)
+        run: pnpm format
+
       - name: Validate (types, lint, data)
         run: pnpm validate
 
