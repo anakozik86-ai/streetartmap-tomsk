@@ -19,7 +19,7 @@ import {
 
 type Attrs = Readonly<Record<string, string | number>>;
 // Узел modern-формата: [tag, attrs, children?]
-type IconNode = readonly [string, Attrs, readonly IconNode[]?];
+type IconNode = readonly [string, Attrs, ReadonlyArray<IconNode> | undefined];
 
 const REGISTRY: Readonly<Record<string, unknown>> = {
   paintbrush: Paintbrush,
@@ -39,14 +39,15 @@ export function resolveIcon(name: string): IconNode {
 }
 
 export function renderIconSvg(icon: IconNode, className: string): string {
-  const [, rootAttrs, children = []] = icon;
+  const [, rootAttrs, children] = icon;
+  const safeChildren = children ?? [];
   const attrs = serializeAttrs({
     ...rootAttrs,
     class: className,
     'aria-hidden': 'true',
     focusable: 'false',
   });
-  const inner = children.map(renderNode).join('');
+  const inner = safeChildren.map(renderNode).join('');
   return `<svg ${attrs}>${inner}</svg>`;
 }
 

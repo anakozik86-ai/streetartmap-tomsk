@@ -115,7 +115,7 @@ export function CategoriesEditor(): JSX.Element {
       id: editing.id.trim(),
       name: editing.name.trim(),
       icon: editing.icon,
-      description: editing.description.trim() || undefined,
+      ...(editing.description.trim() ? { description: editing.description.trim() } : {}),
       order: Number(editing.order),
       status: editing.status,
       created_at: existing?.created_at ?? timestamp,

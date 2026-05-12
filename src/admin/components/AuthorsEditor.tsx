@@ -74,8 +74,8 @@ export function AuthorsEditor(): JSX.Element {
       name: a.name,
       bio: a.bio ?? '',
       origin: a.origin ?? '',
-      year_start: a.active_years?.start !== undefined && a.active_years?.start !== null ? String(a.active_years.start) : '',
-      year_end: a.active_years?.end !== undefined && a.active_years?.end !== null ? String(a.active_years.end) : '',
+      year_start: a.active_years?.start != null ? String(a.active_years.start) : '',
+      year_end: a.active_years?.end != null ? String(a.active_years.end) : '',
       status: a.status,
     });
     setIsNew(false);
@@ -110,14 +110,16 @@ export function AuthorsEditor(): JSX.Element {
       id: editing.id.trim(),
       name: editing.name.trim(),
       status: editing.status,
-      bio: editing.bio.trim() || undefined,
-      origin: editing.origin.trim() || undefined,
-      active_years: hasYears
+      ...(editing.bio.trim() ? { bio: editing.bio.trim() } : {}),
+      ...(editing.origin.trim() ? { origin: editing.origin.trim() } : {}),
+      ...(hasYears
         ? {
-            start: editing.year_start ? Number(editing.year_start) : undefined,
-            end: editing.year_end ? Number(editing.year_end) : undefined,
+            active_years: {
+              ...(editing.year_start ? { start: Number(editing.year_start) } : {}),
+              ...(editing.year_end ? { end: Number(editing.year_end) } : {}),
+            },
           }
-        : undefined,
+        : {}),
       created_at: existing?.created_at ?? timestamp,
       updated_at: timestamp,
       created_by: existing?.created_by ?? login,

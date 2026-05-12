@@ -3,8 +3,8 @@ import './AdminForm.css';
 
 interface FieldProps {
   label: string;
-  error?: string;
-  required?: boolean;
+  error?: string | undefined;
+  required?: boolean | undefined;
   children: ComponentChildren;
 }
 

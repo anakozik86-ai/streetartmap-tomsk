@@ -1,4 +1,4 @@
-import { type ComponentChildren } from 'preact';
+import { type ComponentChildren, type JSX } from 'preact';
 import { useEffect, useRef } from 'preact/hooks';
 import './Modal.css';
 
@@ -29,6 +29,7 @@ export function Modal({ title, onClose, children, wide }: Props): JSX.Element {
       if (!focusable?.length) return;
       const first = focusable[0];
       const last = focusable[focusable.length - 1];
+      if (!first || !last) return;
 
       if (e.shiftKey) {
         if (document.activeElement === first) {

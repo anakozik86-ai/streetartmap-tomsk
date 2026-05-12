@@ -66,7 +66,7 @@ async function saveFile<T>(
       repoName.value,
       `data/${filename}`,
       next as unknown[],
-      shaCache[filename],
+      shaCache[filename] ?? '',
       commitMsg,
     );
     // обновляем sha после успешного PUT
