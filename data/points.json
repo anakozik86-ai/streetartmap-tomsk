@@ -2,16 +2,27 @@
   {
     "id": "lenina-mural-1",
     "status": "published",
-    "coords": { "lat": 56.49585, "lng": 84.97351 },
+    "coords": {
+      "lat": 56.49585,
+      "lng": 84.97351
+    },
     "address_hint": "Площадь Ленина, торец дома",
     "accessibility": "street",
     "category_id": "mural",
-    "collection_ids": ["street-vision-2023"],
-    "tags": ["центр", "крупная-форма"],
+    "collection_ids": [
+      "street-vision-2023"
+    ],
+    "tags": [
+      "центр",
+      "крупная-форма"
+    ],
     "title": "Мурал на пл. Ленина",
     "description": "Тестовая точка: крупная стенопись в центре города.",
     "year_created": 2023,
-    "materials": ["акрил", "фасадная краска"],
+    "materials": [
+      "акрил",
+      "фасадная краска"
+    ],
     "state": "intact",
     "photos": [],
     "featured": true,
@@ -23,16 +34,27 @@
   {
     "id": "tsu-graffiti-1",
     "status": "published",
-    "coords": { "lat": 56.46905, "lng": 84.94778 },
+    "coords": {
+      "lat": 56.46905,
+      "lng": 84.94778
+    },
     "address_hint": "Район ТГУ, гаражи",
     "accessibility": "courtyard",
     "category_id": "graffiti",
-    "collection_ids": ["tomsk-portraits", "street-vision-2023"],
-    "tags": ["портрет", "цвет"],
+    "collection_ids": [
+      "tomsk-portraits",
+      "street-vision-2023"
+    ],
+    "tags": [
+      "портрет",
+      "цвет"
+    ],
     "title": "Граффити-портрет у ТГУ",
     "description": "Тестовая точка: проверка conic-gradient (две коллекции).",
     "year_created": 2023,
-    "materials": ["аэрозоль"],
+    "materials": [
+      "аэрозоль"
+    ],
     "state": "intact",
     "photos": [],
     "featured": false,
@@ -44,16 +66,24 @@
   {
     "id": "lagernyy-stencil-1",
     "status": "published",
-    "coords": { "lat": 56.45660, "lng": 84.93410 },
+    "coords": {
+      "lat": 56.4566,
+      "lng": 84.9341
+    },
     "address_hint": "Лагерный сад, бетонный парапет",
     "accessibility": "street",
     "category_id": "stencil",
     "collection_ids": [],
-    "tags": ["трафарет"],
+    "tags": [
+      "трафарет"
+    ],
     "title": "Трафарет в Лагерном саду",
     "description": "Тестовая точка: state=damaged для проверки треугольника-предупреждения.",
     "year_created": 2022,
-    "materials": ["аэрозоль", "картон"],
+    "materials": [
+      "аэрозоль",
+      "картон"
+    ],
     "state": "damaged",
     "state_checked_at": "2024-08-15T00:00:00.000Z",
     "photos": [],
@@ -66,17 +96,28 @@
   {
     "id": "voskresenskaya-sculpture-1",
     "status": "published",
-    "coords": { "lat": 56.50100, "lng": 84.97100 },
+    "coords": {
+      "lat": 56.501,
+      "lng": 84.971
+    },
     "address_hint": "Воскресенская гора, сквер",
     "accessibility": "street",
     "category_id": "sculpture",
-    "collection_ids": ["tomsk-portraits"],
-    "tags": ["объект", "дерево"],
+    "collection_ids": [
+      "tomsk-portraits"
+    ],
+    "tags": [
+      "объект",
+      "дерево"
+    ],
     "title": "Деревянная скульптура на Воскресенской",
     "description": "Тестовая точка: одна коллекция → одинарная обводка.",
     "year_created": 2021,
     "dimensions": "180×60×60 см",
-    "materials": ["сосна", "пропитка"],
+    "materials": [
+      "сосна",
+      "пропитка"
+    ],
     "state": "intact",
     "photos": [],
     "featured": false,
@@ -88,16 +129,24 @@
   {
     "id": "novosobornaya-paste-1",
     "status": "published",
-    "coords": { "lat": 56.47753, "lng": 84.95710 },
+    "coords": {
+      "lat": 56.47753,
+      "lng": 84.9571
+    },
     "address_hint": "Новособорная площадь, переход",
     "accessibility": "street",
     "category_id": "paste-up",
     "collection_ids": [],
-    "tags": ["плакат"],
+    "tags": [
+      "плакат"
+    ],
     "title": "Паста-ап у Новособорной",
     "description": "Тестовая точка: без коллекций, нейтральная обводка.",
     "year_created": 2024,
-    "materials": ["бумага", "клейстер"],
+    "materials": [
+      "бумага",
+      "клейстер"
+    ],
     "state": "intact",
     "photos": [],
     "featured": false,
@@ -105,5 +154,35 @@
     "updated_at": "2025-01-01T00:00:00.000Z",
     "created_by": "system",
     "updated_by": "system"
+  },
+  {
+    "created_at": "2026-05-13T06:13:27.088Z",
+    "created_by": "dbblqp-droid",
+    "updated_at": "2026-05-13T06:13:27.088Z",
+    "updated_by": "dbblqp-droid",
+    "id": "-",
+    "status": "published",
+    "coords": {
+      "lat": 56.4884,
+      "lng": 84.9481
+    },
+    "accessibility": "street",
+    "category_id": "sculpture",
+    "collection_ids": [],
+    "tags": [
+      "филинки здесь"
+    ],
+    "title": "сабачья пасека",
+    "description": "капец жесть че",
+    "materials": [
+      "финики"
+    ],
+    "state": "intact",
+    "photos": [],
+    "featured": false,
+    "address_hint": "улица сабачий край",
+    "dimensions": "6x9",
+    "state_checked_at": "0002-02-23T00:00:00.000Z",
+    "year_created": 1984
   }
 ]
