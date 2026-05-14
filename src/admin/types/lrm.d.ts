@@ -1,4 +1,4 @@
-import type * as L from 'leaflet';
+﻿import type * as L from 'leaflet';
 
 declare module 'leaflet' {
   namespace Routing {
@@ -30,7 +30,11 @@ declare module 'leaflet' {
       addWaypoints?: boolean;
       routeWhileDragging?: boolean;
       fitSelectedRoutes?: boolean;
-      lineOptions?: { styles: Array<Record<string, unknown>>; extendToWaypoints?: boolean; missingRouteTolerance?: number };
+      lineOptions?: {
+        styles: Array<Record<string, unknown>>;
+        extendToWaypoints?: boolean;
+        missingRouteTolerance?: number;
+      };
       createMarker?: (i: number, wp: Waypoint, n: number) => L.Marker | false;
     }
 
@@ -42,7 +46,7 @@ declare module 'leaflet' {
         waypointsToRemove: number,
         ...waypoints: (L.LatLng | Waypoint)[]
       ): Waypoint[];
-      on(event: string, handler: (e: unknown) => void): this;
+      on(event: string, handler?: (e: unknown) => void): this;
       off(event: string, handler?: (e: unknown) => void): this;
     }
 

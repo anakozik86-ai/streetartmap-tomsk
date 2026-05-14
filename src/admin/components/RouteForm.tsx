@@ -82,8 +82,7 @@ function slugify(s: string): string {
     .slice(0, 64);
 }
 
-const CARTO_LIGHT =
-  'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png';
+const CARTO_LIGHT = 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png';
 const CARTO_ATTRIBUTION = '&copy; OSM &copy; CARTO';
 const TOMSK_CENTER: [number, number] = [56.4847, 84.9482];
 
@@ -175,7 +174,6 @@ export function RouteForm({ routeId }: { routeId: string }): JSX.Element {
     if (!isNew || idTouched) return;
     const slug = slugify(draft.name);
     setDraft((d) => (slug === d.id ? d : { ...d, id: slug }));
-    // eslint-disable-next-line
   }, [draft.name, isNew, idTouched]);
 
   // --- debounced запись в localStorage (500ms) ---
@@ -236,9 +234,7 @@ export function RouteForm({ routeId }: { routeId: string }): JSX.Element {
           { color: '#b8ff3d', weight: 3, opacity: 1 },
         ],
       },
-      extendToWaypoints: false,
-          missingRouteTolerance: 0,
-          createMarker: () => false,
+      createMarker: () => false,
     }).addTo(map);
 
     // LRM = source of truth для waypoints → синхронизируем draft
@@ -333,7 +329,6 @@ export function RouteForm({ routeId }: { routeId: string }): JSX.Element {
     lrmInitialized.current = true;
     if (draft.point_ids.length === 0) return;
     applyDraftToLrm(draft);
-    // eslint-disable-next-line
   }, [draftHydrated]);
 
   // --- рендер маркеров точек на карте ---
@@ -562,7 +557,11 @@ export function RouteForm({ routeId }: { routeId: string }): JSX.Element {
           </div>
         </div>
 
-        {isLoading && <p class="admin-loading" style={{ padding: '1rem' }}>Загрузка…</p>}
+        {isLoading && (
+          <p class="admin-loading" style={{ padding: '1rem' }}>
+            Загрузка…
+          </p>
+        )}
 
         {!isLoading && (
           <>
@@ -662,9 +661,7 @@ export function RouteForm({ routeId }: { routeId: string }): JSX.Element {
                     return (
                       <li key={id} class="route-form__anchor">
                         <span class="route-form__anchor-num">{idx + 1}</span>
-                        <span class="route-form__anchor-title">
-                          {p?.title ?? `[${id}]`}
-                        </span>
+                        <span class="route-form__anchor-title">{p?.title ?? `[${id}]`}</span>
                         <div class="route-form__anchor-actions">
                           <button
                             disabled={idx === 0}
@@ -715,13 +712,9 @@ export function RouteForm({ routeId }: { routeId: string }): JSX.Element {
                 <dd>{draft.via_waypoints.length}</dd>
               </dl>
 
-              {validationError && (
-                <div class="route-form__save-error">{validationError}</div>
-              )}
+              {validationError && <div class="route-form__save-error">{validationError}</div>}
               {routesSaveState.value === 'error' && !validationError && (
-                <div class="route-form__save-error">
-                  Ошибка сохранения. Попробуйте ещё раз.
-                </div>
+                <div class="route-form__save-error">Ошибка сохранения. Попробуйте ещё раз.</div>
               )}
             </section>
           </>
