@@ -6,8 +6,8 @@
     "center": { "lat": 56.4847, "lng": 84.9482 },
     "default_zoom": 13,
     "bounds": {
-      "sw": { "lat": 56.42, "lng": 84.85 },
-      "ne": { "lat": 56.55, "lng": 85.05 }
+      "sw": { "lat": 56.25, "lng": 84.6 },
+      "ne": { "lat": 56.7, "lng": 85.3 }
     }
   },
   "site": {

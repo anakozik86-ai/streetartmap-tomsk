@@ -142,7 +142,12 @@
 
 /* ---- Smooth tile transition ---- */
 .leaflet-tile {
-  transition: opacity var(--duration-base) var(--ease-out);
+  transition: opacity 0.15s ease-out;
+}
+
+/* Во время зум-анимации убираем transition чтобы не было мерцания */
+.leaflet-zoom-anim .leaflet-tile {
+  transition: none;
 }
 
 /* ---- Курсор при панорамировании ---- */

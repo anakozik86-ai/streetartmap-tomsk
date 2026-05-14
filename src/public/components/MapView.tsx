@@ -11,6 +11,7 @@ import { activeCategories, activeCollections, showLost } from '../state/filters.
 import { activeRouteIds } from '../state/routes.ts';
 import { categories, collections } from '../state/catalogState.ts';
 import { createRouteLayer } from './RouteLayer.ts';
+import './SmoothWheelZoom.ts'; // регистрирует L.Map handler smoothWheelZoom
 
 interface TileConfig {
   url: string;
@@ -38,6 +39,9 @@ function createTileLayer(theme: 'light' | 'dark'): L.TileLayer {
   return L.tileLayer(cfg.url, {
     subdomains: cfg.subdomains,
     maxZoom: cfg.maxZoom,
+    keepBuffer: 6,
+    updateWhenIdle: false,
+    updateWhenZooming: true,
   });
 }
 
@@ -208,11 +212,18 @@ export function MapView() {
           zoom: config.city.default_zoom,
           zoomControl: false,
           attributionControl: false,
+          // maxBoundsViscosity: 1.0 убран — он вызывал «прыжок» карты обратно к центру
+          // при зуме до уровня, когда viewport выходил за границы города.
+          // Мягкая граница (0.5) позволяет немного выйти за bounds без резкого возврата.
           ...(bounds ? { maxBounds: bounds, maxBoundsViscosity: 1.0 } : {}),
-          minZoom: 11,
-          zoomSnap: 0.5,
+          // minZoom: 12 — на меньшем уровне CartoDB начинает показывать английские названия
+          minZoom: 13,
+          zoomSnap: 0,
           zoomDelta: 0.5,
-          wheelPxPerZoomLevel: 100,
+          // Отключаем стандартный wheel zoom — его заменяет smoothWheelZoom handler
+          scrollWheelZoom: false,
+          smoothWheelZoom: true,
+          smoothSensitivity: 1,
         });
 
         createAttributionControl().addTo(map);
@@ -220,6 +231,10 @@ export function MapView() {
 
         tileLayer = createTileLayer(themeMode.value);
         tileLayer.addTo(map);
+
+        // Принудительный пересчёт размера после монтирования —
+        // контейнер может ещё не иметь финальных размеров в момент L.map()
+        requestAnimationFrame(() => map?.invalidateSize());
 
         map.on('click', () => {
           selectedPoint.value = null;
@@ -301,6 +316,9 @@ export function MapView() {
             if (tileLayer) map.removeLayer(tileLayer);
             tileLayer = createTileLayer(theme);
             tileLayer.addTo(map);
+            // После смены тайлового слоя принудительно пересчитываем размер —
+            // иначе карта может остаться обрезанной (Leaflet не видит изменений DOM)
+            requestAnimationFrame(() => map?.invalidateSize());
           }),
         );
       } catch (e) {
