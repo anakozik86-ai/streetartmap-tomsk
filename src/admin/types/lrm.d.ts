@@ -1,4 +1,4 @@
-import * as L from 'leaflet';
+import type * as L from 'leaflet';
 
 declare module 'leaflet' {
   namespace Routing {

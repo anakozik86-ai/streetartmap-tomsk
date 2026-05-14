@@ -175,7 +175,7 @@ export function RouteForm({ routeId }: { routeId: string }): JSX.Element {
     if (!isNew || idTouched) return;
     const slug = slugify(draft.name);
     setDraft((d) => (slug === d.id ? d : { ...d, id: slug }));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line
   }, [draft.name, isNew, idTouched]);
 
   // --- debounced запись в localStorage (500ms) ---
@@ -331,7 +331,7 @@ export function RouteForm({ routeId }: { routeId: string }): JSX.Element {
     lrmInitialized.current = true;
     if (draft.point_ids.length === 0) return;
     applyDraftToLrm(draft);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line
   }, [draftHydrated]);
 
   // --- рендер маркеров точек на карте ---
