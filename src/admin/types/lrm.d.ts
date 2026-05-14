@@ -17,7 +17,7 @@ declare module 'leaflet' {
     interface IRouter {
       route(
         waypoints: Waypoint[],
-        callback: (err: Error | null, routes: IRoute[]) => void,
+        callback: (err: (IError & Error) | null, routes: IRoute[]) => void,
         context?: object,
         options?: object,
       ): void;
