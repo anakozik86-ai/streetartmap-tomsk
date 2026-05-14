@@ -14,8 +14,8 @@ export function LoginScreen() {
     setLoading(true);
     setError(null);
     try {
-      await getAuthenticatedUser(token);
-      savePat(token);
+      const user = await getAuthenticatedUser(token);
+      savePat(token, user.login);
     } catch (e) {
       if (e instanceof GitHubApiError && e.status === 401) {
         setError('Неверный токен. Проверь PAT и повтори.');

@@ -1,13 +1,18 @@
-import { useState, useEffect } from 'preact/hooks';
+import { useEffect } from 'preact/hooks';
 import type { JSX } from 'preact';
+import { currentRoute, navigate, type AdminSection } from '../state/router.ts';
 import { logout } from '../state/auth.ts';
 import { loadCatalog, loadState, catalogError, resetCatalog } from '../state/catalog.ts';
 import { CategoriesEditor } from './CategoriesEditor.tsx';
 import { CollectionsEditor } from './CollectionsEditor.tsx';
 import { AuthorsEditor } from './AuthorsEditor.tsx';
+import { PointsEditor } from './PointsEditor.tsx';
+import { PointForm } from './PointForm.tsx';
+import { RoutesEditor } from './RoutesEditor.tsx';
+import { RouteForm } from './RouteForm.tsx';
 import './Dashboard.css';
 
-type Section = 'categories' | 'collections' | 'authors' | 'points' | 'routes';
+type Section = AdminSection;
 
 const NAV: { id: Section; label: string }[] = [
   { id: 'categories', label: 'Категории' },
@@ -18,13 +23,22 @@ const NAV: { id: Section; label: string }[] = [
 ];
 
 export function Dashboard(): JSX.Element {
-  const [section, setSection] = useState<Section>('categories');
+  const route = currentRoute.value;
+  const section = route.section === 'dashboard' ? 'categories' : route.section;
 
   useEffect(() => {
     loadCatalog();
   }, []);
 
   const state = loadState.value;
+
+  // Full-screen overlays рендерятся вне основного layout
+  if (route.section === 'points' && route.id !== null) {
+    return <PointForm pointId={route.id} />;
+  }
+  if (route.section === 'routes' && route.id !== null) {
+    return <RouteForm routeId={route.id} />;
+  }
 
   return (
     <div class="dashboard">
@@ -35,7 +49,7 @@ export function Dashboard(): JSX.Element {
             <button
               key={n.id}
               class={`dashboard__nav-btn${section === n.id ? ' is-active' : ''}`}
-              onClick={() => setSection(n.id)}
+              onClick={() => navigate(n.id)}
             >
               {n.label}
             </button>
@@ -67,9 +81,8 @@ export function Dashboard(): JSX.Element {
             {section === 'categories' && <CategoriesEditor />}
             {section === 'collections' && <CollectionsEditor />}
             {section === 'authors' && <AuthorsEditor />}
-            {(section === 'points' || section === 'routes') && (
-              <div class="dashboard__stub">Этот раздел появится в следующем этапе.</div>
-            )}
+            {section === 'points' && <PointsEditor />}
+            {section === 'routes' && <RoutesEditor />}
           </>
         )}
       </main>

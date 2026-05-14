@@ -111,6 +111,13 @@
   border: 1px dashed var(--state-lost);
 }
 
+/* ---- In-route: точка участвует в редактируемом маршруте (RouteForm) ---- */
+.marker--in-route .marker__ring {
+  box-shadow:
+    var(--shadow-md),
+    0 0 0 3px var(--accent);
+}
+
 /* На совсем мелких экранах слегка ужимаем */
 @media (max-width: 380px) {
   .marker__icon {
