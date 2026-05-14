@@ -1,40 +1,40 @@
-﻿[
-    {
-        "id":  "tomsk-center-walk",
-        "status":  "published",
-        "name":  "РџРѕ С†РµРЅС‚СЂСѓ РўРѕРјСЃРєР°",
-        "description":  "РџСЂРѕРіСѓР»РѕС‡РЅС‹Р№ РјР°СЂС€СЂСѓС‚ РїРѕ С†РµРЅС‚СЂР°Р»СЊРЅС‹Рј СѓР»РёС†Р°Рј РіРѕСЂРѕРґР° вЂ” РѕС‚ РїР»РѕС‰Р°РґРё Р›РµРЅРёРЅР° РґРѕ Р’РѕСЃРєСЂРµСЃРµРЅСЃРєРѕР№ РіРѕСЂС‹.",
-        "point_ids":  [
-                          "lenina-mural-1",
-                          "novosobornaya-paste-1",
-                          "voskresenskaya-sculpture-1"
-                      ],
-        "geometry":  null,
-        "geometry_hash":  "2d471e24f70445db8fb0bdb2902af911a5a44418ca720e148966b77c52b90b68",
-        "total_distance_m":  1200,
-        "total_duration_s":  900,
-        "created_at":  "2025-01-01T00:00:00.000Z",
-        "updated_at":  "2025-01-01T00:00:00.000Z",
-        "created_by":  "system",
-        "updated_by":  "system"
-    },
-    {
-        "id":  "tomsk-south-walk",
-        "status":  "published",
-        "name":  "Р®Р¶РЅС‹Р№ РјР°СЂС€СЂСѓС‚",
-        "description":  "РћС‚ СЂР°Р№РѕРЅР° РўР“РЈ С‡РµСЂРµР· Р›Р°РіРµСЂРЅС‹Р№ СЃР°Рґ Рє РќРѕРІРѕСЃРѕР±РѕСЂРЅРѕР№ РїР»РѕС‰Р°РґРё.",
-        "point_ids":  [
-                          "tsu-graffiti-1",
-                          "lagernyy-stencil-1",
-                          "novosobornaya-paste-1"
-                      ],
-        "geometry":  null,
-        "geometry_hash":  "12b17e0b2c23113aaf19359d79603acf005ce6a47c60b4588db1082b55ca43bc",
-        "total_distance_m":  2800,
-        "total_duration_s":  2100,
-        "created_at":  "2025-01-01T00:00:00.000Z",
-        "updated_at":  "2025-01-01T00:00:00.000Z",
-        "created_by":  "system",
-        "updated_by":  "system"
-    }
+[
+  {
+    "id": "tomsk-center-walk",
+    "status": "published",
+    "name": "По центру Томска",
+    "description": "Прогулочный маршрут по центральным улицам города — от площади Ленина до Воскресенской горы.",
+    "point_ids": [
+      "lenina-mural-1",
+      "novosobornaya-paste-1",
+      "voskresenskaya-sculpture-1"
+    ],
+    "geometry": null,
+    "geometry_hash": "2d471e24f70445db8fb0bdb2902af911a5a44418ca720e148966b77c52b90b68",
+    "total_distance_m": 1200,
+    "total_duration_s": 900,
+    "created_at": "2025-01-01T00:00:00.000Z",
+    "updated_at": "2025-01-01T00:00:00.000Z",
+    "created_by": "system",
+    "updated_by": "system"
+  },
+  {
+    "id": "tomsk-south-walk",
+    "status": "published",
+    "name": "Южный маршрут",
+    "description": "От района ТГУ через Лагерный сад к Новособорной площади.",
+    "point_ids": [
+      "tsu-graffiti-1",
+      "lagernyy-stencil-1",
+      "novosobornaya-paste-1"
+    ],
+    "geometry": null,
+    "geometry_hash": "12b17e0b2c23113aaf19359d79603acf005ce6a47c60b4588db1082b55ca43bc",
+    "total_distance_m": 2800,
+    "total_duration_s": 2100,
+    "created_at": "2025-01-01T00:00:00.000Z",
+    "updated_at": "2025-01-01T00:00:00.000Z",
+    "created_by": "system",
+    "updated_by": "system"
+  }
 ]
