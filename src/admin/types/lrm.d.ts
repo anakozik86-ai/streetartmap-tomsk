@@ -30,7 +30,7 @@ declare module 'leaflet' {
       addWaypoints?: boolean;
       routeWhileDragging?: boolean;
       fitSelectedRoutes?: boolean;
-      lineOptions?: { styles: Array<Record<string, unknown>> };
+      lineOptions?: { styles: Array<Record<string, unknown>>; extendToWaypoints?: boolean; missingRouteTolerance?: number };
       createMarker?: (i: number, wp: Waypoint, n: number) => L.Marker | false;
     }
 

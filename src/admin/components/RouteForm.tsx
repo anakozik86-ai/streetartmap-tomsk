@@ -257,7 +257,7 @@ export function RouteForm({ routeId }: { routeId: string }): JSX.Element {
       const geometry: RouteGeometry = {
         type: 'LineString',
         // LRM coordinates: L.LatLng ([lat, lng]). GeoJSON хранит [lng, lat].
-        coordinates: r.coordinates?.map((c): [number, number] => [c.lng, c.lat]),
+        coordinates: r.coordinates?.map((c): [number, number] => [c.lng, c.lat]) ?? [],
       };
       setDraft((d) => ({
         ...d,
