@@ -33,6 +33,11 @@ export default defineConfig({
     },
   },
 
+  // LRM поставляется как CommonJS без ESM — без этого в dev режиме ошибка импорта
+  optimizeDeps: {
+    include: ['leaflet-routing-machine'],
+  },
+
   // static/ — пасс-зрю папка для favicon, og-image, robots.txt
   publicDir: 'static',
 

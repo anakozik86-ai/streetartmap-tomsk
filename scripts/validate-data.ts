@@ -74,7 +74,7 @@ function formatAjvErrors(file: string, ajvErrors: ErrorObject[] | null): void {
   }
 }
 
-// ----- JSON-схемы (поверхностные; глубокие типы остаются за TS) -----
+// ----- JSON-схемы -----
 
 const auditable = {
   type: 'object',
@@ -209,19 +209,9 @@ const pointSchema = {
     {
       type: 'object',
       required: [
-        'id',
-        'status',
-        'coords',
-        'accessibility',
-        'category_id',
-        'collection_ids',
-        'tags',
-        'title',
-        'description',
-        'materials',
-        'state',
-        'photos',
-        'featured',
+        'id', 'status', 'coords', 'accessibility', 'category_id',
+        'collection_ids', 'tags', 'title', 'description',
+        'materials', 'state', 'photos', 'featured',
       ],
       properties: {
         id: slugSchema,
@@ -235,9 +225,7 @@ const pointSchema = {
           },
         },
         address_hint: { type: 'string' },
-        accessibility: {
-          enum: ['street', 'courtyard', 'interior', 'restricted', 'unknown'],
-        },
+        accessibility: { enum: ['street', 'courtyard', 'interior', 'restricted', 'unknown'] },
         category_id: slugSchema,
         collection_ids: { type: 'array', items: slugSchema },
         tags: { type: 'array', items: { type: 'string' } },
@@ -247,9 +235,7 @@ const pointSchema = {
         year_created: { type: 'integer' },
         dimensions: { type: 'string' },
         materials: { type: 'array', items: { type: 'string' } },
-        state: {
-          enum: ['intact', 'damaged', 'restored', 'painted_over', 'removed', 'unknown'],
-        },
+        state: { enum: ['intact', 'damaged', 'restored', 'painted_over', 'removed', 'unknown'] },
         state_checked_at: { type: 'string', format: 'date-time' },
         photos: {
           type: 'array',
@@ -283,6 +269,16 @@ const routeSchema = {
         name: { type: 'string', minLength: 1 },
         description: { type: 'string' },
         point_ids: { type: 'array', items: slugSchema, minItems: 2 },
+        // via_waypoints: Leaflet-формат [lat, lng], optional
+        via_waypoints: {
+          type: 'array',
+          items: {
+            type: 'array',
+            items: { type: 'number' },
+            minItems: 2,
+            maxItems: 2,
+          },
+        },
         geometry: {
           oneOf: [
             { type: 'null' },
@@ -323,20 +319,36 @@ function checkUnique<T extends { id: string }>(file: string, items: T[]): void {
   }
 }
 
+/**
+ * Вычисляет geometry_hash для маршрута.
+ *
+ * Формула ДОЛЖНА совпадать с src/admin/components/routing/geometryHash.ts.
+ * Изменение здесь требует синхронной правки там.
+ *
+ * Формат: ANCHORS:{id1}:{lat6},{lng6}|{id2}:{lat6},{lng6}|VIA:{vlat6},{vlng6}|...
+ * via_waypoints в формате [lat, lng] (Leaflet-native, не GeoJSON).
+ */
 function geometryHashFor(
   pointIds: string[],
   coords: Map<string, { lat: number; lng: number }>,
+  viaWaypoints: [number, number][] | undefined,
 ): string {
-  const payload = pointIds
+  const anchorsStr = pointIds
     .map((id) => {
       const c = coords.get(id);
       return c ? `${id}:${c.lat.toFixed(6)},${c.lng.toFixed(6)}` : `${id}:?`;
     })
     .join('|');
+
+  const viaStr = (viaWaypoints ?? [])
+    .map(([lat, lng]) => `${lat.toFixed(6)},${lng.toFixed(6)}`)
+    .join('|');
+
+  const payload = `ANCHORS:${anchorsStr}|VIA:${viaStr}`;
   return createHash('sha256').update(payload).digest('hex');
 }
 
-// ----- сама проверка -----
+// ----- проверка -----
 
 function main(): void {
   const config = readJson<SiteConfig>('config.json');
@@ -351,7 +363,6 @@ function main(): void {
   const points = readJson<Point[]>('points.json') ?? [];
   const routes = readJson<Route[]>('routes.json') ?? [];
 
-  // структурная валидация массивов
   for (const c of categories) {
     if (!ajv.validate(categorySchema, c))
       formatAjvErrors(`categories.json[id=${c.id ?? '?'}]`, ajv.errors ?? null);
@@ -373,14 +384,12 @@ function main(): void {
       formatAjvErrors(`routes.json[id=${r.id ?? '?'}]`, ajv.errors ?? null);
   }
 
-  // дубликаты ID
   checkUnique('categories.json', categories);
   checkUnique('collections.json', collections);
   checkUnique('authors.json', authors);
   checkUnique('points.json', points);
   checkUnique('routes.json', routes);
 
-  // справочники для проверки ссылок
   const activeCategories = new Set(
     categories.filter((c) => c.status === 'active').map((c) => c.id),
   );
@@ -392,46 +401,34 @@ function main(): void {
   for (const p of points) pointCoords.set(p.id, p.coords);
   const allPointIds = new Set(points.map((p) => p.id));
 
-  // кросс-ссылки точек
   for (const p of points) {
     if (p.status === 'archived') continue;
-
     if (!activeCategories.has(p.category_id))
-      err(
-        `points.json[id=${p.id}]`,
-        `category_id "${p.category_id}" не существует или архивирована`,
-      );
-
+      err(`points.json[id=${p.id}]`, `category_id "${p.category_id}" не существует или архивирована`);
     for (const cid of p.collection_ids) {
       if (!activeCollections.has(cid))
         err(`points.json[id=${p.id}]`, `collection_id "${cid}" не существует или архивирована`);
     }
-
     if (p.author_id && !activeAuthors.has(p.author_id))
       err(`points.json[id=${p.id}]`, `author_id "${p.author_id}" не существует или архивирован`);
   }
 
-  // кросс-ссылки маршрутов
   for (const r of routes) {
     if (r.status === 'archived') continue;
-
     for (const pid of r.point_ids) {
-      if (!allPointIds.has(pid)) err(`routes.json[id=${r.id}]`, `point_id "${pid}" не существует`);
+      if (!allPointIds.has(pid))
+        err(`routes.json[id=${r.id}]`, `point_id "${pid}" не существует`);
     }
-
-    // geometry_hash — мягкая проверка
     if (r.point_ids.every((pid) => pointCoords.has(pid))) {
-      const expected = geometryHashFor(r.point_ids, pointCoords);
+      const expected = geometryHashFor(r.point_ids, pointCoords, r.via_waypoints);
       if (expected !== r.geometry_hash) {
         warn(
           `routes.json[id=${r.id}]`,
-          `geometry_hash устарел — точки сместились или перепорядочены, требуется пересборка маршрута`,
+          `geometry_hash устарел — точки сместились, via_waypoints изменились или порядок изменён; требуется пересборка маршрута`,
         );
       }
     }
   }
-
-  // ----- отчёт -----
 
   if (warnings.length > 0) {
     console.warn('\n⚠️  Warnings:');
@@ -446,8 +443,9 @@ function main(): void {
   }
 
   console.log(
-    `✅ Валидация пройдена: ${categories.length} категорий, ${collections.length} коллекций, ${authors.length} авторов, ${points.length} точек, ${routes.length} маршрутов` +
-      (warnings.length > 0 ? ` (${warnings.length} предупреждений)` : ''),
+    `✅ Валидация пройдена: ${categories.length} категорий, ${collections.length} коллекций, ` +
+    `${authors.length} авторов, ${points.length} точек, ${routes.length} маршрутов` +
+    (warnings.length > 0 ? ` (${warnings.length} предупреждений)` : ''),
   );
 }
 

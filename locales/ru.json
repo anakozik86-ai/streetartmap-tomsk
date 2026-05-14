@@ -11,7 +11,8 @@
     "loading": "Загрузка…",
     "error": "Ошибка",
     "confirm": "Подтвердить",
-    "close": "Закрыть"
+    "close": "Закрыть",
+    "logout": "Выйти"
   },
   "filters": {
     "title": "Фильтры",
@@ -56,5 +57,30 @@
     "authors": "Авторы",
     "points": "Точки",
     "routes": "Маршруты"
+  },
+  "point_form": {
+    "create": "Новая точка",
+    "section_main": "Основное",
+    "section_location": "Расположение",
+    "section_classification": "Классификация",
+    "section_description": "Описание",
+    "section_state": "Физическое состояние",
+    "title": "Название",
+    "status": "Статус",
+    "featured": "Избранное",
+    "lat": "Широта",
+    "lng": "Долгота",
+    "address_hint": "Адресная подсказка",
+    "accessibility": "Доступность",
+    "category": "Категория",
+    "collections": "Коллекции",
+    "tags": "Теги",
+    "description": "Описание (Markdown)",
+    "author": "Автор",
+    "year_created": "Год создания",
+    "dimensions": "Размеры",
+    "materials": "Материалы",
+    "state": "Состояние",
+    "state_checked_at": "Дата проверки"
   }
 }
