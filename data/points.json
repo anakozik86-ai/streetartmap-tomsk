@@ -10,7 +10,8 @@
     "accessibility": "street",
     "category_id": "mural",
     "collection_ids": [
-      "street-vision-2023"
+      "street-vision-2023",
+      "tomsk-portraits"
     ],
     "tags": [
       "центр",
@@ -27,7 +28,7 @@
     "photos": [],
     "featured": true,
     "created_at": "2025-01-01T00:00:00.000Z",
-    "updated_at": "2026-05-15T09:48:31.189Z",
+    "updated_at": "2026-05-15T09:54:11.297Z",
     "created_by": "system",
     "updated_by": "",
     "author_id": "ivan-petrov"
