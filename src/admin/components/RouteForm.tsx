@@ -42,7 +42,7 @@ interface RouteDraft {
 function emptyDraft(): RouteDraft {
   return {
     id: '',
-    status: 'draft',
+    status: 'archived',
     name: '',
     description: '',
     point_ids: [],
@@ -617,9 +617,8 @@ export function RouteForm({ routeId }: { routeId: string }): JSX.Element {
                     }))
                   }
                 >
-                  <option value="draft">draft</option>
-                  <option value="published">published</option>
-                  <option value="archived">archived</option>
+                  <option value="published">Опубликовано</option>
+                  <option value="archived">Архив</option>
                 </select>
               </label>
             </section>

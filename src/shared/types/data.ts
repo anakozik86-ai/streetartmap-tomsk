@@ -5,7 +5,7 @@ export interface Auditable {
   updated_by: string;
 }
 export type EntityStatus = 'active' | 'archived';
-export type ContentStatus = 'draft' | 'published' | 'archived';
+export type ContentStatus = 'published' | 'archived';
 export interface ExternalLink {
   label: string;
   url: string;

@@ -225,7 +225,7 @@ const pointSchema = {
       ],
       properties: {
         id: slugSchema,
-        status: { enum: ['draft', 'published', 'archived'] },
+        status: { enum: ['published', 'archived'] },
         coords: {
           type: 'object',
           required: ['lat', 'lng'],
@@ -275,7 +275,7 @@ const routeSchema = {
       required: ['id', 'status', 'name', 'point_ids', 'geometry', 'geometry_hash'],
       properties: {
         id: slugSchema,
-        status: { enum: ['draft', 'published', 'archived'] },
+        status: { enum: ['published', 'archived'] },
         name: { type: 'string', minLength: 1 },
         description: { type: 'string' },
         point_ids: { type: 'array', items: slugSchema, minItems: 2 },

@@ -1,8 +1,8 @@
 import { signal } from '@preact/signals';
-import type { Route } from '@shared/types/data.ts';
+import type { Route, ContentStatus } from '@shared/types/data.ts';
 import { getFile, putFile } from '../github/contents.ts';
-import { githubLogin } from './auth.ts';
 import { repoOwner, repoName } from './repoMeta.ts';
+import { githubLogin } from './auth.ts';
 
 export type LoadState = 'idle' | 'loading' | 'ready' | 'error';
 
@@ -14,79 +14,129 @@ export const routesError = signal<string | null>(null);
 const shaCache: Record<string, string> = {};
 const FILENAME = 'routes.json';
 
-export function loadRoutesAdmin(): void {
-  if (routesLoadState.value === 'loading' || routesLoadState.value === 'ready') return;
+let writeQueue: Promise<void> = Promise.resolve();
+function enqueue(fn: () => Promise<void>): Promise<void> {
+  writeQueue = writeQueue.then(fn, fn);
+  return writeQueue;
+}
 
+async function readFile(): Promise<void> {
+  const file = await getFile(repoOwner.value, repoName.value, `data/${FILENAME}`);
+  shaCache[FILENAME] = file.sha;
+  const binary = atob(file.content.replace(/\n/g, ''));
+  const bytes = Uint8Array.from(binary, (c) => c.charCodeAt(0));
+  routesData.value = JSON.parse(new TextDecoder().decode(bytes)) as Route[];
+}
+
+function writeFile(next: Route[], commitMsg: string): Promise<void> {
+  return enqueue(async () => {
+    const owner = repoOwner.value;
+    const repo = repoName.value;
+    const path = `data/${FILENAME}`;
+    // Всегда читаем свежий SHA перед PUT
+    const freshBefore = await getFile(owner, repo, path);
+    shaCache[FILENAME] = freshBefore.sha;
+    await putFile(owner, repo, path, next as unknown[], shaCache[FILENAME], commitMsg);
+    const updated = await getFile(owner, repo, path);
+    shaCache[FILENAME] = updated.sha;
+  });
+}
+
+export async function loadRoutesAdmin(): Promise<void> {
+  if (routesLoadState.value === 'loading' || routesLoadState.value === 'ready') return;
   routesLoadState.value = 'loading';
   routesError.value = null;
-
-  getFile(repoOwner.value, repoName.value, `data/${FILENAME}`)
-    .then((file) => {
-      shaCache[FILENAME] = file.sha;
-      const decoded = atob(file.content.replace(/\s/g, ''));
-      const parsed = JSON.parse(
-        new TextDecoder().decode(Uint8Array.from(decoded, (c) => c.charCodeAt(0))),
-      ) as Route[];
-      routesData.value = parsed;
-      routesLoadState.value = 'ready';
-    })
-    .catch(() => {
-      routesError.value = 'load_error';
-      routesLoadState.value = 'error';
-    });
+  try {
+    await readFile();
+    routesLoadState.value = 'ready';
+  } catch (e) {
+    routesError.value = e instanceof Error ? e.message : 'Ошибка загрузки';
+    routesLoadState.value = 'error';
+  }
 }
 
 export function resetRoutes(): void {
   routesLoadState.value = 'idle';
-  routesError.value = null;
-}
-
-async function saveRoutesFile(next: Route[], commitMsg: string): Promise<void> {
-  routesSaveState.value = 'saving';
-  try {
-    await putFile(
-      repoOwner.value,
-      repoName.value,
-      `data/${FILENAME}`,
-      next as unknown[],
-      shaCache[FILENAME] ?? '',
-      commitMsg,
-    );
-    // Обновляем sha после успешного PUT
-    const updated = await getFile(repoOwner.value, repoName.value, `data/${FILENAME}`);
-    shaCache[FILENAME] = updated.sha;
-    routesData.value = next;
-    routesSaveState.value = 'idle';
-  } catch (err) {
-    routesSaveState.value = 'error';
-    throw err;
-  }
 }
 
 export async function saveRoute(route: Route): Promise<void> {
-  const now = new Date().toISOString();
   const login = githubLogin.value;
+  const now = new Date().toISOString();
+  const list = routesData.value;
+  const existing = list.find((r) => r.id === route.id);
+  const saved: Route = {
+    ...route,
+    created_at: existing?.created_at ?? now,
+    updated_at: now,
+    created_by: existing?.created_by ?? login,
+    updated_by: login,
+  };
+  const next = existing ? list.map((r) => (r.id === saved.id ? saved : r)) : [...list, saved];
 
-  const existing = routesData.value.find((r) => r.id === route.id);
-  const next: Route = existing
-    ? { ...route, updated_at: now, updated_by: login }
-    : { ...route, created_at: now, created_by: login, updated_at: now, updated_by: login };
-
-  const list = existing
-    ? routesData.value.map((r) => (r.id === route.id ? next : r))
-    : [...routesData.value, next];
-
-  const action = existing ? 'update' : 'add';
-  await saveRoutesFile(list, `${action} route: ${route.id}`);
+  routesSaveState.value = 'saving';
+  try {
+    await writeFile(next, `admin: upsert route ${saved.id}`);
+    routesData.value = next;
+    routesSaveState.value = 'idle';
+  } catch (e) {
+    routesSaveState.value = 'error';
+    throw e;
+  }
 }
 
+/** Legacy — оставлен для совместимости. */
 export async function archiveRoute(id: string): Promise<void> {
-  const now = new Date().toISOString();
   const login = githubLogin.value;
-
-  const list = routesData.value.map((r) =>
-    r.id === id ? { ...r, status: 'archived' as const, updated_at: now, updated_by: login } : r,
+  const now = new Date().toISOString();
+  const next = routesData.value.map((r) =>
+    r.id === id
+      ? { ...r, status: 'archived' as ContentStatus, updated_at: now, updated_by: login }
+      : r,
   );
+  routesSaveState.value = 'saving';
+  try {
+    await writeFile(next, `admin: archive route ${id}`);
+    routesData.value = next;
+    routesSaveState.value = 'idle';
+  } catch (e) {
+    routesSaveState.value = 'error';
+    throw e;
+  }
+}
 
-  await saveRoutesFile(list, `archive route: ${id}`);
+export async function toggleRouteStatus(id: string): Promise<void> {
+  const login = githubLogin.value;
+  const now = new Date().toISOString();
+  const route = routesData.value.find((r) => r.id === id);
+  if (!route) return;
+
+  const nextStatus: ContentStatus = route.status === 'published' ? 'archived' : 'published';
+  const optimistic = routesData.value.map((r) =>
+    r.id === id ? { ...r, status: nextStatus, updated_at: now, updated_by: login } : r,
+  );
+  const prev = routesData.value;
+  routesData.value = optimistic;
+
+  try {
+    await writeFile(
+      optimistic,
+      `admin: ${nextStatus === 'published' ? 'publish' : 'archive'} route ${id}`,
+    );
+  } catch (e) {
+    routesData.value = prev;
+    throw e;
+  }
+}
+
+export async function deleteRoute(id: string): Promise<void> {
+  const next = routesData.value.filter((r) => r.id !== id);
+  routesSaveState.value = 'saving';
+  try {
+    await writeFile(next, `admin: delete route ${id}`);
+    routesData.value = next;
+    routesSaveState.value = 'idle';
+  } catch (e) {
+    routesSaveState.value = 'error';
+    throw e;
+  }
 }

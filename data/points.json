@@ -29,7 +29,8 @@
     "created_at": "2025-01-01T00:00:00.000Z",
     "updated_at": "2025-01-01T00:00:00.000Z",
     "created_by": "system",
-    "updated_by": "system"
+    "updated_by": "system",
+    "author_id": "ivan-petrov"
   },
   {
     "id": "tsu-graffiti-1",
@@ -61,7 +62,8 @@
     "created_at": "2025-01-01T00:00:00.000Z",
     "updated_at": "2025-01-01T00:00:00.000Z",
     "created_by": "system",
-    "updated_by": "system"
+    "updated_by": "system",
+    "author_id": "anna-volkov"
   },
   {
     "id": "lagernyy-stencil-1",
@@ -91,7 +93,8 @@
     "created_at": "2025-01-01T00:00:00.000Z",
     "updated_at": "2025-01-01T00:00:00.000Z",
     "created_by": "system",
-    "updated_by": "system"
+    "updated_by": "system",
+    "author_id": "kollektiv-forma"
   },
   {
     "id": "voskresenskaya-sculpture-1",
@@ -124,7 +127,8 @@
     "created_at": "2025-01-01T00:00:00.000Z",
     "updated_at": "2025-01-01T00:00:00.000Z",
     "created_by": "system",
-    "updated_by": "system"
+    "updated_by": "system",
+    "author_id": "ivan-petrov"
   },
   {
     "id": "novosobornaya-paste-1",
@@ -153,7 +157,8 @@
     "created_at": "2025-01-01T00:00:00.000Z",
     "updated_at": "2025-01-01T00:00:00.000Z",
     "created_by": "system",
-    "updated_by": "system"
+    "updated_by": "system",
+    "author_id": "kollektiv-forma"
   },
   {
     "created_at": "2026-05-13T06:13:27.088Z",
@@ -183,7 +188,8 @@
     "address_hint": "улица сабачий край",
     "dimensions": "6x9",
     "state_checked_at": "2015-02-23T00:00:00.000Z",
-    "year_created": 1984
+    "year_created": 1984,
+    "author_id": "anna-volkov"
   },
   {
     "created_at": "2026-05-13T06:25:04.718Z",
@@ -213,7 +219,8 @@
     "address_hint": "улица сабачий край",
     "dimensions": "6x9",
     "state_checked_at": "2025-11-11T00:00:00.000Z",
-    "year_created": 2023
+    "year_created": 2023,
+    "author_id": "ivan-petrov"
   },
   {
     "created_at": "2026-05-13T06:29:01.349Z",

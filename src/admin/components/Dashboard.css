@@ -56,6 +56,27 @@
   font-weight: 500;
 }
 
+.dashboard__theme-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text-muted);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition:
+    color var(--duration-fast) var(--ease-out),
+    border-color var(--duration-fast) var(--ease-out);
+}
+.dashboard__theme-btn:hover {
+  color: var(--text);
+  border-color: var(--border-strong);
+}
+
 .dashboard__logout {
   background: none;
   border: 1px solid var(--border);
@@ -98,4 +119,20 @@
 .dashboard__error p {
   margin: 0;
   font-size: 0.9375rem;
+}
+
+/* Общий заголовок секций (Точки, Маршруты) */
+.admin-section__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.25rem;
+}
+
+.admin-section__title {
+  font-family: var(--font-display);
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--text);
+  margin: 0;
 }

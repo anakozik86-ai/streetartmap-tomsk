@@ -1,0 +1,40 @@
+.ref-modal__text {
+  margin: 0 0 1rem;
+  font-size: 0.875rem;
+  color: var(--text);
+  line-height: 1.5;
+}
+
+.ref-modal__list {
+  list-style: none;
+  margin: 0 0 1.5rem;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+  max-height: 16rem;
+  overflow-y: auto;
+}
+
+.ref-modal__link {
+  background: none;
+  border: none;
+  padding: 0.25rem 0;
+  color: var(--accent);
+  cursor: pointer;
+  font-family: var(--font-body);
+  font-size: 0.875rem;
+  text-align: left;
+  text-decoration: underline;
+  text-decoration-color: transparent;
+  transition: text-decoration-color var(--duration-fast) var(--ease-out);
+}
+
+.ref-modal__link:hover {
+  text-decoration-color: var(--accent);
+}
+
+.ref-modal__footer {
+  display: flex;
+  justify-content: flex-end;
+}

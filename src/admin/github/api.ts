@@ -17,6 +17,7 @@ export class GitHubApiError extends Error {
 export async function request<T>(pat: string, path: string, init?: RequestInit): Promise<T> {
   const res = await fetch(`https://api.github.com${path}`, {
     ...init,
+    cache: 'no-store',
     headers: {
       Authorization: `token ${pat}`,
       Accept: 'application/vnd.github+json',

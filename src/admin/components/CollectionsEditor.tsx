@@ -1,9 +1,14 @@
 import { useState } from 'preact/hooks';
 import type { JSX } from 'preact';
-import { collectionsData, saveCollection, archiveCollection, saveState } from '../state/catalog.ts';
-import { pat } from '../state/auth.ts';
+import { collectionsData, saveCollection, deleteCollection, saveState } from '../state/catalog.ts';
+import { pointsData, loadPoints, pointsLoadState } from '../state/pointsState.ts';
+import { githubLogin } from '../state/auth.ts';
 import type { Collection } from '@shared/types/data.ts';
+import { loadSavedOrder } from '../state/orderState.ts';
+import { useOrderedList } from '../hooks/useOrderedList.ts';
 import { Modal } from './Modal.tsx';
+import { ReferencesModal } from './ReferencesModal.tsx';
+import { SortBar } from './SortBar.tsx';
 import { Field, Input, Select, Textarea, FormActions } from './AdminForm.tsx';
 
 function now(): string {
@@ -25,9 +30,7 @@ interface FormState {
   year_start: string;
   year_end: string;
   organizer_or_author: string;
-  status: 'active' | 'archived';
 }
-
 interface FormErrors {
   id?: string;
   name?: string;
@@ -48,8 +51,31 @@ export function CollectionsEditor(): JSX.Element {
   const [editing, setEditing] = useState<FormState | null>(null);
   const [isNew, setIsNew] = useState(false);
   const [errors, setErrors] = useState<FormErrors>({});
-  const [archiving, setArchiving] = useState<string | null>(null);
   const saving = saveState.value === 'saving';
+
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [loadingDeleteId, setLoadingDeleteId] = useState<string | null>(null);
+  const [refPoints, setRefPoints] = useState<{ id: string; label: string; tab: 'points' }[]>([]);
+  const [confirmId, setConfirmId] = useState<string | null>(null);
+
+  const ids = collections.map((c) => c.id);
+  const {
+    sortMode,
+    orderedIds,
+    isDirty,
+    setSortMode,
+    handleMoveUp,
+    handleMoveDown,
+    handleSaveOrder,
+    handleRevertOrder,
+    handleResetOrder,
+  } = useOrderedList({
+    tab: 'collections',
+    ids,
+    statusOf: () => 'active',
+  });
+  const hasSavedOrder = loadSavedOrder('collections') !== null;
+  const colById = new Map(collections.map((c) => [c.id, c]));
 
   function openNew(): void {
     setEditing({
@@ -61,12 +87,10 @@ export function CollectionsEditor(): JSX.Element {
       year_start: '',
       year_end: '',
       organizer_or_author: '',
-      status: 'active',
     });
     setIsNew(true);
     setErrors({});
   }
-
   function openEdit(c: Collection): void {
     setEditing({
       id: c.id,
@@ -77,20 +101,15 @@ export function CollectionsEditor(): JSX.Element {
       year_start: c.year_start !== undefined && c.year_start !== null ? String(c.year_start) : '',
       year_end: c.year_end !== undefined && c.year_end !== null ? String(c.year_end) : '',
       organizer_or_author: c.organizer_or_author ?? '',
-      status: c.status,
     });
     setIsNew(false);
     setErrors({});
   }
-
   function close(): void {
     setEditing(null);
   }
-
   function onNameBlur(): void {
-    if (editing && isNew && !editing.id) {
-      setEditing({ ...editing, id: makeSlug(editing.name) });
-    }
+    if (editing && isNew && !editing.id) setEditing({ ...editing, id: makeSlug(editing.name) });
   }
 
   async function submit(e: Event): Promise<void> {
@@ -101,17 +120,15 @@ export function CollectionsEditor(): JSX.Element {
       setErrors(errs);
       return;
     }
-
-    const login = pat.value.split(':')[0] ?? 'admin';
+    const login = githubLogin.value || 'admin';
     const timestamp = now();
     const existing = collections.find((c) => c.id === editing.id);
-
     const col: Collection = {
       id: editing.id.trim(),
       type: editing.type,
       name: editing.name.trim(),
       color: editing.color,
-      status: editing.status,
+      status: 'active',
       ...(editing.description.trim() ? { description: editing.description.trim() } : {}),
       ...(editing.year_start ? { year_start: Number(editing.year_start) } : {}),
       ...(editing.year_end ? { year_end: Number(editing.year_end) } : {}),
@@ -123,7 +140,6 @@ export function CollectionsEditor(): JSX.Element {
       created_by: existing?.created_by ?? login,
       updated_by: login,
     };
-
     try {
       await saveCollection(col);
       close();
@@ -132,18 +148,27 @@ export function CollectionsEditor(): JSX.Element {
     }
   }
 
-  async function doArchive(id: string): Promise<void> {
-    const login = pat.value.split(':')[0] ?? 'admin';
-    setArchiving(id);
-    try {
-      await archiveCollection(id, login);
-    } finally {
-      setArchiving(null);
-    }
+  async function handleDeleteClick(id: string): Promise<void> {
+    setLoadingDeleteId(id);
+    if (pointsLoadState.value !== 'ready') await loadPoints();
+    const refs = pointsData.value
+      .filter((p) => p.collection_ids.includes(id))
+      .map((p) => ({ id: p.id, label: p.title, tab: 'points' as const }));
+    setLoadingDeleteId(null);
+    if (refs.length > 0) {
+      setRefPoints(refs);
+      setDeletingId(id);
+    } else setConfirmId(id);
   }
 
-  const active = collections.filter((c) => c.status === 'active');
-  const archived = collections.filter((c) => c.status === 'archived');
+  async function confirmDelete(): Promise<void> {
+    if (!confirmId) return;
+    try {
+      await deleteCollection(confirmId);
+    } finally {
+      setConfirmId(null);
+    }
+  }
 
   return (
     <div class="cat-editor">
@@ -160,9 +185,20 @@ export function CollectionsEditor(): JSX.Element {
         </div>
       )}
 
+      <SortBar
+        sortMode={sortMode}
+        isDirty={isDirty}
+        savedOrder={hasSavedOrder}
+        onSortMode={setSortMode}
+        onSaveOrder={handleSaveOrder}
+        onRevertOrder={handleRevertOrder}
+        onResetOrder={handleResetOrder}
+      />
+
       <table class="admin-table">
         <thead>
           <tr>
+            {sortMode === 'custom' && <th class="admin-table__order-cell"></th>}
             <th>ID</th>
             <th>Тип</th>
             <th>Название</th>
@@ -171,63 +207,82 @@ export function CollectionsEditor(): JSX.Element {
           </tr>
         </thead>
         <tbody>
-          {active.map((c) => (
-            <tr key={c.id}>
-              <td class="admin-table__id">{c.id}</td>
-              <td>{c.type}</td>
-              <td>{c.name}</td>
-              <td>
-                <span class="admin-color-swatch" style={{ background: c.color }} />
-                <span class="admin-table__mono">{c.color}</span>
-              </td>
-              <td class="admin-table__actions">
-                <button class="admin-btn-icon" onClick={() => openEdit(c)} title="Редактировать">
-                  ✎
-                </button>
-                <button
-                  class="admin-btn-icon admin-btn-icon--danger"
-                  onClick={() => doArchive(c.id)}
-                  disabled={archiving === c.id || saving}
-                  title="Архивировать"
-                >
-                  ⊘
-                </button>
-              </td>
-            </tr>
-          ))}
+          {orderedIds.map((id, index) => {
+            const c = colById.get(id);
+            if (!c) return null;
+            return (
+              <tr key={id}>
+                {sortMode === 'custom' && (
+                  <td class="admin-table__order-cell">
+                    <button
+                      class="admin-order-btn"
+                      onClick={() => handleMoveUp(index)}
+                      disabled={index === 0}
+                      title="Вверх"
+                    >
+                      ↑
+                    </button>
+                    <button
+                      class="admin-order-btn"
+                      onClick={() => handleMoveDown(index)}
+                      disabled={index === orderedIds.length - 1}
+                      title="Вниз"
+                    >
+                      ↓
+                    </button>
+                  </td>
+                )}
+                <td class="admin-table__id">{c.id}</td>
+                <td>{c.type}</td>
+                <td>{c.name}</td>
+                <td>
+                  <span class="admin-color-swatch" style={{ background: c.color }} />
+                  <span class="admin-table__mono">{c.color}</span>
+                </td>
+                <td class="admin-table__actions">
+                  <button class="admin-btn-icon" onClick={() => openEdit(c)} title="Редактировать">
+                    ✎
+                  </button>
+                  <button
+                    class="admin-btn-icon admin-btn-icon--danger"
+                    onClick={() => handleDeleteClick(c.id)}
+                    disabled={loadingDeleteId === c.id || saving}
+                    title="Удалить"
+                  >
+                    {loadingDeleteId === c.id ? '…' : '🗑'}
+                  </button>
+                </td>
+              </tr>
+            );
+          })}
         </tbody>
       </table>
 
-      {archived.length > 0 && (
-        <details class="cat-editor__archived">
-          <summary>Архивные ({archived.length})</summary>
-          <table class="admin-table admin-table--muted">
-            <tbody>
-              {archived.map((c) => (
-                <tr key={c.id}>
-                  <td class="admin-table__id">{c.id}</td>
-                  <td>{c.type}</td>
-                  <td>{c.name}</td>
-                  <td>
-                    <span class="admin-color-swatch" style={{ background: c.color }} />
-                    <span class="admin-table__mono">{c.color}</span>
-                  </td>
-                  <td class="admin-table__actions">
-                    <button
-                      class="admin-btn-icon"
-                      onClick={() => openEdit(c)}
-                      title="Редактировать"
-                    >
-                      ✎
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </details>
+      {deletingId && refPoints.length > 0 && (
+        <ReferencesModal
+          title="Невозможно удалить коллекцию"
+          items={refPoints}
+          onClose={() => {
+            setDeletingId(null);
+            setRefPoints([]);
+          }}
+        />
       )}
-
+      {confirmId && (
+        <Modal title="Удалить коллекцию?" onClose={() => setConfirmId(null)}>
+          <p class="ref-modal__text">
+            Коллекция «{colById.get(confirmId)?.name}» будет удалена без возможности восстановления.
+          </p>
+          <div style={{ gap: '0.5rem', display: 'flex', justifyContent: 'flex-end' }}>
+            <button class="admin-btn admin-btn--ghost" onClick={() => setConfirmId(null)}>
+              Отмена
+            </button>
+            <button class="admin-btn admin-btn--danger" onClick={confirmDelete} disabled={saving}>
+              {saving ? 'Удаление…' : 'Удалить'}
+            </button>
+          </div>
+        </Modal>
+      )}
       {editing && (
         <Modal title={isNew ? 'Новая коллекция' : 'Редактировать коллекцию'} onClose={close}>
           <form onSubmit={submit}>
@@ -332,20 +387,6 @@ export function CollectionsEditor(): JSX.Element {
                   })
                 }
               />
-            </Field>
-            <Field label="Статус">
-              <Select
-                value={editing.status}
-                onChange={(e) =>
-                  setEditing({
-                    ...editing,
-                    status: (e.target as HTMLSelectElement).value as 'active' | 'archived',
-                  })
-                }
-              >
-                <option value="active">active</option>
-                <option value="archived">archived</option>
-              </Select>
             </Field>
             <FormActions onCancel={close} saving={saving} isNew={isNew} />
           </form>

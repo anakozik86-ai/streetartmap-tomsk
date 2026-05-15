@@ -11,6 +11,8 @@ interface Props {
 
 export function Modal({ title, onClose, children, wide }: Props): JSX.Element {
   const dialogRef = useRef<HTMLDivElement>(null);
+  const onCloseRef = useRef(onClose);
+  onCloseRef.current = onClose;
 
   useEffect(() => {
     const prev = document.activeElement as HTMLElement | null;
@@ -18,7 +20,7 @@ export function Modal({ title, onClose, children, wide }: Props): JSX.Element {
 
     function onKey(e: KeyboardEvent): void {
       if (e.key === 'Escape') {
-        onClose();
+        onCloseRef.current();
         return;
       }
       if (e.key !== 'Tab') return;
@@ -49,10 +51,22 @@ export function Modal({ title, onClose, children, wide }: Props): JSX.Element {
       window.removeEventListener('keydown', onKey);
       prev?.focus();
     };
-  }, [onClose]);
+  }, []);
 
+  // Закрываем только если mousedown И mouseup произошли на backdrop —
+  // защита от ложных срабатываний при выделении текста с движением мыши за пределы модалки.
+  const mouseDownOnBackdropRef = useRef(false);
   return (
-    <div class="modal-backdrop" onClick={onClose}>
+    <div
+      class="modal-backdrop"
+      onMouseDown={(e) => {
+        mouseDownOnBackdropRef.current = e.target === e.currentTarget;
+      }}
+      onClick={(e) => {
+        if (mouseDownOnBackdropRef.current && e.target === e.currentTarget) onClose();
+        mouseDownOnBackdropRef.current = false;
+      }}
+    >
       <div
         ref={dialogRef}
         class={`modal${wide ? ' modal--wide' : ''}`}
@@ -60,7 +74,6 @@ export function Modal({ title, onClose, children, wide }: Props): JSX.Element {
         aria-modal="true"
         aria-label={title}
         tabIndex={-1}
-        onClick={(e) => e.stopPropagation()}
       >
         <div class="modal__header">
           <h2 class="modal__title">{title}</h2>

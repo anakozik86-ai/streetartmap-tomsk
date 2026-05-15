@@ -41,7 +41,7 @@ interface PointDraft {
 function emptyDraft(): PointDraft {
   return {
     id: '',
-    status: 'draft',
+    status: 'archived',
     coords: { lat: 56.4884, lng: 84.9481 },
     address_hint: '',
     accessibility: 'street',
@@ -315,9 +315,8 @@ export function PointForm({ pointId }: PointFormProps): JSX.Element {
     unknown: 'Состояние неизвестно',
   };
 
-  const statusOptions: ContentStatus[] = ['draft', 'published', 'archived'];
+  const statusOptions: ContentStatus[] = ['published', 'archived'];
   const statusLabels: Record<ContentStatus, string> = {
-    draft: 'Черновик',
     published: 'Опубликовано',
     archived: 'Архив',
   };

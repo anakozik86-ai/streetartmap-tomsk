@@ -1,58 +1,23 @@
-.admin-table__id {
-  font-family: ui-monospace, 'Cascadia Code', monospace;
-  font-size: 0.8125rem;
-  color: var(--text-muted);
-  white-space: nowrap;
-  max-width: 12rem;
-  overflow: hidden;
-  text-overflow: ellipsis;
+/* Специфичные стили PointsEditor — общие в AdminTable.css */
+
+.points-editor__toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0;
 }
 
-.admin-table__name {
-  max-width: 18rem;
+.points-editor__heading {
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin: 0;
 }
 
-.admin-table__link {
-  font: inherit;
+.points-editor__error {
+  margin-top: 0.75rem;
+  padding: 0.75rem 1rem;
+  background: color-mix(in srgb, var(--state-damaged) 12%, transparent);
+  color: var(--state-damaged);
+  border-radius: var(--radius-md);
   font-size: 0.875rem;
-  color: var(--text);
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 0;
-  text-align: left;
-  text-decoration: underline;
-  text-decoration-color: transparent;
-  transition: text-decoration-color 0.15s;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 100%;
-  display: block;
-}
-
-.admin-table__link:hover {
-  text-decoration-color: var(--text);
-}
-
-.admin-table__empty {
-  color: var(--text-subtle);
-  font-style: italic;
-}
-
-.admin-table__date {
-  font-family: ui-monospace, 'Cascadia Code', monospace;
-  font-size: 0.8125rem;
-  color: var(--text-muted);
-  white-space: nowrap;
-}
-
-.admin-table__actions {
-  white-space: nowrap;
-}
-
-.admin-saving {
-  font-size: 0.875rem;
-  color: var(--text-muted);
-  margin-bottom: 0.75rem;
 }

@@ -3,8 +3,6 @@ import type { Category, Collection, Author } from '@shared/types/data.ts';
 import { getFile, putFile } from '../github/contents.ts';
 import { repoOwner, repoName } from './repoMeta.ts';
 
-// --- state ---
-
 export type LoadState = 'idle' | 'loading' | 'ready' | 'error';
 
 export const categoriesData = signal<Category[]>([]);
@@ -15,10 +13,16 @@ export const loadState = signal<LoadState>('idle');
 export const saveState = signal<'idle' | 'saving' | 'error'>('idle');
 export const catalogError = signal<string | null>(null);
 
-// sha кэш — нужен для PUT
 const shaCache: Record<string, string> = {};
 
-// --- load ---
+// Очереди записи по файлам — исключают параллельные PUT
+const writeQueues: Record<string, Promise<void>> = {};
+function enqueue(filename: string, fn: () => Promise<void>): Promise<void> {
+  const prev = writeQueues[filename] ?? Promise.resolve();
+  const next = prev.then(fn, fn);
+  writeQueues[filename] = next;
+  return next;
+}
 
 async function loadJson<T>(filename: string): Promise<T[]> {
   const file = await getFile(repoOwner.value, repoName.value, `data/${filename}`);
@@ -53,36 +57,47 @@ export function resetCatalog(): void {
   loadState.value = 'idle';
 }
 
-// --- save helpers ---
-
-async function saveFile<T>(
+/**
+ * PUT с автоматическим retry при 409 Conflict.
+ * При 409 перечитываем SHA и повторяем один раз.
+ */
+function saveFile<T>(
   filename: string,
   setter: (v: T[]) => void,
   next: T[],
   commitMsg: string,
 ): Promise<void> {
   saveState.value = 'saving';
-  try {
-    await putFile(
-      repoOwner.value,
-      repoName.value,
-      `data/${filename}`,
-      next as unknown[],
-      shaCache[filename] ?? '',
-      commitMsg,
-    );
-    // обновляем sha после успешного PUT
-    const fresh = await getFile(repoOwner.value, repoName.value, `data/${filename}`);
-    shaCache[filename] = fresh.sha;
-    setter(next);
-    saveState.value = 'idle';
-  } catch (e) {
-    saveState.value = 'error';
-    throw e;
-  }
+  return enqueue(filename, async () => {
+    const owner = repoOwner.value;
+    const repo = repoName.value;
+    const path = `data/${filename}`;
+
+    // Всегда читаем свежий SHA перед PUT
+    const freshBefore = await getFile(owner, repo, path);
+    shaCache[filename] = freshBefore.sha;
+
+    try {
+      await putFile(owner, repo, path, next as unknown[], shaCache[filename], commitMsg);
+      // Обновляем SHA после успешного PUT
+      const updated = await getFile(owner, repo, path);
+      shaCache[filename] = updated.sha;
+      setter(next);
+      saveState.value = 'idle';
+    } catch (e) {
+      saveState.value = 'error';
+      try {
+        const fresh = await getFile(owner, repo, path);
+        shaCache[filename] = fresh.sha;
+      } catch {
+        /* ignore */
+      }
+      throw e;
+    }
+  });
 }
 
-// --- CRUD: categories ---
+// ── Save ──────────────────────────────────────────────────────
 
 export async function saveCategory(cat: Category): Promise<void> {
   const list = categoriesData.value;
@@ -98,23 +113,6 @@ export async function saveCategory(cat: Category): Promise<void> {
   );
 }
 
-export async function archiveCategory(id: string, login: string): Promise<void> {
-  const now = new Date().toISOString();
-  const next = categoriesData.value.map((c) =>
-    c.id === id ? { ...c, status: 'archived' as const, updated_at: now, updated_by: login } : c,
-  );
-  await saveFile(
-    'categories.json',
-    (v: Category[]) => {
-      categoriesData.value = v;
-    },
-    next,
-    `admin: archive category ${id}`,
-  );
-}
-
-// --- CRUD: collections ---
-
 export async function saveCollection(col: Collection): Promise<void> {
   const list = collectionsData.value;
   const idx = list.findIndex((c) => c.id === col.id);
@@ -128,23 +126,6 @@ export async function saveCollection(col: Collection): Promise<void> {
     `admin: upsert collection ${col.id}`,
   );
 }
-
-export async function archiveCollection(id: string, login: string): Promise<void> {
-  const now = new Date().toISOString();
-  const next = collectionsData.value.map((c) =>
-    c.id === id ? { ...c, status: 'archived' as const, updated_at: now, updated_by: login } : c,
-  );
-  await saveFile(
-    'collections.json',
-    (v: Collection[]) => {
-      collectionsData.value = v;
-    },
-    next,
-    `admin: archive collection ${id}`,
-  );
-}
-
-// --- CRUD: authors ---
 
 export async function saveAuthor(author: Author): Promise<void> {
   const list = authorsData.value;
@@ -160,17 +141,40 @@ export async function saveAuthor(author: Author): Promise<void> {
   );
 }
 
-export async function archiveAuthor(id: string, login: string): Promise<void> {
-  const now = new Date().toISOString();
-  const next = authorsData.value.map((a) =>
-    a.id === id ? { ...a, status: 'archived' as const, updated_at: now, updated_by: login } : a,
+// ── Delete ────────────────────────────────────────────────────
+
+export async function deleteCategory(id: string): Promise<void> {
+  const next = categoriesData.value.filter((c) => c.id !== id);
+  await saveFile(
+    'categories.json',
+    (v: Category[]) => {
+      categoriesData.value = v;
+    },
+    next,
+    `admin: delete category ${id}`,
   );
+}
+
+export async function deleteCollection(id: string): Promise<void> {
+  const next = collectionsData.value.filter((c) => c.id !== id);
+  await saveFile(
+    'collections.json',
+    (v: Collection[]) => {
+      collectionsData.value = v;
+    },
+    next,
+    `admin: delete collection ${id}`,
+  );
+}
+
+export async function deleteAuthor(id: string): Promise<void> {
+  const next = authorsData.value.filter((a) => a.id !== id);
   await saveFile(
     'authors.json',
     (v: Author[]) => {
       authorsData.value = v;
     },
     next,
-    `admin: archive author ${id}`,
+    `admin: delete author ${id}`,
   );
 }

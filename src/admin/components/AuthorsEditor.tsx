@@ -1,10 +1,15 @@
 import { useState } from 'preact/hooks';
 import type { JSX } from 'preact';
-import { authorsData, saveAuthor, archiveAuthor, saveState } from '../state/catalog.ts';
-import { pat } from '../state/auth.ts';
+import { authorsData, saveAuthor, deleteAuthor, saveState } from '../state/catalog.ts';
+import { pointsData, loadPoints, pointsLoadState } from '../state/pointsState.ts';
+import { githubLogin } from '../state/auth.ts';
 import type { Author } from '@shared/types/data.ts';
+import { loadSavedOrder } from '../state/orderState.ts';
+import { useOrderedList } from '../hooks/useOrderedList.ts';
 import { Modal } from './Modal.tsx';
-import { Field, Input, Select, Textarea, FormActions } from './AdminForm.tsx';
+import { ReferencesModal } from './ReferencesModal.tsx';
+import { SortBar } from './SortBar.tsx';
+import { Field, Input, Textarea, FormActions } from './AdminForm.tsx';
 
 function now(): string {
   return new Date().toISOString();
@@ -23,9 +28,7 @@ interface FormState {
   origin: string;
   year_start: string;
   year_end: string;
-  status: 'active' | 'archived';
 }
-
 interface FormErrors {
   id?: string;
   name?: string;
@@ -41,9 +44,7 @@ function validate(f: FormState): FormErrors {
 
 function formatYears(a: Author): string {
   if (!a.active_years) return '—';
-  const s = a.active_years.start ?? '?';
-  const e = a.active_years.end ?? '…';
-  return `${s}–${e}`;
+  return `${a.active_years.start ?? '?'}–${a.active_years.end ?? '…'}`;
 }
 
 export function AuthorsEditor(): JSX.Element {
@@ -51,23 +52,37 @@ export function AuthorsEditor(): JSX.Element {
   const [editing, setEditing] = useState<FormState | null>(null);
   const [isNew, setIsNew] = useState(false);
   const [errors, setErrors] = useState<FormErrors>({});
-  const [archiving, setArchiving] = useState<string | null>(null);
   const saving = saveState.value === 'saving';
 
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [loadingDeleteId, setLoadingDeleteId] = useState<string | null>(null);
+  const [refPoints, setRefPoints] = useState<{ id: string; label: string; tab: 'points' }[]>([]);
+  const [confirmId, setConfirmId] = useState<string | null>(null);
+
+  const ids = authors.map((a) => a.id);
+  const {
+    sortMode,
+    orderedIds,
+    isDirty,
+    setSortMode,
+    handleMoveUp,
+    handleMoveDown,
+    handleSaveOrder,
+    handleRevertOrder,
+    handleResetOrder,
+  } = useOrderedList({
+    tab: 'authors',
+    ids,
+    statusOf: () => 'active',
+  });
+  const hasSavedOrder = loadSavedOrder('authors') !== null;
+  const authorById = new Map(authors.map((a) => [a.id, a]));
+
   function openNew(): void {
-    setEditing({
-      id: '',
-      name: '',
-      bio: '',
-      origin: '',
-      year_start: '',
-      year_end: '',
-      status: 'active',
-    });
+    setEditing({ id: '', name: '', bio: '', origin: '', year_start: '', year_end: '' });
     setIsNew(true);
     setErrors({});
   }
-
   function openEdit(a: Author): void {
     setEditing({
       id: a.id,
@@ -82,20 +97,15 @@ export function AuthorsEditor(): JSX.Element {
         a.active_years?.end !== undefined && a.active_years?.end !== null
           ? String(a.active_years.end)
           : '',
-      status: a.status,
     });
     setIsNew(false);
     setErrors({});
   }
-
   function close(): void {
     setEditing(null);
   }
-
   function onNameBlur(): void {
-    if (editing && isNew && !editing.id) {
-      setEditing({ ...editing, id: makeSlug(editing.name) });
-    }
+    if (editing && isNew && !editing.id) setEditing({ ...editing, id: makeSlug(editing.name) });
   }
 
   async function submit(e: Event): Promise<void> {
@@ -106,16 +116,14 @@ export function AuthorsEditor(): JSX.Element {
       setErrors(errs);
       return;
     }
-
-    const login = pat.value.split(':')[0] ?? 'admin';
+    const login = githubLogin.value || 'admin';
     const timestamp = now();
     const existing = authors.find((a) => a.id === editing.id);
-
     const hasYears = editing.year_start || editing.year_end;
     const author: Author = {
       id: editing.id.trim(),
       name: editing.name.trim(),
-      status: editing.status,
+      status: 'active',
       ...(editing.bio.trim() ? { bio: editing.bio.trim() } : {}),
       ...(editing.origin.trim() ? { origin: editing.origin.trim() } : {}),
       ...(hasYears
@@ -131,7 +139,6 @@ export function AuthorsEditor(): JSX.Element {
       created_by: existing?.created_by ?? login,
       updated_by: login,
     };
-
     try {
       await saveAuthor(author);
       close();
@@ -140,18 +147,27 @@ export function AuthorsEditor(): JSX.Element {
     }
   }
 
-  async function doArchive(id: string): Promise<void> {
-    const login = pat.value.split(':')[0] ?? 'admin';
-    setArchiving(id);
-    try {
-      await archiveAuthor(id, login);
-    } finally {
-      setArchiving(null);
-    }
+  async function handleDeleteClick(id: string): Promise<void> {
+    setLoadingDeleteId(id);
+    if (pointsLoadState.value !== 'ready') await loadPoints();
+    const refs = pointsData.value
+      .filter((p) => p.author_id === id)
+      .map((p) => ({ id: p.id, label: p.title, tab: 'points' as const }));
+    setLoadingDeleteId(null);
+    if (refs.length > 0) {
+      setRefPoints(refs);
+      setDeletingId(id);
+    } else setConfirmId(id);
   }
 
-  const active = authors.filter((a) => a.status === 'active');
-  const archived = authors.filter((a) => a.status === 'archived');
+  async function confirmDelete(): Promise<void> {
+    if (!confirmId) return;
+    try {
+      await deleteAuthor(confirmId);
+    } finally {
+      setConfirmId(null);
+    }
+  }
 
   return (
     <div class="cat-editor">
@@ -168,9 +184,20 @@ export function AuthorsEditor(): JSX.Element {
         </div>
       )}
 
+      <SortBar
+        sortMode={sortMode}
+        isDirty={isDirty}
+        savedOrder={hasSavedOrder}
+        onSortMode={setSortMode}
+        onSaveOrder={handleSaveOrder}
+        onRevertOrder={handleRevertOrder}
+        onResetOrder={handleResetOrder}
+      />
+
       <table class="admin-table">
         <thead>
           <tr>
+            {sortMode === 'custom' && <th class="admin-table__order-cell"></th>}
             <th>ID</th>
             <th>Имя</th>
             <th>Происхождение</th>
@@ -179,57 +206,79 @@ export function AuthorsEditor(): JSX.Element {
           </tr>
         </thead>
         <tbody>
-          {active.map((a) => (
-            <tr key={a.id}>
-              <td class="admin-table__id">{a.id}</td>
-              <td>{a.name}</td>
-              <td>{a.origin ?? '—'}</td>
-              <td>{formatYears(a)}</td>
-              <td class="admin-table__actions">
-                <button class="admin-btn-icon" onClick={() => openEdit(a)} title="Редактировать">
-                  ✎
-                </button>
-                <button
-                  class="admin-btn-icon admin-btn-icon--danger"
-                  onClick={() => doArchive(a.id)}
-                  disabled={archiving === a.id || saving}
-                  title="Архивировать"
-                >
-                  ⊘
-                </button>
-              </td>
-            </tr>
-          ))}
+          {orderedIds.map((id, index) => {
+            const a = authorById.get(id);
+            if (!a) return null;
+            return (
+              <tr key={id}>
+                {sortMode === 'custom' && (
+                  <td class="admin-table__order-cell">
+                    <button
+                      class="admin-order-btn"
+                      onClick={() => handleMoveUp(index)}
+                      disabled={index === 0}
+                      title="Вверх"
+                    >
+                      ↑
+                    </button>
+                    <button
+                      class="admin-order-btn"
+                      onClick={() => handleMoveDown(index)}
+                      disabled={index === orderedIds.length - 1}
+                      title="Вниз"
+                    >
+                      ↓
+                    </button>
+                  </td>
+                )}
+                <td class="admin-table__id">{a.id}</td>
+                <td>{a.name}</td>
+                <td>{a.origin ?? '—'}</td>
+                <td>{formatYears(a)}</td>
+                <td class="admin-table__actions">
+                  <button class="admin-btn-icon" onClick={() => openEdit(a)} title="Редактировать">
+                    ✎
+                  </button>
+                  <button
+                    class="admin-btn-icon admin-btn-icon--danger"
+                    onClick={() => handleDeleteClick(a.id)}
+                    disabled={loadingDeleteId === a.id || saving}
+                    title="Удалить"
+                  >
+                    {loadingDeleteId === a.id ? '…' : '🗑'}
+                  </button>
+                </td>
+              </tr>
+            );
+          })}
         </tbody>
       </table>
 
-      {archived.length > 0 && (
-        <details class="cat-editor__archived">
-          <summary>Архивные ({archived.length})</summary>
-          <table class="admin-table admin-table--muted">
-            <tbody>
-              {archived.map((a) => (
-                <tr key={a.id}>
-                  <td class="admin-table__id">{a.id}</td>
-                  <td>{a.name}</td>
-                  <td>{a.origin ?? '—'}</td>
-                  <td>{formatYears(a)}</td>
-                  <td class="admin-table__actions">
-                    <button
-                      class="admin-btn-icon"
-                      onClick={() => openEdit(a)}
-                      title="Редактировать"
-                    >
-                      ✎
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </details>
+      {deletingId && refPoints.length > 0 && (
+        <ReferencesModal
+          title="Невозможно удалить автора"
+          items={refPoints}
+          onClose={() => {
+            setDeletingId(null);
+            setRefPoints([]);
+          }}
+        />
       )}
-
+      {confirmId && (
+        <Modal title="Удалить автора?" onClose={() => setConfirmId(null)}>
+          <p class="ref-modal__text">
+            Автор «{authorById.get(confirmId)?.name}» будет удалён без возможности восстановления.
+          </p>
+          <div style={{ gap: '0.5rem', display: 'flex', justifyContent: 'flex-end' }}>
+            <button class="admin-btn admin-btn--ghost" onClick={() => setConfirmId(null)}>
+              Отмена
+            </button>
+            <button class="admin-btn admin-btn--danger" onClick={confirmDelete} disabled={saving}>
+              {saving ? 'Удаление…' : 'Удалить'}
+            </button>
+          </div>
+        </Modal>
+      )}
       {editing && (
         <Modal title={isNew ? 'Новый автор' : 'Редактировать автора'} onClose={close} wide>
           <form onSubmit={submit}>
@@ -291,20 +340,6 @@ export function AuthorsEditor(): JSX.Element {
                 />
               </Field>
             </div>
-            <Field label="Статус">
-              <Select
-                value={editing.status}
-                onChange={(e) =>
-                  setEditing({
-                    ...editing,
-                    status: (e.target as HTMLSelectElement).value as 'active' | 'archived',
-                  })
-                }
-              >
-                <option value="active">active</option>
-                <option value="archived">archived</option>
-              </Select>
-            </Field>
             <FormActions onCancel={close} saving={saving} isNew={isNew} />
           </form>
         </Modal>

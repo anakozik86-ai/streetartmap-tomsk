@@ -1,161 +1,270 @@
+import { useEffect, useState } from 'preact/hooks';
 import type { JSX } from 'preact';
-import { useEffect } from 'preact/hooks';
-import { navigate } from '../state/router.ts';
 import {
   pointsData,
   pointsLoadState,
   pointsError,
-  pointsSaveState,
   loadPoints,
-  resetPoints,
-  archivePoint,
+  togglePointStatus,
+  deletePoint,
+  findPointReferences,
 } from '../state/pointsState.ts';
+import { loadRoutesAdmin, routesLoadState } from '../state/routesState.ts';
 import { categoriesData } from '../state/catalog.ts';
+import { navigate } from '../state/router.ts';
+import { loadSavedOrder } from '../state/orderState.ts';
+import { useOrderedList } from '../hooks/useOrderedList.ts';
+import { Modal } from './Modal.tsx';
+import { ReferencesModal } from './ReferencesModal.tsx';
+import { SortBar } from './SortBar.tsx';
+import './PointsEditor.css';
+
+const STATE_LABELS: Record<string, string> = {
+  intact: 'цел',
+  damaged: 'повреждён',
+  restored: 'восстановлен',
+  painted_over: 'закрашен',
+  removed: 'удалён',
+  unknown: '?',
+};
 
 function formatDate(iso: string): string {
-  return iso
-    ? new Date(iso).toLocaleDateString('ru-RU', {
-        day: '2-digit',
-        month: '2-digit',
-        year: '2-digit',
-      })
-    : '—';
-}
-
-function statusLabel(status: string): string {
-  const map: Record<string, string> = {
-    draft: 'Черновик',
-    published: 'Опубликовано',
-    archived: 'Архив',
-  };
-  return map[status] ?? status;
-}
-
-function stateLabel(state: string): string {
-  const map: Record<string, string> = {
-    intact: 'В порядке',
-    damaged: 'Повреждена',
-    restored: 'Восстановлена',
-    painted_over: 'Закрашена',
-    removed: 'Удалена',
-    unknown: 'Неизвестно',
-  };
-  return map[state] ?? state;
+  return iso.slice(0, 10);
 }
 
 export function PointsEditor(): JSX.Element {
+  const points = pointsData.value;
+  const loadState = pointsLoadState.value;
+  const error = pointsError.value;
+  const categories = categoriesData.value;
+
+  const pointById = new Map(points.map((p) => [p.id, p]));
+  const catById = new Map(categories.map((c) => [c.id, c]));
+  const ids = points.map((p) => p.id);
+
+  const {
+    sortMode,
+    orderedIds,
+    isDirty,
+    setSortMode,
+    handleMoveUp,
+    handleMoveDown,
+    handleSaveOrder,
+    handleRevertOrder,
+    handleResetOrder,
+  } = useOrderedList({
+    tab: 'points',
+    ids,
+    statusOf: (id) => pointById.get(id)?.status ?? 'archived',
+  });
+
+  const [savingIds, setSavingIds] = useState<Set<string>>(new Set());
+  const [toggleErrors, setToggleErrors] = useState<Set<string>>(new Set());
+
+  const [loadingDeleteId, setLoadingDeleteId] = useState<string | null>(null);
+  const [refRoutes, setRefRoutes] = useState<{ id: string; label: string; tab: 'routes' }[]>([]);
+  const [refsModalOpen, setRefsModalOpen] = useState(false);
+  const [confirmId, setConfirmId] = useState<string | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+
   useEffect(() => {
     loadPoints();
   }, []);
 
-  const loadState = pointsLoadState.value;
-  const saveState = pointsSaveState.value;
-  const error = pointsError.value;
-  const points = pointsData.value;
-  const catMap = new Map(categoriesData.value.map((c) => [c.id, c.name]));
-
-  if (loadState === 'loading') {
-    return (
-      <div class="admin-section">
-        <p class="admin-loading">Загрузка…</p>
-      </div>
-    );
-  }
-
-  if (loadState === 'error') {
-    return (
-      <div class="admin-section">
-        <p class="admin-error">Ошибка: {error}</p>
-        <button class="admin-btn" onClick={resetPoints}>
-          Повторить
-        </button>
-      </div>
-    );
-  }
-
-  const activePoints = points.filter((p) => p.status !== 'archived');
-
-  async function handleArchive(id: string): Promise<void> {
-    if (!confirm(`Архивировать "${id}"?`)) return;
+  async function handleToggle(id: string): Promise<void> {
+    setSavingIds((prev) => new Set(prev).add(id));
+    setToggleErrors((prev) => {
+      const s = new Set(prev);
+      s.delete(id);
+      return s;
+    });
     try {
-      await archivePoint(id);
+      await togglePointStatus(id);
     } catch {
-      // saveState signal handles error display
+      setToggleErrors((prev) => new Set(prev).add(id));
+    } finally {
+      setSavingIds((prev) => {
+        const s = new Set(prev);
+        s.delete(id);
+        return s;
+      });
     }
   }
 
+  async function handleDeleteClick(id: string): Promise<void> {
+    setLoadingDeleteId(id);
+    if (routesLoadState.value !== 'ready') await loadRoutesAdmin();
+    const refs = findPointReferences(id).map((r) => ({
+      id: r.id,
+      label: r.name,
+      tab: 'routes' as const,
+    }));
+    setLoadingDeleteId(null);
+    if (refs.length > 0) {
+      setRefRoutes(refs);
+      setRefsModalOpen(true);
+    } else setConfirmId(id);
+  }
+
+  async function confirmDelete(): Promise<void> {
+    if (!confirmId) return;
+    setDeletingId(confirmId);
+    setConfirmId(null);
+    try {
+      await deletePoint(confirmId);
+    } finally {
+      setDeletingId(null);
+    }
+  }
+
+  const hasSavedOrder = loadSavedOrder('points') !== null;
+
   return (
-    <div class="admin-section">
-      <div class="admin-section__header">
-        <h2 class="admin-section__title">Точки</h2>
+    <div class="points-editor">
+      <div class="points-editor__toolbar">
+        <h2 class="points-editor__heading">Точки</h2>
         <button class="admin-btn admin-btn--primary" onClick={() => navigate('points', 'new')}>
-          + Создать
+          + Добавить
         </button>
       </div>
 
-      {saveState === 'saving' && <p class="admin-saving">Сохранение…</p>}
-      {saveState === 'error' && (
-        <p class="admin-error">Ошибка сохранения. Проверь PAT и права репозитория.</p>
-      )}
+      {error && <div class="points-editor__error">{error}</div>}
+      {loadState === 'loading' && <div>Загрузка…</div>}
 
-      {activePoints.length === 0 ? (
-        <p class="admin-empty">Точек нет. Создайте первую.</p>
-      ) : (
-        <div class="admin-table-wrap">
+      {loadState === 'ready' && (
+        <>
+          <SortBar
+            sortMode={sortMode}
+            isDirty={isDirty}
+            savedOrder={hasSavedOrder}
+            onSortMode={setSortMode}
+            onSaveOrder={handleSaveOrder}
+            onRevertOrder={handleRevertOrder}
+            onResetOrder={handleResetOrder}
+          />
+
           <table class="admin-table">
             <thead>
               <tr>
+                <th class="admin-table__toggle-cell"></th>
+                {sortMode === 'custom' && <th class="admin-table__order-cell"></th>}
                 <th>ID</th>
                 <th>Название</th>
                 <th>Категория</th>
                 <th>Состояние</th>
-                <th>Статус</th>
                 <th>Обновлено</th>
                 <th></th>
               </tr>
             </thead>
             <tbody>
-              {activePoints.map((point) => (
-                <tr key={point.id} class="admin-table__row">
-                  <td class="admin-table__id">{point.id}</td>
-                  <td class="admin-table__name">
-                    <button class="admin-table__link" onClick={() => navigate('points', point.id)}>
-                      {point.title || <span class="admin-table__empty">Без названия</span>}
-                    </button>
-                  </td>
-                  <td>{catMap.get(point.category_id) ?? point.category_id}</td>
-                  <td>
-                    <span class={`admin-state-badge admin-state-badge--${point.state}`}>
-                      {stateLabel(point.state)}
-                    </span>
-                  </td>
-                  <td>
-                    <span class={`admin-status-badge admin-status-badge--${point.status}`}>
-                      {statusLabel(point.status)}
-                    </span>
-                  </td>
-                  <td class="admin-table__date">{formatDate(point.updated_at)}</td>
-                  <td class="admin-table__actions">
-                    <button
-                      class="admin-btn-icon"
-                      title="Редактировать"
-                      onClick={() => navigate('points', point.id)}
-                    >
-                      ✎
-                    </button>
-                    <button
-                      class="admin-btn-icon admin-btn-icon--danger"
-                      title="Архивировать"
-                      onClick={() => void handleArchive(point.id)}
-                    >
-                      ↓
-                    </button>
-                  </td>
-                </tr>
-              ))}
+              {orderedIds.map((id, index) => {
+                const p = pointById.get(id);
+                if (!p) return null;
+                const isArchived = p.status === 'archived';
+                const isSaving = savingIds.has(id);
+                const hasError = toggleErrors.has(id);
+                const isDeleting = deletingId === id;
+                const toggleClass = hasError
+                  ? 'admin-status-toggle admin-status-toggle--error'
+                  : isArchived
+                    ? 'admin-status-toggle admin-status-toggle--archived'
+                    : 'admin-status-toggle admin-status-toggle--published';
+
+                return (
+                  <tr key={id} class={isArchived ? 'admin-table__row--archived' : ''}>
+                    <td class="admin-table__toggle-cell">
+                      <button
+                        class={toggleClass}
+                        title={isArchived ? 'Опубликовать' : 'Архивировать'}
+                        disabled={isSaving || isDeleting}
+                        onClick={() => handleToggle(id)}
+                      >
+                        {isSaving ? '…' : isArchived ? '○' : '●'}
+                      </button>
+                    </td>
+                    {sortMode === 'custom' && (
+                      <td class="admin-table__order-cell">
+                        <button
+                          class="admin-order-btn"
+                          onClick={() => handleMoveUp(index)}
+                          disabled={index === 0}
+                          title="Вверх"
+                        >
+                          ↑
+                        </button>
+                        <button
+                          class="admin-order-btn"
+                          onClick={() => handleMoveDown(index)}
+                          disabled={index === orderedIds.length - 1}
+                          title="Вниз"
+                        >
+                          ↓
+                        </button>
+                      </td>
+                    )}
+                    <td class="admin-table__id">{p.id}</td>
+                    <td>
+                      <button class="admin-link-btn" onClick={() => navigate('points', p.id)}>
+                        {p.title}
+                      </button>
+                    </td>
+                    <td>{catById.get(p.category_id)?.name ?? p.category_id}</td>
+                    <td>
+                      <span class={`admin-state-badge admin-state-badge--${p.state}`}>
+                        {STATE_LABELS[p.state] ?? p.state}
+                      </span>
+                    </td>
+                    <td class="admin-table__muted">{formatDate(p.updated_at)}</td>
+                    <td class="admin-table__actions">
+                      <button
+                        class="admin-btn-icon"
+                        title="Редактировать"
+                        onClick={() => navigate('points', p.id)}
+                      >
+                        ✎
+                      </button>
+                      <button
+                        class="admin-btn-icon admin-btn-icon--danger"
+                        title="Удалить"
+                        disabled={loadingDeleteId === id || isDeleting || isSaving}
+                        onClick={() => handleDeleteClick(id)}
+                      >
+                        {loadingDeleteId === id || isDeleting ? '…' : '🗑'}
+                      </button>
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
-        </div>
+        </>
+      )}
+
+      {refsModalOpen && (
+        <ReferencesModal
+          title="Невозможно удалить точку"
+          items={refRoutes}
+          onClose={() => {
+            setRefsModalOpen(false);
+            setRefRoutes([]);
+          }}
+        />
+      )}
+
+      {confirmId && (
+        <Modal title="Удалить точку?" onClose={() => setConfirmId(null)}>
+          <p class="ref-modal__text">
+            Точка «{pointById.get(confirmId)?.title}» будет удалена без возможности восстановления.
+          </p>
+          <div style={{ gap: '0.5rem', display: 'flex', justifyContent: 'flex-end' }}>
+            <button class="admin-btn admin-btn--ghost" onClick={() => setConfirmId(null)}>
+              Отмена
+            </button>
+            <button class="admin-btn admin-btn--danger" onClick={confirmDelete}>
+              Удалить
+            </button>
+          </div>
+        </Modal>
       )}
     </div>
   );

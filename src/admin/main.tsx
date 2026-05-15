@@ -11,6 +11,7 @@ import './components/PointForm.css';
 import './components/RoutesEditor.css';
 import './components/RouteForm.css';
 import './components/Dashboard.css';
+import '../public/hooks/useTheme.ts'; // инициализирует theme signal и effect на <html>
 import { App } from './App.tsx';
 
 render(<App />, document.getElementById('app')!);

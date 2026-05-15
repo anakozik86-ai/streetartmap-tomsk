@@ -1,116 +1,326 @@
-.cat-editor__toolbar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 1.25rem;
-}
+/* Общие стили таблиц, редакторов справочников и toggle статуса */
 
-.cat-editor__heading {
-  font-family: var(--font-display);
-  font-size: 1.125rem;
-  font-weight: 600;
-  color: var(--text);
-  margin: 0;
-}
+/* ── Таблица ──────────────────────────────────────────────── */
 
-.cat-editor__save-error {
-  background: color-mix(in srgb, var(--state-damaged) 12%, transparent);
-  border: 1px solid var(--state-damaged);
-  border-radius: var(--radius-sm);
-  color: var(--state-damaged);
-  font-size: 0.8125rem;
-  padding: 0.5rem 0.75rem;
-  margin-bottom: 1rem;
-}
-
-.cat-editor__archived {
-  margin-top: 1.5rem;
-}
-.cat-editor__archived summary {
-  cursor: pointer;
-  font-size: 0.8125rem;
-  color: var(--text-muted);
-  padding: 0.25rem 0;
-  user-select: none;
-}
-
-/* Admin table */
 .admin-table {
   width: 100%;
   border-collapse: collapse;
   font-size: 0.875rem;
 }
+
 .admin-table th {
   text-align: left;
   font-size: 0.75rem;
-  font-weight: 500;
+  font-weight: 600;
   color: var(--text-muted);
-  padding: 0.375rem 0.75rem;
+  padding: 0.5rem 0.75rem;
   border-bottom: 1px solid var(--border);
+  white-space: nowrap;
 }
+
 .admin-table td {
   padding: 0.625rem 0.75rem;
   border-bottom: 1px solid var(--border);
-  color: var(--text);
   vertical-align: middle;
+  color: var(--text);
 }
-.admin-table tr:last-child td {
+
+.admin-table tbody tr:last-child td {
   border-bottom: none;
 }
-.admin-table tr:hover td {
+
+.admin-table tbody tr:hover td {
   background: var(--surface-hover);
 }
+
 .admin-table--muted td {
   color: var(--text-muted);
 }
 
 .admin-table__id {
-  font-family: monospace;
+  font-family: var(--font-mono, monospace);
   font-size: 0.8125rem;
   color: var(--text-muted);
-}
-.admin-table__mono {
-  font-family: monospace;
-  font-size: 0.8125rem;
-}
-.admin-table__actions {
-  width: 5rem;
-  text-align: right;
   white-space: nowrap;
 }
 
-/* Icon buttons */
-.admin-btn-icon {
-  background: none;
-  border: none;
-  cursor: pointer;
+.admin-table__mono {
+  font-family: var(--font-mono, monospace);
+  font-size: 0.8125rem;
+}
+
+.admin-table__muted {
   color: var(--text-muted);
-  padding: 0.25rem 0.375rem;
+  font-size: 0.8125rem;
+  white-space: nowrap;
+}
+
+.admin-table__actions {
+  width: 1px;
+  white-space: nowrap;
+  text-align: right;
+}
+
+/* ── Кнопка-иконка ────────────────────────────────────────── */
+
+.admin-btn-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  background: transparent;
+  border: 1px solid var(--border);
   border-radius: var(--radius-sm);
+  color: var(--text-muted);
+  cursor: pointer;
   font-size: 0.9375rem;
   transition:
     color var(--duration-fast) var(--ease-out),
+    border-color var(--duration-fast) var(--ease-out),
     background var(--duration-fast) var(--ease-out);
 }
+
 .admin-btn-icon:hover {
   color: var(--text);
+  border-color: var(--border-strong);
   background: var(--surface-hover);
 }
-.admin-btn-icon--danger:hover {
-  color: var(--state-damaged);
-}
+
 .admin-btn-icon:disabled {
   opacity: 0.4;
   cursor: not-allowed;
 }
 
-/* Color swatch */
+.admin-btn-icon--danger:hover {
+  color: var(--state-damaged);
+  border-color: var(--state-damaged);
+}
+
+/* ── Ссылка-кнопка (название точки/маршрута в таблице) ─────── */
+
+.admin-link-btn {
+  background: none;
+  border: none;
+  padding: 0;
+  color: var(--text);
+  cursor: pointer;
+  font-family: var(--font-body);
+  font-size: 0.875rem;
+  text-align: left;
+  text-decoration: underline;
+  text-decoration-color: var(--border);
+  transition: color var(--duration-fast) var(--ease-out);
+}
+
+.admin-link-btn:hover {
+  color: var(--accent);
+  text-decoration-color: var(--accent);
+}
+
+/* ── Редакторы справочников (cat-editor) ──────────────────── */
+
+.cat-editor__toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.cat-editor__heading {
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin: 0;
+  color: var(--text);
+}
+
+.cat-editor__save-error {
+  margin-bottom: 1rem;
+  padding: 0.75rem 1rem;
+  background: color-mix(in srgb, var(--state-damaged) 12%, transparent);
+  color: var(--state-damaged);
+  border-radius: var(--radius-md);
+  font-size: 0.875rem;
+}
+
+.cat-editor__archived {
+  margin-top: 1.5rem;
+}
+
+.cat-editor__archived summary {
+  font-size: 0.8125rem;
+  color: var(--text-muted);
+  cursor: pointer;
+  user-select: none;
+  margin-bottom: 0.75rem;
+}
+
+/* ── Color swatch (коллекции) ─────────────────────────────── */
+
 .admin-color-swatch {
   display: inline-block;
-  width: 1rem;
-  height: 1rem;
-  border-radius: 3px;
+  width: 0.875rem;
+  height: 0.875rem;
+  border-radius: 2px;
   vertical-align: middle;
   margin-right: 0.375rem;
+  flex-shrink: 0;
+}
+
+/* ── Sort bar ─────────────────────────────────────────────── */
+
+.admin-sort-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+  margin-bottom: 0.5rem;
+}
+
+.admin-sort-bar__label {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.admin-sort-bar__buttons {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.admin-sort-btn {
+  padding: 0.25rem 0.625rem;
+  font-size: 0.75rem;
   border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-family: var(--font-body);
+  transition:
+    background var(--duration-fast) var(--ease-out),
+    color var(--duration-fast) var(--ease-out),
+    border-color var(--duration-fast) var(--ease-out);
+}
+
+.admin-sort-btn:hover {
+  background: var(--surface-hover);
+  color: var(--text);
+}
+
+.admin-sort-btn--active {
+  background: var(--accent);
+  color: var(--accent-text);
+  border-color: var(--accent);
+}
+
+/* ── Toggle ячейка ────────────────────────────────────────── */
+
+.admin-table__toggle-cell {
+  width: 2rem;
+  text-align: center;
+  padding-left: 0.5rem !important;
+  padding-right: 0.25rem !important;
+}
+
+/* ── Status toggle button ─────────────────────────────────── */
+
+.admin-status-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-size: 1rem;
+  line-height: 1;
+  border-radius: var(--radius-sm);
+  padding: 0;
+  transition: opacity var(--duration-fast) var(--ease-out);
+}
+
+.admin-status-toggle:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.admin-status-toggle--published {
+  color: var(--accent);
+}
+
+.admin-status-toggle--archived {
+  color: var(--text-muted);
+}
+
+.admin-status-toggle--error {
+  color: var(--state-damaged);
+}
+
+/* ── Archived rows ────────────────────────────────────────── */
+
+.admin-table__row--archived td {
+  opacity: 0.45;
+}
+
+.admin-table__row--archived .admin-table__toggle-cell {
+  opacity: 1;
+}
+/* Добавить в AdminTable.css */
+
+/* ── Order controls bar ───────────────────────────────────────── */
+
+.admin-order-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+  min-height: 2rem;
+}
+
+.admin-order-bar__dirty {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-right: auto;
+}
+
+/* ── Up/Down buttons ──────────────────────────────────────────── */
+
+.admin-table__order-cell {
+  width: 3.5rem;
+  white-space: nowrap;
+  padding-left: 0.25rem !important;
+  padding-right: 0.25rem !important;
+}
+
+.admin-order-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.375rem;
+  height: 1.375rem;
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 0.75rem;
+  line-height: 1;
+  padding: 0;
+  transition:
+    color var(--duration-fast) var(--ease-out),
+    border-color var(--duration-fast) var(--ease-out),
+    background var(--duration-fast) var(--ease-out);
+}
+
+.admin-order-btn:hover:not(:disabled) {
+  color: var(--text);
+  border-color: var(--border-strong);
+  background: var(--surface-hover);
+}
+
+.admin-order-btn:disabled {
+  opacity: 0.25;
+  cursor: not-allowed;
 }
