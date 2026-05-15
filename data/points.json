@@ -67,7 +67,7 @@
   },
   {
     "id": "lagernyy-stencil-1",
-    "status": "published",
+    "status": "archived",
     "coords": {
       "lat": 56.4566,
       "lng": 84.9341
@@ -91,9 +91,9 @@
     "photos": [],
     "featured": false,
     "created_at": "2025-01-01T00:00:00.000Z",
-    "updated_at": "2025-01-01T00:00:00.000Z",
+    "updated_at": "2026-05-15T08:36:26.824Z",
     "created_by": "system",
-    "updated_by": "system",
+    "updated_by": "dbblqp-droid",
     "author_id": "kollektiv-forma"
   },
   {
