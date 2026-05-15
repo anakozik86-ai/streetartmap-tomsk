@@ -44,7 +44,6 @@
     "accessibility": "courtyard",
     "category_id": "graffiti",
     "collection_ids": [
-      "tomsk-portraits",
       "street-vision-2023"
     ],
     "tags": [
@@ -61,7 +60,7 @@
     "photos": [],
     "featured": false,
     "created_at": "2025-01-01T00:00:00.000Z",
-    "updated_at": "2026-05-15T09:48:32.289Z",
+    "updated_at": "2026-05-15T09:54:22.564Z",
     "created_by": "system",
     "updated_by": "",
     "author_id": "anna-volkov"
