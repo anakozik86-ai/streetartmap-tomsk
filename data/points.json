@@ -1,7 +1,7 @@
 [
   {
     "id": "lenina-mural-1",
-    "status": "published",
+    "status": "archived",
     "coords": {
       "lat": 56.49585,
       "lng": 84.97351
@@ -27,9 +27,9 @@
     "photos": [],
     "featured": true,
     "created_at": "2025-01-01T00:00:00.000Z",
-    "updated_at": "2026-05-15T09:00:29.572Z",
+    "updated_at": "2026-05-15T09:18:56.075Z",
     "created_by": "system",
-    "updated_by": "dbblqp-droid",
+    "updated_by": "",
     "author_id": "ivan-petrov"
   },
   {
