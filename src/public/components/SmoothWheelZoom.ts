@@ -1,5 +1,5 @@
 /* ============================================================
- * SmoothWheelZoom v3 — плавный зум колесом для Leaflet.
+ * SmoothWheelZoom v4 — плавный зум колесом для Leaflet.
  *
  * Использует приватный _move() для скорости (setZoomAround
  * каждый кадр ломает рендер тайлов), но с тройной защитой
@@ -7,6 +7,9 @@
  *   1. Clamp _goalZoom после каждого wheel event
  *   2. Clamp _goalZoom повторно в _updateWheelZoom
  *   3. Clamp newZoom + early return если новый zoom == текущий
+ *
+ * v4: детектирует тачпад по |deltaY| < TRACKPAD_THRESHOLD
+ * и применяет повышенный multiplier для выравнивания скорости.
  *
  * Использование:
  *   import './SmoothWheelZoom.ts'
@@ -26,6 +29,24 @@ L.Map.mergeOptions({
   smoothWheelZoom: true,
   smoothSensitivity: 1,
 });
+
+// Мышь даёт deltaY кратные ~100-120 (зависит от ОС/браузера).
+// Тачпад — дробные значения 1-20 за событие.
+const TRACKPAD_THRESHOLD = 50;
+
+// Сколько единиц goalZoom добавляет одно «нажатие» колеса мыши
+// (getWheelDelta возвращает ~1 за клик мыши).
+const MOUSE_STEP = 0.003;
+
+// Для тачпада: суммарный deltaY за одно «смахивание» ~300-600,
+// нам нужно ~1-1.5 единицы зума — подбираем коэффициент.
+const TRACKPAD_STEP = 0.012;
+
+// Коэффициент lerp-интерполяции за кадр (0.3 = 30% от разницы).
+// Меньше — плавнее но медленнее. Тачпад чуть быстрее чтобы
+// не казался залипшим.
+const LERP_MOUSE = 0.3;
+const LERP_TRACKPAD = 0.35;
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 const SmoothWheelZoom = L.Handler.extend({
@@ -54,6 +75,7 @@ const SmoothWheelZoom = L.Handler.extend({
     this._prevCenter = map.getCenter();
     this._prevZoom = map.getZoom();
     this._moved = false;
+    this._isTrackpad = false;
 
     map._stop();
     if (map._panAnim) map._panAnim.stop();
@@ -65,7 +87,15 @@ const SmoothWheelZoom = L.Handler.extend({
     const map = this._map;
     const sensitivity = (map.options.smoothSensitivity as number) ?? 1;
 
-    this._goalZoom += L.DomEvent.getWheelDelta(e) * 0.003 * sensitivity;
+    // Детектируем тачпад: у него |deltaY| маленький и дробный.
+    // Обновляем флаг каждое событие — пользователь мог переключиться.
+    const absDelta = Math.abs(e.deltaY);
+    if (absDelta > 0) {
+      this._isTrackpad = absDelta < TRACKPAD_THRESHOLD;
+    }
+
+    const step = this._isTrackpad ? TRACKPAD_STEP : MOUSE_STEP;
+    this._goalZoom += L.DomEvent.getWheelDelta(e) * step * sensitivity;
 
     // Защита 1: clamp _goalZoom после изменения
     const min = map.getMinZoom();
@@ -113,7 +143,8 @@ const SmoothWheelZoom = L.Handler.extend({
       return;
     }
 
-    let newZoom = currentZoom + diff * 0.3;
+    const lerpFactor = this._isTrackpad ? LERP_TRACKPAD : LERP_MOUSE;
+    let newZoom = currentZoom + diff * lerpFactor;
 
     // Защита 3: clamp newZoom
     if (newZoom < min) newZoom = min;
