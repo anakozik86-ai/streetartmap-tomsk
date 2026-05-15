@@ -190,35 +190,5 @@
     "state_checked_at": "2026-02-23T00:00:00.000Z",
     "year_created": 1984,
     "author_id": "anna-volkov"
-  },
-  {
-    "created_at": "2026-05-13T06:29:01.349Z",
-    "created_by": "dbblqp-droid",
-    "updated_at": "2026-05-15T09:00:34.436Z",
-    "updated_by": "dbblqp-droid",
-    "id": "sabachiydom",
-    "status": "published",
-    "coords": {
-      "lat": 56.3884,
-      "lng": 85.2095
-    },
-    "accessibility": "street",
-    "category_id": "mosaic",
-    "collection_ids": [],
-    "tags": [
-      "чтооо"
-    ],
-    "title": "сабачья пасека",
-    "description": "филиноооокккк",
-    "materials": [
-      "глина"
-    ],
-    "state": "intact",
-    "photos": [],
-    "featured": false,
-    "address_hint": "улица сабачий край",
-    "dimensions": "6x9",
-    "state_checked_at": "2026-01-01T00:00:00.000Z",
-    "year_created": 2023
   }
 ]
