@@ -1,9 +1,11 @@
 import type { JSX } from 'preact';
-import { useEffect, useState } from 'preact/hooks';
+import { useEffect, useRef, useState } from 'preact/hooks';
 import type { Point, PointAccessibility, PointState, ContentStatus } from '@shared/types/data.ts';
 import { navigate } from '../state/router.ts';
 import { pointsData, pointsSaveState, loadPoints, savePoint } from '../state/pointsState.ts';
 import { categoriesData, collectionsData, authorsData } from '../state/catalog.ts';
+import { PhotoUploader } from './PhotoUploader.tsx';
+import './PhotoUploader.css';
 
 // ── helpers ──────────────────────────────────────────────────────────────────
 
@@ -200,15 +202,24 @@ export function PointForm({ pointId }: PointFormProps): JSX.Element {
     existing ? pointToDraft(existing) : emptyDraft(),
   );
 
+  // photos managed separately to avoid being wiped by draft re-sync from pointsData
+  const [photos, setPhotos] = useState<Point['photos']>(() => existing?.photos ?? []);
+
   const [idTouched, setIdTouched] = useState(!isNew);
   const [saveError, setSaveError] = useState<string | null>(null);
 
-  // Sync draft after points load (handles direct URL navigation to #points/id)
+  // Sync draft after points load (handles direct URL navigation to #points/id).
+  // draft: only when id still empty. photos: on first load only (photosLoaded ref).
+  const photosLoaded = useRef(false);
   useEffect(() => {
-    if (!isNew && draft.id === '') {
+    if (!isNew) {
       const loaded = pointsData.value.find((p) => p.id === pointId);
       if (loaded) {
-        setDraft(pointToDraft(loaded));
+        if (draft.id === '') setDraft(pointToDraft(loaded));
+        if (!photosLoaded.current) {
+          photosLoaded.current = true;
+          setPhotos(loaded.photos);
+        }
       }
     }
   }, [pointsData.value, isNew, pointId, draft.id]);
@@ -262,7 +273,7 @@ export function PointForm({ pointId }: PointFormProps): JSX.Element {
       description: draft.description,
       materials: draft.materials,
       state: draft.state,
-      photos: draft.photos,
+      photos: photos,
       featured: draft.featured,
       ...(draft.address_hint.trim() ? { address_hint: draft.address_hint.trim() } : {}),
       ...(draft.dimensions.trim() ? { dimensions: draft.dimensions.trim() } : {}),
@@ -662,6 +673,16 @@ export function PointForm({ pointId }: PointFormProps): JSX.Element {
                 />
               </div>
             </div>
+          </section>
+
+          {/* Section: Фотографии */}
+          <section class="pf-section">
+            <h3 class="pf-section__title">Фотографии</h3>
+            {!draft.id.trim() ? (
+              <p class="pf-hint">Сохраните ID точки, чтобы загружать фотографии.</p>
+            ) : (
+              <PhotoUploader pointId={draft.id.trim()} photos={photos} onChange={setPhotos} />
+            )}
           </section>
         </div>
       </div>
