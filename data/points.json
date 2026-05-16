@@ -2,7 +2,7 @@
   {
     "created_at": "2026-05-15T10:18:21.851Z",
     "created_by": "anakozik86-ai",
-    "updated_at": "2026-05-16T20:45:59.070Z",
+    "updated_at": "2026-05-16T20:50:22.102Z",
     "updated_by": "dbblqp-droid",
     "id": "filin",
     "status": "published",
@@ -46,7 +46,10 @@
     "dimensions": "6x9 карнишонов",
     "year_created": 1984,
     "author_id": "ivan-petrov",
-    "author_ids": []
+    "author_ids": [
+      "ivan-petrov",
+      "anna-volkov"
+    ]
   },
   {
     "created_at": "2026-05-15T10:39:13.979Z",
