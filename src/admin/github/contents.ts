@@ -27,3 +27,51 @@ export async function putFile(
     body: JSON.stringify({ message, content: encoded, sha }),
   });
 }
+
+/**
+ * Get the current SHA of a file without fetching its content.
+ * Returns '' if the file does not exist (404).
+ * Throws for other errors.
+ */
+export async function getFileSha(
+  owner: string,
+  repo: string,
+  path: string,
+  token: string,
+): Promise<string> {
+  try {
+    const file = await request<GitHubFile>(token, `/repos/${owner}/${repo}/contents/${path}`);
+    return file.sha;
+  } catch (err: unknown) {
+    if (
+      err &&
+      typeof err === 'object' &&
+      'status' in err &&
+      (err as { status: number }).status === 404
+    ) {
+      return '';
+    }
+    throw err;
+  }
+}
+
+/**
+ * Upload a binary file (already base64-encoded) to the repo.
+ * Pass sha='' for a new file, or the current SHA for an update.
+ */
+export async function putBinaryFile(
+  owner: string,
+  repo: string,
+  path: string,
+  base64Content: string,
+  sha: string,
+  token: string,
+  message: string,
+): Promise<void> {
+  const body: Record<string, string> = { message, content: base64Content };
+  if (sha) body['sha'] = sha;
+  await request<unknown>(token, `/repos/${owner}/${repo}/contents/${path}`, {
+    method: 'PUT',
+    body: JSON.stringify(body),
+  });
+}
