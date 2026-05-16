@@ -1,0 +1,204 @@
+.photo-uploader {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* Drop zone */
+.photo-uploader__dropzone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 24px 16px;
+  border: 2px dashed var(--color-border);
+  border-radius: 8px;
+  cursor: pointer;
+  transition:
+    border-color var(--duration-fast) var(--ease-out),
+    background var(--duration-fast) var(--ease-out);
+  user-select: none;
+  text-align: center;
+}
+
+.photo-uploader__dropzone:hover,
+.photo-uploader__dropzone--over {
+  border-color: var(--color-accent);
+  background: color-mix(in srgb, var(--color-accent) 6%, transparent);
+}
+
+.photo-uploader__dropzone-icon {
+  font-size: 28px;
+  line-height: 1;
+  pointer-events: none;
+}
+
+.photo-uploader__dropzone-text {
+  font-size: 14px;
+  color: var(--color-text);
+  pointer-events: none;
+}
+
+.photo-uploader__dropzone-hint {
+  font-size: 12px;
+  color: var(--color-text-secondary);
+  pointer-events: none;
+}
+
+.photo-uploader__file-input {
+  display: none;
+}
+
+/* Photo list */
+.photo-uploader__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.photo-uploader__item {
+  display: grid;
+  grid-template-columns: 80px 1fr auto;
+  gap: 12px;
+  align-items: center;
+  padding: 8px;
+  background: var(--color-surface-2);
+  border-radius: 6px;
+  border: 1px solid var(--color-border);
+}
+
+.photo-uploader__item--error {
+  border-color: var(--color-danger, #e55);
+}
+
+/* Thumb */
+.photo-uploader__thumb-wrap {
+  width: 80px;
+  height: 60px;
+  flex-shrink: 0;
+  border-radius: 4px;
+  overflow: hidden;
+  background: var(--color-surface-3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.photo-uploader__thumb {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.photo-uploader__thumb-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Spinner */
+.photo-uploader__spinner {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--color-border);
+  border-top-color: var(--color-accent);
+  border-radius: 50%;
+  animation: pu-spin 0.7s linear infinite;
+}
+
+@keyframes pu-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Meta */
+.photo-uploader__meta {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.photo-uploader__caption,
+.photo-uploader__credit {
+  width: 100%;
+  padding: 4px 8px;
+  font-size: 13px;
+  background: var(--color-input-bg, var(--color-surface));
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  color: var(--color-text);
+  outline: none;
+  transition: border-color var(--duration-fast) var(--ease-out);
+}
+
+.photo-uploader__caption:focus,
+.photo-uploader__credit:focus {
+  border-color: var(--color-accent);
+}
+
+.photo-uploader__dims {
+  font-size: 11px;
+  color: var(--color-text-secondary);
+  font-variant-numeric: tabular-nums;
+}
+
+.photo-uploader__uploading-msg,
+.photo-uploader__error-msg {
+  font-size: 13px;
+}
+
+.photo-uploader__uploading-msg {
+  color: var(--color-text-secondary);
+}
+
+.photo-uploader__error-msg {
+  color: var(--color-danger, #e55);
+}
+
+/* Actions */
+.photo-uploader__actions {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.photo-uploader__btn {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  background: var(--color-surface-3);
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  cursor: pointer;
+  color: var(--color-text);
+  transition:
+    background var(--duration-fast) var(--ease-out),
+    opacity var(--duration-fast) var(--ease-out);
+}
+
+.photo-uploader__btn:hover:not(:disabled) {
+  background: var(--color-surface-4, var(--color-border));
+}
+
+.photo-uploader__btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.photo-uploader__btn--danger:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--color-danger, #e55) 15%, transparent);
+  border-color: var(--color-danger, #e55);
+  color: var(--color-danger, #e55);
+}
