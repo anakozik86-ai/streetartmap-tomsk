@@ -11,9 +11,7 @@ export const githubLogin = signal<string>(localStorage.getItem(LOGIN_KEY) ?? '')
  * Защита от ситуации когда PAT восстановлен из localStorage,
  * но LOGIN_KEY отсутствует (старая сессия до фикса).
  */
-export const isAuthenticated = computed(
-  () => pat.value.length > 0 && githubLogin.value.length > 0,
-);
+export const isAuthenticated = computed(() => pat.value.length > 0 && githubLogin.value.length > 0);
 
 export function savePat(token: string, login: string): void {
   pat.value = token;
