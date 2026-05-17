@@ -1,31 +1,46 @@
 [
   {
-    "id": "tomsk-portraits",
-    "type": "series",
-    "name": "Томские портреты",
-    "color": "#4DB8FF",
-    "description": "Серия портретов жителей города на фасадах деревянных домов.",
-    "year_start": 2020,
-    "organizer_or_author": "Коллектив авторов",
+    "id": "street-vision-2021",
+    "type": "festival",
+    "name": "Выход в город 2021",
+    "color": "#FFD93D",
     "status": "active",
-    "created_at": "2025-01-01T00:00:00.000Z",
-    "updated_at": "2025-01-01T00:00:00.000Z",
-    "created_by": "system",
-    "updated_by": "system"
+    "created_at": "2026-05-17T10:00:00.000Z",
+    "updated_at": "2026-05-17T10:00:00.000Z",
+    "created_by": "anakozik86-ai",
+    "updated_by": "anakozik86-ai"
   },
   {
     "id": "street-vision-2023",
     "type": "festival",
-    "name": "Street Vision 2023",
-    "color": "#FF6B1A",
-    "description": "Фестиваль уличного искусства 2023 года.",
-    "year_start": 2023,
-    "year_end": 2023,
-    "organizer_or_author": "Городская администрация",
+    "name": "Выход в город 2023",
+    "color": "#E63946",
     "status": "active",
-    "created_at": "2025-01-01T00:00:00.000Z",
-    "updated_at": "2025-01-01T00:00:00.000Z",
-    "created_by": "system",
-    "updated_by": "system"
+    "created_at": "2026-05-17T10:00:00.000Z",
+    "updated_at": "2026-05-17T10:00:00.000Z",
+    "created_by": "anakozik86-ai",
+    "updated_by": "anakozik86-ai"
+  },
+  {
+    "id": "muka-warehouses",
+    "type": "series",
+    "name": "мУкА.Склады искусства",
+    "color": "#9B5DE5",
+    "status": "active",
+    "created_at": "2026-05-17T10:00:00.000Z",
+    "updated_at": "2026-05-17T10:00:00.000Z",
+    "created_by": "anakozik86-ai",
+    "updated_by": "anakozik86-ai"
+  },
+  {
+    "id": "sibiriada",
+    "type": "series",
+    "name": "Сибириада",
+    "color": "#06A77D",
+    "status": "active",
+    "created_at": "2026-05-17T10:00:00.000Z",
+    "updated_at": "2026-05-17T10:00:00.000Z",
+    "created_by": "anakozik86-ai",
+    "updated_by": "anakozik86-ai"
   }
 ]

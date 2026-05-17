@@ -1,77 +1,947 @@
 [
   {
-    "created_at": "2026-05-15T10:18:21.851Z",
-    "created_by": "anakozik86-ai",
-    "updated_at": "2026-05-17T07:48:25.732Z",
-    "updated_by": "dbblqp-droid",
-    "id": "filin",
+    "id": "tpu-125",
     "status": "published",
     "coords": {
-      "lat": 56.4784,
-      "lng": 84.9503
+      "lat": 56.463628,
+      "lng": 84.960664
     },
+    "address_hint": "ул. Усова, 13В",
     "accessibility": "street",
-    "category_id": "mosaic",
+    "category_id": "mural",
     "collection_ids": [
-      "tomsk-portraits",
-      "street-vision-2023"
+      "street-vision-2021"
     ],
-    "tags": [
-      "серега"
-    ],
-    "title": "filin",
-    "description": "дом сереги 15 метров",
+    "tags": [],
+    "title": "ТПУ 125",
+    "description": "Инсталляция состоит из стальных двухсотлитровых бочек, сваренных между собой и расписанных аэрозольной краской. Размер 12×3,5 м, общий вес 1,8 т; конструкция и рисунок позволяют разделить работу на четыре самостоятельные части. На иллюстрации — узнаваемые символы Политеха: сапоги Кирова, Останкинская башня, спроектированная выпускником ТПУ Николаем Никитиным, надпись The Wall, «Выключатель на 220 кВ» у восьмого корпуса, золотые львы, бассейн ТПУ и другие отсылки к ТПУ. Продюсер: Иван Ларионов. Координатор: Елизавета Кузьмина. Проектировщик: Семён Ермаков. Технический директор: Евгений Добротворский («Ушайка-Лофт»). Иллюстратор: Дарья Клюквина. Сварка: ProZhar70. Роспись: Gold Fish.",
     "author_ids": [
-      "anna-volkov",
-      "ivan-petrov",
-      "kollektiv-forma"
+      "ivan-larionov",
+      "daria-klyukvina",
+      "prozhar70",
+      "gold-fish"
     ],
     "materials": [
-      "сыр"
+      "бочки",
+      "баллоны"
     ],
     "state": "intact",
     "photos": [
       {
-        "filename": "filin-01",
-        "width": 1125,
-        "height": 1254,
+        "filename": "tpu-125-01",
         "caption": "",
-        "credit": ""
-      },
-      {
-        "filename": "filin-02",
-        "width": 256,
-        "height": 197,
-        "caption": "",
-        "credit": ""
+        "credit": "",
+        "width": 1117,
+        "height": 746
       }
     ],
-    "featured": true,
-    "address_hint": "Ленина 85А",
-    "dimensions": "6x9 карнишонов",
-    "year_created": 1984
+    "featured": false,
+    "created_at": "2026-05-17T10:00:00.000Z",
+    "updated_at": "2026-05-17T10:00:00.000Z",
+    "created_by": "anakozik86-ai",
+    "updated_by": "anakozik86-ai"
   },
   {
-    "created_at": "2026-05-15T10:39:13.979Z",
-    "created_by": "anakozik86-ai",
-    "updated_at": "2026-05-15T10:39:18.273Z",
-    "updated_by": "anakozik86-ai",
-    "id": "fff",
+    "id": "trud",
     "status": "published",
     "coords": {
-      "lat": 56.4884,
-      "lng": 84.9481
+      "lat": 56.466127,
+      "lng": 84.95812
     },
+    "address_hint": "ул. Белинского, 54",
+    "accessibility": "street",
+    "category_id": "mosaic",
+    "collection_ids": [],
+    "tags": [],
+    "title": "Труд",
+    "description": "Мозаичное панно хрущёвской эпохи на торце жилого дома. Автор неизвестен.",
+    "author_ids": [],
+    "materials": [],
+    "state": "intact",
+    "photos": [
+      {
+        "filename": "trud-01",
+        "caption": "",
+        "credit": "",
+        "width": 806,
+        "height": 926
+      },
+      {
+        "filename": "trud-02",
+        "caption": "",
+        "credit": "",
+        "width": 618,
+        "height": 756
+      },
+      {
+        "filename": "trud-03",
+        "caption": "",
+        "credit": "",
+        "width": 1006,
+        "height": 866
+      }
+    ],
+    "featured": false,
+    "created_at": "2026-05-17T10:00:00.000Z",
+    "updated_at": "2026-05-17T10:00:00.000Z",
+    "created_by": "anakozik86-ai",
+    "updated_by": "anakozik86-ai"
+  },
+  {
+    "id": "sibir-mesto-sily",
+    "status": "published",
+    "coords": {
+      "lat": 56.468115,
+      "lng": 84.953066
+    },
+    "address_hint": "ул. Советская, 65",
+    "accessibility": "street",
+    "category_id": "mural",
+    "collection_ids": [
+      "street-vision-2023"
+    ],
+    "tags": [],
+    "title": "СИБИРЬ — МЕСТО СИЛЫ",
+    "description": "Мурал «Сибирь — место силы», слияние двух эпох в одной работе. «Наши предки знали всё о природе, а сейчас мы летаем в космос». Автор — Захар SNA (Северск).",
+    "author_ids": [
+      "zahar-sna"
+    ],
+    "materials": [],
+    "state": "intact",
+    "photos": [
+      {
+        "filename": "sibir-mesto-sily-01",
+        "caption": "",
+        "credit": "",
+        "width": 607,
+        "height": 405
+      },
+      {
+        "filename": "sibir-mesto-sily-02",
+        "caption": "",
+        "credit": "",
+        "width": 1600,
+        "height": 910
+      },
+      {
+        "filename": "sibir-mesto-sily-03",
+        "caption": "",
+        "credit": "",
+        "width": 447,
+        "height": 298
+      }
+    ],
+    "featured": false,
+    "created_at": "2026-05-17T10:00:00.000Z",
+    "updated_at": "2026-05-17T10:00:00.000Z",
+    "created_by": "anakozik86-ai",
+    "updated_by": "anakozik86-ai"
+  },
+  {
+    "id": "kartashova-12a-panno",
+    "status": "published",
+    "coords": {
+      "lat": 56.469403,
+      "lng": 84.95591
+    },
+    "address_hint": "ул. Карташова, 12а",
+    "accessibility": "street",
+    "category_id": "mosaic",
+    "collection_ids": [],
+    "tags": [],
+    "title": "Панно",
+    "description": "Мозаичное панно на торце здания, известного как «Дом Художника». Монументальная настенная работа, заметный элемент архитектурного облика улицы. Подобные мозаичные панно создавались для украшения фасадов в советский период и отражают художественные тенденции своего времени.",
+    "author_ids": [],
+    "materials": [],
+    "state": "intact",
+    "photos": [
+      {
+        "filename": "kartashova-12a-panno-01",
+        "caption": "",
+        "credit": "",
+        "width": 1600,
+        "height": 1118
+      },
+      {
+        "filename": "kartashova-12a-panno-02",
+        "caption": "",
+        "credit": "",
+        "width": 1600,
+        "height": 950
+      }
+    ],
+    "featured": false,
+    "created_at": "2026-05-17T10:00:00.000Z",
+    "updated_at": "2026-05-17T10:00:00.000Z",
+    "created_by": "anakozik86-ai",
+    "updated_by": "anakozik86-ai"
+  },
+  {
+    "id": "my-bukvy-s-nami-tekst",
+    "status": "published",
+    "coords": {
+      "lat": 56.467562,
+      "lng": 84.949262
+    },
+    "address_hint": "пр. Ленина, 34а",
+    "accessibility": "street",
+    "category_id": "mural",
+    "collection_ids": [
+      "muka-warehouses"
+    ],
+    "tags": [],
+    "title": "Мы — буквы, с нами текст",
+    "description": "Масштабная текстовая композиция на фасаде здания университетской библиотеки ТГУ. Работа создана в рамках фестиваля «мУкА.Склады искусства» и посвящена роли текста и литературы в культуре. Художник использовал крупные буквы как самостоятельный художественный образ, связанный с образовательной средой Томска.",
+    "author_ids": [
+      "vladimir-abikh"
+    ],
+    "materials": [],
+    "state": "intact",
+    "photos": [
+      {
+        "filename": "my-bukvy-s-nami-tekst-01",
+        "caption": "",
+        "credit": "",
+        "width": 711,
+        "height": 948
+      }
+    ],
+    "featured": false,
+    "created_at": "2026-05-17T10:00:00.000Z",
+    "updated_at": "2026-05-17T10:00:00.000Z",
+    "created_by": "anakozik86-ai",
+    "updated_by": "anakozik86-ai"
+  },
+  {
+    "id": "raspad",
+    "status": "published",
+    "coords": {
+      "lat": 56.471676,
+      "lng": 84.948963
+    },
+    "accessibility": "street",
+    "category_id": "mural",
+    "collection_ids": [
+      "muka-warehouses"
+    ],
+    "tags": [],
+    "title": "Распад",
+    "description": "«Эстетика деревянной архитектуры притягивает и завораживает одновременно, со временем постройки становятся ветхими и хрупкими. Дома и наличники я рассматриваю в качестве одного из символов визуальной культуры. Моя идея заключается в создании живописно-пространственной композиции на тему „застывшее состояние объектов культурного наследия“. Образы возникают на стыке распада и восстановления. Красоту можно увидеть в рождении дома, его жизни и смерти. Всё это проходит циклично, по кругу. Я очарован эстетикой распада, но РАЗочарован ветхим жильём.» — Илья Wince Маломощенко",
+    "author_ids": [
+      "ilya-wince-malomoschenko"
+    ],
+    "year_created": 2021,
+    "materials": [],
+    "state": "intact",
+    "photos": [
+      {
+        "filename": "raspad-01",
+        "caption": "",
+        "credit": "",
+        "width": 984,
+        "height": 1322
+      }
+    ],
+    "featured": false,
+    "created_at": "2026-05-17T10:00:00.000Z",
+    "updated_at": "2026-05-17T10:00:00.000Z",
+    "created_by": "anakozik86-ai",
+    "updated_by": "anakozik86-ai"
+  },
+  {
+    "id": "sluzhivyi-chelovek",
+    "status": "published",
+    "coords": {
+      "lat": 56.475197,
+      "lng": 84.949185
+    },
+    "address_hint": "пр. Ленина, 42/2",
+    "accessibility": "street",
+    "category_id": "mural",
+    "collection_ids": [
+      "sibiriada"
+    ],
+    "tags": [],
+    "title": "Служивый человек",
+    "description": "Главный портрет мурала — собирательный образ основателей Томска. «К сожалению, ранее у нас не было изображений и памятников основателям города — Тыркову, Писемскому. Если имя Тояна хотя бы звучит на наших улицах, то первопроходцы, казаки и служивые люди не были никак отображены. Так как мы не знали, как именно выглядят Тырков и Писемский, не сохранилось письменных свидетельств, какие у них были глаза, носы, мы решили сделать образ служивого человека начала XVII века. Даже смотря ему в лицо, оно здесь не главное — мы говорим об основателях. Поэтому есть небольшая заплатка — отсылка к 1604 году. Обрамляют его изображение все сопутствующие символы освоения Томска: реки и дороги того времени, карта Ремизова, на которой Томск был впервые отмечен как поселение, первые деньги, Томский кремль. Всё это создаёт единую картину, рассказывающую об основателях.» — Константин Черенков, директор проекта «Сибириада».",
+    "author_ids": [
+      "ilya-wince-malomoschenko",
+      "matvey-fateev"
+    ],
+    "year_created": 2024,
+    "materials": [],
+    "state": "intact",
+    "photos": [
+      {
+        "filename": "sluzhivyi-chelovek-01",
+        "caption": "",
+        "credit": "",
+        "width": 748,
+        "height": 561
+      },
+      {
+        "filename": "sluzhivyi-chelovek-02",
+        "caption": "",
+        "credit": "",
+        "width": 984,
+        "height": 1112
+      }
+    ],
+    "featured": false,
+    "created_at": "2026-05-17T10:00:00.000Z",
+    "updated_at": "2026-05-17T10:00:00.000Z",
+    "created_by": "anakozik86-ai",
+    "updated_by": "anakozik86-ai"
+  },
+  {
+    "id": "istoriya-kraevedcheskogo-muzeya",
+    "status": "published",
+    "coords": {
+      "lat": 56.477028,
+      "lng": 84.951257
+    },
+    "address_hint": "ул. Гагарина, 43",
+    "accessibility": "street",
+    "category_id": "mural",
+    "collection_ids": [
+      "sibiriada"
+    ],
+    "tags": [],
+    "title": "История Краеведческого Музея",
+    "description": "Мурал на фасаде здания представляет портреты четырёх фигур, чья судьба связана с историей краеведческого музея: основателя музея Михаила Шатилова, первых хозяев особняка Ивана и Александры Асташевых, а также епископа Петра. Композиция дополнена элементами из музейных фондов. Работа — часть инициативы «Томск — это люди», направленной на увековечивание памяти выдающихся жителей города.",
+    "author_ids": [
+      "ilya-wince-malomoschenko",
+      "marina-zaykova"
+    ],
+    "materials": [],
+    "state": "intact",
+    "photos": [
+      {
+        "filename": "istoriya-kraevedcheskogo-muzeya-01",
+        "caption": "",
+        "credit": "",
+        "width": 1402,
+        "height": 1146
+      },
+      {
+        "filename": "istoriya-kraevedcheskogo-muzeya-02",
+        "caption": "",
+        "credit": "",
+        "width": 1314,
+        "height": 1004
+      }
+    ],
+    "featured": false,
+    "created_at": "2026-05-17T10:00:00.000Z",
+    "updated_at": "2026-05-17T10:00:00.000Z",
+    "created_by": "anakozik86-ai",
+    "updated_by": "anakozik86-ai"
+  },
+  {
+    "id": "dvorik-mlp",
+    "status": "published",
+    "coords": {
+      "lat": 56.47823,
+      "lng": 84.950664
+    },
+    "address_hint": "пр. Ленина, 85а",
     "accessibility": "street",
     "category_id": "graffiti",
     "collection_ids": [],
     "tags": [],
-    "title": "fff",
-    "description": "",
+    "title": "Дворик MLP",
+    "description": "Оформление дворика MLP. «Шрифтовая композиция — крупное, фоновое и нечитаемое изображение, дерзкое по уровню авангардности, при этом ламповое, с аккуратными цветами, в основе которых ваш фирменный жёлтый; есть зашифрованная буква „М“ и „♥“ — это место видно из арки; на последних гаражах классика граффити — ч/б хром, векторное, в стиле минимализма, как рэп без бита — чтобы не было перекайфа.» — Костя Queso",
+    "author_ids": [
+      "kostya-queso"
+    ],
+    "year_created": 2025,
+    "materials": [],
+    "state": "intact",
+    "photos": [
+      {
+        "filename": "dvorik-mlp-01",
+        "caption": "",
+        "credit": "",
+        "width": 1340,
+        "height": 1252
+      },
+      {
+        "filename": "dvorik-mlp-02",
+        "caption": "",
+        "credit": "",
+        "width": 1054,
+        "height": 1252
+      }
+    ],
+    "featured": false,
+    "created_at": "2026-05-17T10:00:00.000Z",
+    "updated_at": "2026-05-17T10:00:00.000Z",
+    "created_by": "anakozik86-ai",
+    "updated_by": "anakozik86-ai"
+  },
+  {
+    "id": "angely",
+    "status": "published",
+    "coords": {
+      "lat": 56.481232,
+      "lng": 84.948666
+    },
+    "address_hint": "пр. Ленина, 70",
+    "accessibility": "street",
+    "category_id": "mural",
+    "collection_ids": [],
+    "tags": [],
+    "title": "Ангелы",
+    "description": "В композиции изображена фигура ангела, поддерживающая деву; они тянутся друг к другу навстречу, олицетворяя свет друг друга во тьме.",
     "author_ids": [],
     "materials": [],
-    "state": "unknown",
-    "photos": [],
-    "featured": false
+    "state": "intact",
+    "photos": [
+      {
+        "filename": "angely-01",
+        "caption": "",
+        "credit": "",
+        "width": 648,
+        "height": 864
+      }
+    ],
+    "featured": false,
+    "created_at": "2026-05-17T10:00:00.000Z",
+    "updated_at": "2026-05-17T10:00:00.000Z",
+    "created_by": "anakozik86-ai",
+    "updated_by": "anakozik86-ai"
+  },
+  {
+    "id": "lenina-76-2-graffiti-spot",
+    "status": "published",
+    "coords": {
+      "lat": 56.482196,
+      "lng": 84.948186
+    },
+    "address_hint": "пр. Ленина, 76/2",
+    "accessibility": "street",
+    "category_id": "graffiti",
+    "collection_ids": [],
+    "tags": [],
+    "title": "Граффити спот",
+    "description": "Двор, стены которого покрыты разнообразными граффити, образующими своеобразную галерею под открытым небом. Такие пространства становятся точками притяжения для любителей современного искусства и фотографов и отражают творческую энергию города.",
+    "author_ids": [],
+    "materials": [],
+    "state": "intact",
+    "photos": [
+      {
+        "filename": "lenina-76-2-graffiti-spot-01",
+        "caption": "",
+        "credit": "",
+        "width": 1600,
+        "height": 950
+      }
+    ],
+    "featured": false,
+    "created_at": "2026-05-17T10:00:00.000Z",
+    "updated_at": "2026-05-17T10:00:00.000Z",
+    "created_by": "anakozik86-ai",
+    "updated_by": "anakozik86-ai"
+  },
+  {
+    "id": "erdman-portrait",
+    "status": "published",
+    "coords": {
+      "lat": 56.483543,
+      "lng": 84.946247
+    },
+    "address_hint": "пер. Нахановича, 4 стр. 1",
+    "accessibility": "street",
+    "category_id": "mural",
+    "collection_ids": [
+      "street-vision-2023"
+    ],
+    "tags": [],
+    "title": "Портрет Николая Эрдмана",
+    "description": "Мурал у ТЮЗа — микс из истории Томска, истории театра и личности Николая Эрдмана. В 1930-х драматурга сослали в Сибирь; в Томске он прожил всего полтора года, но успел запомниться жителям инсценировкой романа М. Горького «Мать». «Помимо лица есть мысли, эмоции, тараканы, что называется… Попытались соединить внутреннее и внешнее состояние человека.» — Илья Wince Маломощенко",
+    "author_ids": [
+      "ilya-wince-malomoschenko",
+      "matvey-fateev"
+    ],
+    "materials": [],
+    "state": "intact",
+    "photos": [
+      {
+        "filename": "erdman-portrait-01",
+        "caption": "",
+        "credit": "",
+        "width": 456,
+        "height": 684
+      },
+      {
+        "filename": "erdman-portrait-02",
+        "caption": "",
+        "credit": "",
+        "width": 649,
+        "height": 675
+      }
+    ],
+    "featured": false,
+    "created_at": "2026-05-17T10:00:00.000Z",
+    "updated_at": "2026-05-17T10:00:00.000Z",
+    "created_by": "anakozik86-ai",
+    "updated_by": "anakozik86-ai"
+  },
+  {
+    "id": "ushayka-space",
+    "status": "published",
+    "coords": {
+      "lat": 56.482253,
+      "lng": 84.962027
+    },
+    "address_hint": "ул. Алтайская, 4/1",
+    "accessibility": "street",
+    "category_id": "other",
+    "collection_ids": [],
+    "tags": [],
+    "title": "Пространство реки Ушайка",
+    "description": "Многослойный ассамбляж из найденных объектов, деревянных наличников, фанеры и ОСБ. Художник использовал материалы, найденные буквально под ногами — на улице Гоголя и в районе Болото; наличники были специально привезены из области.",
+    "author_ids": [
+      "ilya-wince-malomoschenko"
+    ],
+    "materials": [],
+    "state": "intact",
+    "photos": [
+      {
+        "filename": "ushayka-space-01",
+        "caption": "",
+        "credit": "",
+        "width": 655,
+        "height": 436
+      },
+      {
+        "filename": "ushayka-space-02",
+        "caption": "",
+        "credit": "",
+        "width": 659,
+        "height": 439
+      }
+    ],
+    "featured": false,
+    "created_at": "2026-05-17T10:00:00.000Z",
+    "updated_at": "2026-05-17T10:00:00.000Z",
+    "created_by": "anakozik86-ai",
+    "updated_by": "anakozik86-ai"
+  },
+  {
+    "id": "boloto-assemblage",
+    "status": "published",
+    "coords": {
+      "lat": 56.487648,
+      "lng": 84.957754
+    },
+    "accessibility": "street",
+    "category_id": "other",
+    "collection_ids": [],
+    "tags": [],
+    "title": "Ассамбляж «Болото»",
+    "description": "Ассамбляж, рассказывающий историю Болота — района Томска, расположенного между Воскресенской горой и рекой Ушайкой. На трёхмерной композиции изображены портреты людей, оказавших влияние на историю города, в том числе писателя Вячеслава Шишкова и томского врача и политика Алексея Макушина. В ассамбляж также вошли известные томские здания, расположенные в районе Болото.",
+    "author_ids": [
+      "ilya-wince-malomoschenko",
+      "matvey-fateev",
+      "marina-zaykova"
+    ],
+    "materials": [],
+    "state": "intact",
+    "photos": [
+      {
+        "filename": "boloto-assemblage-01",
+        "caption": "",
+        "credit": "",
+        "width": 900,
+        "height": 1068
+      },
+      {
+        "filename": "boloto-assemblage-02",
+        "caption": "",
+        "credit": "",
+        "width": 1600,
+        "height": 950
+      },
+      {
+        "filename": "boloto-assemblage-03",
+        "caption": "",
+        "credit": "",
+        "width": 1600,
+        "height": 965
+      }
+    ],
+    "featured": false,
+    "created_at": "2026-05-17T10:00:00.000Z",
+    "updated_at": "2026-05-17T10:00:00.000Z",
+    "created_by": "anakozik86-ai",
+    "updated_by": "anakozik86-ai"
+  },
+  {
+    "id": "siberian-sturgeon",
+    "status": "published",
+    "coords": {
+      "lat": 56.488837,
+      "lng": 84.954346
+    },
+    "address_hint": "ул. Загорная, 12",
+    "accessibility": "street",
+    "category_id": "mural",
+    "collection_ids": [],
+    "tags": [],
+    "title": "Сибирский осетр",
+    "description": "Сибирский осётр на стене возле Музея славянской мифологии. Концепция мурала разработана Павлом Богдановым; художественное воплощение и наполнение контура рыбы фирменными рисунками — Илья Wince Маломощенко. В оформлении использованы мотивы национального романтизма и образы, вдохновлённые иллюстрациями Ивана Билибина. Мурал отсылает к образу краснокнижного сибирского осетра — одной из древнейших рыб — и содержит аллюзии на персонажей русских сказок.",
+    "author_ids": [
+      "ilya-wince-malomoschenko"
+    ],
+    "materials": [],
+    "state": "intact",
+    "photos": [
+      {
+        "filename": "siberian-sturgeon-01",
+        "caption": "",
+        "credit": "",
+        "width": 722,
+        "height": 489
+      },
+      {
+        "filename": "siberian-sturgeon-02",
+        "caption": "",
+        "credit": "",
+        "width": 683,
+        "height": 489
+      }
+    ],
+    "featured": false,
+    "created_at": "2026-05-17T10:00:00.000Z",
+    "updated_at": "2026-05-17T10:00:00.000Z",
+    "created_by": "anakozik86-ai",
+    "updated_by": "anakozik86-ai"
+  },
+  {
+    "id": "tomskie-motivy",
+    "status": "published",
+    "coords": {
+      "lat": 56.488751,
+      "lng": 84.951654
+    },
+    "address_hint": "ул. Бакунина",
+    "accessibility": "street",
+    "category_id": "mural",
+    "collection_ids": [
+      "street-vision-2021"
+    ],
+    "tags": [],
+    "title": "ТОМСКИЕ МОТИВЫ",
+    "description": "«Дорога по Бакунина ведёт к месту основания Томска. Поэтому на мне лежала большая ответственность за оформление этой стены. Когда мне предложили её в качестве холста, я думал создать что-то такое, что там останется, а не вызовет скандалов. Конечно, мне хотелось сделать аутентичный сюжет для Томска, который бы подходил и городу в целом, и конкретной локации. Первый музей славянской мифологии, который находится поблизости, — тоже уникальное место, хотелось сделать отсылку и к нему. В принципе, вся тема моей росписи подходит Томску по своему характеру. Естественно, я готовился, читал о городе, общался с томичами — так постепенно у меня родился этот сюжет. Наличник для меня — это вообще символ Томска, а деревянное зодчество — это то, ради чего многие приезжают в город. Поэтому я не мог обойти эту тему, использовал её в работе. Конь — это отсылка к томскому гербу.» — МIША MACK",
+    "author_ids": [
+      "misha-mack"
+    ],
+    "materials": [
+      "баллоны"
+    ],
+    "state": "intact",
+    "photos": [
+      {
+        "filename": "tomskie-motivy-01",
+        "caption": "",
+        "credit": "",
+        "width": 493,
+        "height": 329
+      },
+      {
+        "filename": "tomskie-motivy-02",
+        "caption": "",
+        "credit": "",
+        "width": 491,
+        "height": 328
+      },
+      {
+        "filename": "tomskie-motivy-03",
+        "caption": "",
+        "credit": "",
+        "width": 481,
+        "height": 320
+      }
+    ],
+    "featured": false,
+    "created_at": "2026-05-17T10:00:00.000Z",
+    "updated_at": "2026-05-17T10:00:00.000Z",
+    "created_by": "anakozik86-ai",
+    "updated_by": "anakozik86-ai"
+  },
+  {
+    "id": "tanec-vlyublennyh-rek",
+    "status": "published",
+    "coords": {
+      "lat": 56.484637,
+      "lng": 84.947492
+    },
+    "address_hint": "Подпорная стенка моста через Ушайку",
+    "accessibility": "street",
+    "category_id": "mural",
+    "collection_ids": [],
+    "tags": [],
+    "title": "Танец влюблённых рек",
+    "description": "Романтическая история, вдохновлённая легендой о Томе и Ушае: легенду переосмыслили и посмотрели на персонажей с другой стороны. Это практически книжная иллюстрация, натянутая на сложное техническое сооружение в центре Томска. Нет ни одной точки, с которой можно полностью разглядеть изображение, — это невозможно из-за формы объекта. Автор эскиза — томская художница Анна Турченко. Художники: Евгения Власенко, Анна Шнурко, Евгений Иванов, Екатерина Пушникова, Дарья Шелл, Ника Прокопьева, Анна Липова, Григорий Косых, Лев Кудряшов и волонтёры фестиваля.",
+    "author_ids": [
+      "anna-turchenko"
+    ],
+    "materials": [],
+    "state": "intact",
+    "photos": [
+      {
+        "filename": "tanec-vlyublennyh-rek-01",
+        "caption": "",
+        "credit": "",
+        "width": 621,
+        "height": 415
+      },
+      {
+        "filename": "tanec-vlyublennyh-rek-02",
+        "caption": "",
+        "credit": "",
+        "width": 1568,
+        "height": 1000
+      }
+    ],
+    "featured": false,
+    "created_at": "2026-05-17T10:00:00.000Z",
+    "updated_at": "2026-05-17T10:00:00.000Z",
+    "created_by": "anakozik86-ai",
+    "updated_by": "anakozik86-ai"
+  },
+  {
+    "id": "nash-kosmos",
+    "status": "published",
+    "coords": {
+      "lat": 56.489243,
+      "lng": 84.947065
+    },
+    "address_hint": "пр. Ленина, 82а ст1",
+    "accessibility": "street",
+    "category_id": "mural",
+    "collection_ids": [],
+    "tags": [],
+    "title": "Наш космос",
+    "description": "Мурал на фасаде Томского планетария, посвящённый томичам, связанным с освоением космоса. В композиции использованы изображения космического корабля, лунохода и портрет космонавта Николая Рукавишникова. Работа сочетает элементы современного стрит-арта и ассамбляжа.",
+    "author_ids": [
+      "ilya-wince-malomoschenko"
+    ],
+    "materials": [],
+    "state": "intact",
+    "photos": [
+      {
+        "filename": "nash-kosmos-01",
+        "caption": "",
+        "credit": "",
+        "width": 509,
+        "height": 339
+      }
+    ],
+    "featured": false,
+    "created_at": "2026-05-17T10:00:00.000Z",
+    "updated_at": "2026-05-17T10:00:00.000Z",
+    "created_by": "anakozik86-ai",
+    "updated_by": "anakozik86-ai"
+  },
+  {
+    "id": "fedor-kuzmich",
+    "status": "published",
+    "coords": {
+      "lat": 56.490083,
+      "lng": 84.946866
+    },
+    "address_hint": "пр. Ленина, 84",
+    "accessibility": "street",
+    "category_id": "mural",
+    "collection_ids": [
+      "sibiriada"
+    ],
+    "tags": [],
+    "title": "Старец Фёдор Кузьмич",
+    "description": "Мурал «Старец Фёдор Кузьмич Томский и его чудеса». Авторы — Марина Зайкова и Константин Черенков.",
+    "author_ids": [
+      "marina-zaykova",
+      "konstantin-cherenkov"
+    ],
+    "materials": [],
+    "state": "intact",
+    "photos": [
+      {
+        "filename": "fedor-kuzmich-01",
+        "caption": "",
+        "credit": "",
+        "width": 818,
+        "height": 613
+      },
+      {
+        "filename": "fedor-kuzmich-02",
+        "caption": "",
+        "credit": "",
+        "width": 1010,
+        "height": 1194
+      },
+      {
+        "filename": "fedor-kuzmich-03",
+        "caption": "",
+        "credit": "",
+        "width": 1568,
+        "height": 1000
+      }
+    ],
+    "featured": false,
+    "created_at": "2026-05-17T10:00:00.000Z",
+    "updated_at": "2026-05-17T10:00:00.000Z",
+    "created_by": "anakozik86-ai",
+    "updated_by": "anakozik86-ai"
+  },
+  {
+    "id": "u-tomi-my-neutomimy",
+    "status": "published",
+    "coords": {
+      "lat": 56.492764,
+      "lng": 84.942207
+    },
+    "address_hint": "Набережная Томи",
+    "accessibility": "street",
+    "category_id": "graffiti",
+    "collection_ids": [],
+    "tags": [],
+    "title": "У Томи мы неутомимы",
+    "description": "Арт-объект на набережной Томи, созданный коллективом художников «Фрукты».",
+    "author_ids": [
+      "kollektiv-frukty"
+    ],
+    "year_created": 2024,
+    "materials": [],
+    "state": "intact",
+    "photos": [
+      {
+        "filename": "u-tomi-my-neutomimy-01",
+        "caption": "",
+        "credit": "",
+        "width": 1600,
+        "height": 1040
+      }
+    ],
+    "featured": false,
+    "created_at": "2026-05-17T10:00:00.000Z",
+    "updated_at": "2026-05-17T10:00:00.000Z",
+    "created_by": "anakozik86-ai",
+    "updated_by": "anakozik86-ai"
+  },
+  {
+    "id": "vidy-ryb",
+    "status": "published",
+    "coords": {
+      "lat": 56.494971,
+      "lng": 84.942386
+    },
+    "address_hint": "Набережная реки Томи, 29а",
+    "accessibility": "street",
+    "category_id": "mural",
+    "collection_ids": [],
+    "tags": [],
+    "title": "Виды рыб",
+    "description": "Мурал «Виды рыб» на набережной Томи. Координатор проекта: Иван Ларионов. Идея и арт-дирекшн: Павел Богданов (design-orchestra). Иллюстратор: Александра Карелина. Скетч: Артём GDETAM Букасов. Художники: Галина Берёзкина и Владимир Липинский («Лес рисует»). Информационный партнёр: «Томский Обзор».",
+    "author_ids": [
+      "ivan-larionov",
+      "pavel-bogdanov",
+      "aleksandra-karelina",
+      "artem-gdetam-bukasov",
+      "galina-berezkina",
+      "vladimir-lipinsky"
+    ],
+    "materials": [],
+    "state": "intact",
+    "photos": [
+      {
+        "filename": "vidy-ryb-01",
+        "caption": "",
+        "credit": "",
+        "width": 1600,
+        "height": 1040
+      },
+      {
+        "filename": "vidy-ryb-02",
+        "caption": "",
+        "credit": "",
+        "width": 1498,
+        "height": 1000
+      },
+      {
+        "filename": "vidy-ryb-03",
+        "caption": "",
+        "credit": "",
+        "width": 1600,
+        "height": 980
+      },
+      {
+        "filename": "vidy-ryb-04",
+        "caption": "",
+        "credit": "",
+        "width": 1546,
+        "height": 1050
+      }
+    ],
+    "featured": false,
+    "created_at": "2026-05-17T10:00:00.000Z",
+    "updated_at": "2026-05-17T10:00:00.000Z",
+    "created_by": "anakozik86-ai",
+    "updated_by": "anakozik86-ai"
+  },
+  {
+    "id": "vcwall",
+    "status": "published",
+    "coords": {
+      "lat": 56.502549,
+      "lng": 84.936633
+    },
+    "address_hint": "ул. Мельничная, 30",
+    "accessibility": "street",
+    "category_id": "graffiti",
+    "collection_ids": [],
+    "tags": [],
+    "title": "Легальная стена VCWALL",
+    "description": "Легальная стена для граффити VCWALL «hall of fame» на набережной Томи — от агентства Street Vision и проекта VCWALL. VALGALO WALL — элемент плейсмейкинга и урбанизма, проект стартовал в Сочи в 2015 году и направлен на развитие граффити-культуры и перевод её в легальное русло. На сегодняшний день открыты три объекта в Краснодарском крае и один в Сургуте. Площадь стены — 420 м².",
+    "author_ids": [],
+    "materials": [],
+    "state": "intact",
+    "photos": [
+      {
+        "filename": "vcwall-01",
+        "caption": "",
+        "credit": "",
+        "width": 1546,
+        "height": 1050
+      },
+      {
+        "filename": "vcwall-02",
+        "caption": "",
+        "credit": "",
+        "width": 1270,
+        "height": 894
+      },
+      {
+        "filename": "vcwall-03",
+        "caption": "",
+        "credit": "",
+        "width": 1012,
+        "height": 662
+      },
+      {
+        "filename": "vcwall-04",
+        "caption": "",
+        "credit": "",
+        "width": 1376,
+        "height": 944
+      }
+    ],
+    "featured": false,
+    "created_at": "2026-05-17T10:00:00.000Z",
+    "updated_at": "2026-05-17T10:00:00.000Z",
+    "created_by": "anakozik86-ai",
+    "updated_by": "anakozik86-ai"
   }
 ]

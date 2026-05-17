@@ -1,56 +1,173 @@
 [
   {
-    "id": "ivan-petrov",
-    "name": "Иван Петров",
-    "bio": "Томский муралист, участник фестиваля Street Vision 2023.",
-    "active_years": {
-      "start": 2019
-    },
-    "origin": "Томск",
-    "external_links": [],
+    "id": "ivan-larionov",
+    "name": "Иван Ларионов",
     "status": "active",
-    "created_at": "2025-01-01T00:00:00.000Z",
-    "updated_at": "2025-01-01T00:00:00.000Z",
-    "created_by": "system",
-    "updated_by": "system"
+    "created_at": "2026-05-17T10:00:00.000Z",
+    "updated_at": "2026-05-17T10:00:00.000Z",
+    "created_by": "anakozik86-ai",
+    "updated_by": "anakozik86-ai"
   },
   {
-    "id": "anna-volkov",
-    "name": "Анна Волкова",
-    "bio": "Граффити-художник и стрит-арт фотограф.",
-    "active_years": {
-      "start": 2021
-    },
-    "origin": "Новосибирск",
-    "external_links": [],
+    "id": "daria-klyukvina",
+    "name": "Дарья Клюквина",
     "status": "active",
-    "created_at": "2025-01-01T00:00:00.000Z",
-    "updated_at": "2025-01-01T00:00:00.000Z",
-    "created_by": "system",
-    "updated_by": "system"
+    "created_at": "2026-05-17T10:00:00.000Z",
+    "updated_at": "2026-05-17T10:00:00.000Z",
+    "created_by": "anakozik86-ai",
+    "updated_by": "anakozik86-ai"
   },
   {
-    "id": "kollektiv-forma",
-    "name": "Коллектив «Форма»",
-    "bio": "Арт-группа, специализируется на паст-апах и трафаретах.",
-    "active_years": {
-      "start": 2020
-    },
-    "origin": "Томск",
-    "external_links": [],
+    "id": "prozhar70",
+    "name": "ProZhar70",
     "status": "active",
-    "created_at": "2025-01-01T00:00:00.000Z",
-    "updated_at": "2025-01-01T00:00:00.000Z",
-    "created_by": "system",
-    "updated_by": "system"
+    "created_at": "2026-05-17T10:00:00.000Z",
+    "updated_at": "2026-05-17T10:00:00.000Z",
+    "created_by": "anakozik86-ai",
+    "updated_by": "anakozik86-ai"
   },
   {
-    "id": "wdwd",
-    "name": "wdwd",
+    "id": "gold-fish",
+    "name": "Gold Fish",
     "status": "active",
-    "created_at": "2026-05-16T20:41:09.831Z",
-    "updated_at": "2026-05-16T20:41:09.831Z",
-    "created_by": "dbblqp-droid",
-    "updated_by": "dbblqp-droid"
+    "created_at": "2026-05-17T10:00:00.000Z",
+    "updated_at": "2026-05-17T10:00:00.000Z",
+    "created_by": "anakozik86-ai",
+    "updated_by": "anakozik86-ai"
+  },
+  {
+    "id": "zahar-sna",
+    "name": "Захар SNA",
+    "status": "active",
+    "created_at": "2026-05-17T10:00:00.000Z",
+    "updated_at": "2026-05-17T10:00:00.000Z",
+    "created_by": "anakozik86-ai",
+    "updated_by": "anakozik86-ai"
+  },
+  {
+    "id": "vladimir-abikh",
+    "name": "Владимир Абих",
+    "status": "active",
+    "created_at": "2026-05-17T10:00:00.000Z",
+    "updated_at": "2026-05-17T10:00:00.000Z",
+    "created_by": "anakozik86-ai",
+    "updated_by": "anakozik86-ai"
+  },
+  {
+    "id": "ilya-wince-malomoschenko",
+    "name": "Илья Wince Маломощенко",
+    "status": "active",
+    "created_at": "2026-05-17T10:00:00.000Z",
+    "updated_at": "2026-05-17T10:00:00.000Z",
+    "created_by": "anakozik86-ai",
+    "updated_by": "anakozik86-ai"
+  },
+  {
+    "id": "matvey-fateev",
+    "name": "Матвей Фатеев",
+    "status": "active",
+    "created_at": "2026-05-17T10:00:00.000Z",
+    "updated_at": "2026-05-17T10:00:00.000Z",
+    "created_by": "anakozik86-ai",
+    "updated_by": "anakozik86-ai"
+  },
+  {
+    "id": "marina-zaykova",
+    "name": "Марина Зайкова",
+    "status": "active",
+    "created_at": "2026-05-17T10:00:00.000Z",
+    "updated_at": "2026-05-17T10:00:00.000Z",
+    "created_by": "anakozik86-ai",
+    "updated_by": "anakozik86-ai"
+  },
+  {
+    "id": "kostya-queso",
+    "name": "Костя Queso",
+    "status": "active",
+    "created_at": "2026-05-17T10:00:00.000Z",
+    "updated_at": "2026-05-17T10:00:00.000Z",
+    "created_by": "anakozik86-ai",
+    "updated_by": "anakozik86-ai"
+  },
+  {
+    "id": "misha-mack",
+    "name": "МIША MACK",
+    "status": "active",
+    "created_at": "2026-05-17T10:00:00.000Z",
+    "updated_at": "2026-05-17T10:00:00.000Z",
+    "created_by": "anakozik86-ai",
+    "updated_by": "anakozik86-ai"
+  },
+  {
+    "id": "anna-turchenko",
+    "name": "Анна Турченко",
+    "status": "active",
+    "created_at": "2026-05-17T10:00:00.000Z",
+    "updated_at": "2026-05-17T10:00:00.000Z",
+    "created_by": "anakozik86-ai",
+    "updated_by": "anakozik86-ai"
+  },
+  {
+    "id": "konstantin-cherenkov",
+    "name": "Константин Черенков",
+    "status": "active",
+    "created_at": "2026-05-17T10:00:00.000Z",
+    "updated_at": "2026-05-17T10:00:00.000Z",
+    "created_by": "anakozik86-ai",
+    "updated_by": "anakozik86-ai"
+  },
+  {
+    "id": "kollektiv-frukty",
+    "name": "Коллектив «Фрукты»",
+    "status": "active",
+    "created_at": "2026-05-17T10:00:00.000Z",
+    "updated_at": "2026-05-17T10:00:00.000Z",
+    "created_by": "anakozik86-ai",
+    "updated_by": "anakozik86-ai"
+  },
+  {
+    "id": "pavel-bogdanov",
+    "name": "Павел Богданов",
+    "status": "active",
+    "created_at": "2026-05-17T10:00:00.000Z",
+    "updated_at": "2026-05-17T10:00:00.000Z",
+    "created_by": "anakozik86-ai",
+    "updated_by": "anakozik86-ai"
+  },
+  {
+    "id": "aleksandra-karelina",
+    "name": "Александра Карелина",
+    "status": "active",
+    "created_at": "2026-05-17T10:00:00.000Z",
+    "updated_at": "2026-05-17T10:00:00.000Z",
+    "created_by": "anakozik86-ai",
+    "updated_by": "anakozik86-ai"
+  },
+  {
+    "id": "artem-gdetam-bukasov",
+    "name": "Артём GDETAM Букасов",
+    "status": "active",
+    "created_at": "2026-05-17T10:00:00.000Z",
+    "updated_at": "2026-05-17T10:00:00.000Z",
+    "created_by": "anakozik86-ai",
+    "updated_by": "anakozik86-ai"
+  },
+  {
+    "id": "galina-berezkina",
+    "name": "Галина Берёзкина",
+    "status": "active",
+    "created_at": "2026-05-17T10:00:00.000Z",
+    "updated_at": "2026-05-17T10:00:00.000Z",
+    "created_by": "anakozik86-ai",
+    "updated_by": "anakozik86-ai"
+  },
+  {
+    "id": "vladimir-lipinsky",
+    "name": "Владимир Липинский",
+    "status": "active",
+    "created_at": "2026-05-17T10:00:00.000Z",
+    "updated_at": "2026-05-17T10:00:00.000Z",
+    "created_by": "anakozik86-ai",
+    "updated_by": "anakozik86-ai"
   }
 ]

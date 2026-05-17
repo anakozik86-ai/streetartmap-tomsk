@@ -177,12 +177,12 @@ interface ExternalLink {
 
 ### collections.json (4)
 
-| id                 | type     | name                   | color   |
-| ------------------ | -------- | ---------------------- | ------- |
-| street-vision-2021 | festival | Выход в город 2021     | #FFD93D |
-| street-vision-2023 | festival | Выход в город 2023     | #E63946 |
-| muka-warehouses    | series   | мУкА.Склады искусства  | #9B5DE5 |
-| sibiriada          | series   | Сибириада              | #06A77D |
+| id                 | type     | name                  | color   |
+| ------------------ | -------- | --------------------- | ------- |
+| street-vision-2021 | festival | Выход в город 2021    | #FFD93D |
+| street-vision-2023 | festival | Выход в город 2023    | #E63946 |
+| muka-warehouses    | series   | мУкА.Склады искусства | #9B5DE5 |
+| sibiriada          | series   | Сибириада             | #06A77D |
 
 ### authors.json (19)
 
@@ -195,4 +195,3 @@ interface ExternalLink {
 ### routes.json
 
 Пусто. Маршруты будут собираться в админке после заливки точек.
-
