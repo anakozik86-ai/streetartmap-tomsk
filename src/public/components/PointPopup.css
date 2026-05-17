@@ -1,7 +1,7 @@
 /* ============================================================
  * PointPopup — боковая панель с деталями точки.
  * Десктоп: справа, от шапки до нижнего отступа.
- * Мобайл (≤640px): снизу, max-height 55dvh.
+ * Мобайл (≤640px): bottom-sheet, max-height 80dvh + drag-handle.
  * ============================================================ */
 
 .point-popup {
@@ -98,14 +98,17 @@
   right: 8px;
   padding: 2px 8px;
   border-radius: var(--radius-pill);
-  background: color-mix(in srgb, var(--text) 55%, transparent);
+  background: rgba(0, 0, 0, 0.55);
   color: #fff;
   font-size: 0.75rem;
   font-variant-numeric: tabular-nums;
   pointer-events: none;
 }
 
-/* Стрелки */
+/* Стрелки — тёмный полупрозрачный фон + белая иконка.
+   Раньше использовался color-mix с --surface, из-за чего стрелки
+   сливались с фоном попапа в тёмной теме. Сейчас фиксированный
+   тёмный фон, видимый поверх любого фото и в любой теме. */
 .pp-slider__arrow {
   position: absolute;
   top: 50%;
@@ -114,12 +117,12 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 32px;
-  height: 32px;
-  background: color-mix(in srgb, var(--surface) 80%, transparent);
+  width: 36px;
+  height: 36px;
+  background: rgba(0, 0, 0, 0.5);
   border: none;
   border-radius: 50%;
-  color: var(--text);
+  color: #fff;
   cursor: pointer;
   opacity: 0;
   transition:
@@ -131,6 +134,7 @@
   width: 18px;
   height: 18px;
   stroke: currentColor;
+  stroke-width: 2.25;
 }
 
 .pp-slider__arrow--prev {
@@ -145,7 +149,7 @@
 }
 
 .pp-slider__arrow:hover {
-  background: var(--surface);
+  background: rgba(0, 0, 0, 0.7);
 }
 
 /* Dots */
@@ -192,6 +196,8 @@
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
 }
 
 .point-popup__title {
@@ -477,17 +483,35 @@
   pointer-events: none;
 }
 
-/* ---- Мобайл ---- */
+/* ============================================================
+ * Мобайл (≤640px): bottom-sheet
+ * ============================================================ */
 
 @media (max-width: 640px) {
   .point-popup {
     top: auto;
-    right: calc(0.75rem + var(--safe-right));
-    left: calc(0.75rem + var(--safe-left));
-    bottom: calc(1rem + var(--safe-bottom));
+    right: calc(0.5rem + var(--safe-right));
+    left: calc(0.5rem + var(--safe-left));
+    bottom: calc(0.5rem + var(--safe-bottom));
     width: auto;
-    max-height: 55dvh;
+    max-height: 80dvh;
+    /* drag-handle сверху как индикатор bottom-sheet */
+    padding-top: 14px;
     animation: popup-slide-up var(--duration-slow) var(--ease-spring) both;
+  }
+
+  /* Псевдо-handle сверху попапа */
+  .point-popup::before {
+    content: '';
+    position: absolute;
+    top: 6px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 36px;
+    height: 4px;
+    border-radius: 2px;
+    background: var(--border-strong);
+    pointer-events: none;
   }
 
   @keyframes popup-slide-up {
@@ -501,10 +525,48 @@
     }
   }
 
-  .pp-slider__arrow {
-    opacity: 1; /* на тач всегда видны */
+  /* На мобиле фото не должно съедать всю высоту попапа,
+     иначе текст не помещается без скролла. */
+  .pp-slider__frame {
+    aspect-ratio: auto;
+    max-height: 38dvh;
   }
 
+  .pp-slider__img {
+    max-height: 38dvh;
+    object-fit: contain;
+    background: var(--surface-alt);
+  }
+
+  /* Стрелки слайдера всегда видны на тач-устройствах */
+  .pp-slider__arrow {
+    opacity: 1;
+    width: 40px;
+    height: 40px;
+  }
+
+  .pp-slider__arrow svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  /* Описание + мета должны быть гарантированно видны/скроллируемы */
+  .point-popup__body {
+    min-height: 80px;
+  }
+
+  /* Закрытие — крупнее, чтобы попадать пальцем */
+  .point-popup__close {
+    width: 40px;
+    height: 40px;
+  }
+
+  .point-popup__close svg {
+    width: 22px;
+    height: 22px;
+  }
+
+  /* Lightbox адаптация */
   .pp-lightbox__stage {
     max-width: 100vw;
     max-height: calc(100dvh - 100px);

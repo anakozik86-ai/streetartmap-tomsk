@@ -119,14 +119,20 @@
   fill: none;
 }
 
-/* На очень узких экранах переключатель прячет часть опций */
-@media (max-width: 380px) {
-  .theme-toggle__option {
-    width: 32px;
-    height: 32px;
+/* ---- Мобайл: увеличенный touch target (минимум Apple HIG = 44px) ---- */
+@media (max-width: 640px) {
+  .theme-toggle {
+    padding: 5px;
+    gap: 3px;
   }
+
+  .theme-toggle__option {
+    width: 44px;
+    height: 44px;
+  }
+
   .theme-toggle__option svg {
-    width: 16px;
-    height: 16px;
+    width: 22px;
+    height: 22px;
   }
 }
