@@ -96,19 +96,19 @@
   position: absolute;
   bottom: 8px;
   right: 8px;
-  padding: 2px 8px;
+  padding: 3px 10px;
   border-radius: var(--radius-pill);
-  background: rgba(0, 0, 0, 0.55);
+  background: rgba(0, 0, 0, 0.6);
   color: #fff;
-  font-size: 0.75rem;
+  font-size: 0.8125rem;
+  font-weight: 500;
   font-variant-numeric: tabular-nums;
   pointer-events: none;
 }
 
-/* Стрелки — тёмный полупрозрачный фон + белая иконка.
-   Раньше использовался color-mix с --surface, из-за чего стрелки
-   сливались с фоном попапа в тёмной теме. Сейчас фиксированный
-   тёмный фон, видимый поверх любого фото и в любой теме. */
+/* Стрелки слайдера.
+   Тёмный фон + белая обводка делают кнопку видимой
+   на любом фото (и на светлых, и на тёмных участках). */
 .pp-slider__arrow {
   position: absolute;
   top: 50%;
@@ -119,12 +119,15 @@
   justify-content: center;
   width: 36px;
   height: 36px;
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(0, 0, 0, 0.55);
   border: none;
   border-radius: 50%;
   color: #fff;
   cursor: pointer;
   opacity: 0;
+  box-shadow:
+    0 0 0 1.5px rgba(255, 255, 255, 0.9),
+    0 2px 8px rgba(0, 0, 0, 0.25);
   transition:
     opacity var(--duration-fast) var(--ease-out),
     background var(--duration-fast) var(--ease-out);
@@ -134,7 +137,7 @@
   width: 18px;
   height: 18px;
   stroke: currentColor;
-  stroke-width: 2.25;
+  stroke-width: 2.5;
 }
 
 .pp-slider__arrow--prev {
@@ -149,7 +152,7 @@
 }
 
 .pp-slider__arrow:hover {
-  background: rgba(0, 0, 0, 0.7);
+  background: rgba(0, 0, 0, 0.75);
 }
 
 /* Dots */
@@ -495,22 +498,22 @@
     bottom: calc(0.5rem + var(--safe-bottom));
     width: auto;
     max-height: 80dvh;
-    /* drag-handle сверху как индикатор bottom-sheet */
     padding-top: 14px;
     animation: popup-slide-up var(--duration-slow) var(--ease-spring) both;
   }
 
-  /* Псевдо-handle сверху попапа */
+  /* drag-handle сверху как индикатор bottom-sheet */
   .point-popup::before {
     content: '';
     position: absolute;
     top: 6px;
     left: 50%;
     transform: translateX(-50%);
-    width: 36px;
-    height: 4px;
-    border-radius: 2px;
+    width: 40px;
+    height: 5px;
+    border-radius: 3px;
     background: var(--border-strong);
+    opacity: 0.7;
     pointer-events: none;
   }
 
@@ -525,7 +528,7 @@
     }
   }
 
-  /* На мобиле фото не должно съедать всю высоту попапа,
+  /* Фото не должно съедать всю высоту попапа,
      иначе текст не помещается без скролла. */
   .pp-slider__frame {
     aspect-ratio: auto;
@@ -538,16 +541,37 @@
     background: var(--surface-alt);
   }
 
-  /* Стрелки слайдера всегда видны на тач-устройствах */
+  /* Стрелки слайдера: крупные, всегда видны, с белой обводкой
+     для контраста на любом фото (тёмном и светлом). */
   .pp-slider__arrow {
     opacity: 1;
-    width: 40px;
-    height: 40px;
+    width: 44px;
+    height: 44px;
   }
 
   .pp-slider__arrow svg {
-    width: 20px;
-    height: 20px;
+    width: 22px;
+    height: 22px;
+    stroke-width: 2.5;
+  }
+
+  /* Счётчик фото — заметнее */
+  .pp-slider__counter {
+    bottom: 10px;
+    right: 10px;
+    padding: 4px 12px;
+    font-size: 0.875rem;
+  }
+
+  /* Тапаемые dots */
+  .pp-slider__dots {
+    padding: 10px 0 6px;
+    gap: 8px;
+  }
+
+  .pp-slider__dot {
+    width: 8px;
+    height: 8px;
   }
 
   /* Описание + мета должны быть гарантированно видны/скроллируемы */
@@ -555,15 +579,23 @@
     min-height: 80px;
   }
 
-  /* Закрытие — крупнее, чтобы попадать пальцем */
+  /* Кнопка закрытия — крупная, лучше попадать пальцем,
+     и более жирный крестик для лучшей видимости. */
+  .point-popup__header {
+    padding: 0.25rem 0.5rem 0;
+  }
+
   .point-popup__close {
-    width: 40px;
-    height: 40px;
+    width: 44px;
+    height: 44px;
+    background: var(--surface-alt);
+    color: var(--text);
   }
 
   .point-popup__close svg {
-    width: 22px;
-    height: 22px;
+    width: 24px;
+    height: 24px;
+    stroke-width: 2.5;
   }
 
   /* Lightbox адаптация */
@@ -573,10 +605,32 @@
     padding: 0 0.5rem;
   }
 
+  .pp-lightbox__arrow {
+    width: 52px;
+    height: 52px;
+  }
+
+  .pp-lightbox__arrow svg {
+    width: 26px;
+    height: 26px;
+    stroke-width: 2.5;
+  }
+
   .pp-lightbox__arrow--prev {
     left: 0.25rem;
   }
   .pp-lightbox__arrow--next {
     right: 0.25rem;
+  }
+
+  .pp-lightbox__close {
+    width: 48px;
+    height: 48px;
+  }
+
+  .pp-lightbox__close svg {
+    width: 26px;
+    height: 26px;
+    stroke-width: 2.5;
   }
 }
