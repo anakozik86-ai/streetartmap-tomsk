@@ -50,7 +50,7 @@ interface ExternalLink {
 
 ```ts
 {
-  id: string,          // slug: mural | graffiti | stencil | paste-up | sticker | sculpture | mosaic | other
+  id: string,          // slug: mural | graffiti | mosaic | other
   name: string,
   icon: string,        // имя иконки lucide kebab-case
   description?: string,
@@ -59,6 +59,8 @@ interface ExternalLink {
   ...Auditable
 }
 ```
+
+С 11e категорий 4. Удалены `stencil`, `paste-up`, `sticker`, `sculpture` как неиспользуемые. См. ARCHITECTURE.md пункт 7.
 
 ## collections.json — Collection[]
 
@@ -162,40 +164,35 @@ interface ExternalLink {
 - `scripts/validate-data.ts` → `geometryHashFor()`
 - `src/admin/components/routing/geometryHash.ts` → `computeGeometryHash()`
 
-## Текущие тестовые данные (dev)
+## Текущие данные (после 11e)
 
-### authors.json
+### categories.json (4)
 
-3 тестовых автора, все `status: active`:
+| id       | name     | icon            | order |
+| -------- | -------- | --------------- | ----- |
+| mural    | Мурал    | brush           | 1     |
+| graffiti | Граффити | spray-can       | 2     |
+| mosaic   | Мозаика  | grid-3x3        | 3     |
+| other    | Другое   | more-horizontal | 4     |
 
-| id              | name              | origin      |
-| --------------- | ----------------- | ----------- |
-| ivan-petrov     | Иван Петров       | Томск       |
-| anna-volkov     | Анна Волкова      | Новосибирск |
-| kollektiv-forma | Коллектив «Форма» | Томск       |
+### collections.json (4)
 
-### collections.json
+| id                 | type     | name                   | color   |
+| ------------------ | -------- | ---------------------- | ------- |
+| street-vision-2021 | festival | Выход в город 2021     | #FFD93D |
+| street-vision-2023 | festival | Выход в город 2023     | #E63946 |
+| muka-warehouses    | series   | мУкА.Склады искусства  | #9B5DE5 |
+| sibiriada          | series   | Сибириада              | #06A77D |
 
-| id                 | type     | color   |
-| ------------------ | -------- | ------- |
-| tomsk-portraits    | series   | #4DB8FF |
-| street-vision-2023 | festival | #FF6B1A |
+### authors.json (19)
 
-### points.json (5 точек)
+См. полный список в HANDOFF.md этапа 11e. Ключевые: Илья Wince Маломощенко (8 работ), Матвей Фатеев и Марина Зайкова (по 3), остальные по 1-2.
 
-| id                         | category  | state   | status    | author          | collections                          |
-| -------------------------- | --------- | ------- | --------- | --------------- | ------------------------------------ |
-| lenina-mural-1             | mural     | intact  | published | ivan-petrov     | street-vision-2023                   |
-| tsu-graffiti-1             | graffiti  | intact  | published | anna-volkov     | tomsk-portraits + street-vision-2023 |
-| lagernyy-stencil-1         | stencil   | damaged | published | kollektiv-forma | —                                    |
-| voskresenskaya-sculpture-1 | sculpture | intact  | published | ivan-petrov     | tomsk-portraits                      |
-| novosobornaya-paste-1      | paste-up  | intact  | published | kollektiv-forma | —                                    |
+### points.json (22)
 
-Все точки: `photos: []`.
+22 реальные работы по городу: 14 муралов, 4 граффити, 2 мозаики, 2 ассамбляжа. Все `status: 'published'`, `state: 'intact'`. Полная сводка с координатами и привязками — в HANDOFF.md этапа 11e.
 
-### routes.json (2 маршрута)
+### routes.json
 
-| id                | status    | points                      |
-| ----------------- | --------- | --------------------------- |
-| tomsk-center-walk | published | несколько центральных точек |
-| tomsk-south-walk  | published | несколько южных точек       |
+Пусто. Маршруты будут собираться в админке после заливки точек.
+
