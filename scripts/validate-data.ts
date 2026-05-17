@@ -6,7 +6,7 @@
  *  1. Структура: обязательные поля, типы, форматы (через AJV + JSON Schema).
  *  2. Уникальность ID внутри каждой сущности.
  *  3. Корректность slug'ов (kebab-case, латиница/цифры/дефисы).
- *  4. Кросс-ссылки: category_id, author_id, collection_ids, point_ids — все
+ *  4. Кросс-ссылки: category_id, author_ids[], collection_ids, point_ids — все
  *     указывают на существующие неархивированные записи.
  *  5. Состояние маршрутов: geometry_hash совпадает с пересчитанным
  *     (несовпадение — warning, не ошибка).
@@ -218,6 +218,7 @@ const pointSchema = {
         'tags',
         'title',
         'description',
+        'author_ids',
         'materials',
         'state',
         'photos',
@@ -241,7 +242,7 @@ const pointSchema = {
         tags: { type: 'array', items: { type: 'string' } },
         title: { type: 'string', minLength: 1 },
         description: { type: 'string' },
-        author_id: { ...slugSchema, nullable: true },
+        author_ids: { type: 'array', items: slugSchema },
         year_created: { type: 'integer' },
         dimensions: { type: 'string' },
         materials: { type: 'array', items: { type: 'string' } },
@@ -422,8 +423,17 @@ function main(): void {
       if (!activeCollections.has(cid))
         err(`points.json[id=${p.id}]`, `collection_id "${cid}" не существует или архивирована`);
     }
-    if (p.author_id && !activeAuthors.has(p.author_id))
-      err(`points.json[id=${p.id}]`, `author_id "${p.author_id}" не существует или архивирован`);
+    // Проверяем дубли author_ids внутри одной точки.
+    // ?? [] — defensive: если AJV-валидация уже зафейлила author_ids,
+    // не падаем TypeError'ом, а даём AJV-сообщению дойти до пользователя.
+    const seenAuthors = new Set<string>();
+    for (const aid of p.author_ids ?? []) {
+      if (seenAuthors.has(aid))
+        err(`points.json[id=${p.id}]`, `author_id "${aid}" указан несколько раз`);
+      seenAuthors.add(aid);
+      if (!activeAuthors.has(aid))
+        err(`points.json[id=${p.id}]`, `author_id "${aid}" не существует или архивирован`);
+    }
   }
 
   for (const r of routes) {

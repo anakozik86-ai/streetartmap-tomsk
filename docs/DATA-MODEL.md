@@ -111,7 +111,7 @@ interface ExternalLink {
 
   title: string,
   description: string,       // markdown
-  author_id?: string,        // ссылка на authors[].id
+  author_ids: string[],      // ссылки на authors[].id; пустой массив = автор(ы) не указан(ы); порядок = порядок отображения
   year_created?: number,
   dimensions?: string,
   materials: string[],

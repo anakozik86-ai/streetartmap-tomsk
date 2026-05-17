@@ -30,7 +30,7 @@ interface PointDraft {
   tags: string[];
   title: string;
   description: string;
-  author_id: string; // '' = not set
+  author_ids: string[];
   year_created: number | null;
   dimensions: string;
   materials: string[];
@@ -52,7 +52,7 @@ function emptyDraft(): PointDraft {
     tags: [],
     title: '',
     description: '',
-    author_id: '',
+    author_ids: [],
     year_created: null,
     dimensions: '',
     materials: [],
@@ -75,7 +75,7 @@ function pointToDraft(p: Point): PointDraft {
     tags: [...p.tags],
     title: p.title,
     description: p.description,
-    author_id: p.author_id ?? '',
+    author_ids: [...(p.author_ids ?? [])],
     year_created: p.year_created ?? null,
     dimensions: p.dimensions ?? '',
     materials: [...p.materials],
@@ -183,6 +183,50 @@ function CollectionChips({ selected, onChange }: CollectionChipsProps): JSX.Elem
   );
 }
 
+// ── AuthorChips ───────────────────────────────────────────────────────────────
+
+interface AuthorChipsProps {
+  selected: string[];
+  onChange: (next: string[]) => void;
+}
+
+function AuthorChips({ selected, onChange }: AuthorChipsProps): JSX.Element {
+  const authors = authorsData.value.filter((a) => a.status === 'active');
+
+  function toggle(id: string): void {
+    // Порядок добавления = порядок отображения
+    onChange(selected.includes(id) ? selected.filter((s) => s !== id) : [...selected, id]);
+  }
+
+  if (authors.length === 0) {
+    return <p class="pf-empty">Нет активных авторов</p>;
+  }
+
+  // Сортировка: выбранные сверху (в порядке выбора), остальные — по имени
+  const selectedSet = new Set(selected);
+  const selectedAuthors = selected
+    .map((id) => authors.find((a) => a.id === id))
+    .filter((a): a is NonNullable<typeof a> => a !== undefined);
+  const unselectedAuthors = authors
+    .filter((a) => !selectedSet.has(a.id))
+    .sort((a, b) => a.name.localeCompare(b.name, 'ru'));
+
+  return (
+    <div class="author-chips">
+      {[...selectedAuthors, ...unselectedAuthors].map((a) => (
+        <button
+          key={a.id}
+          type="button"
+          class={`author-chip${selectedSet.has(a.id) ? ' author-chip--active' : ''}`}
+          onClick={() => toggle(a.id)}
+        >
+          {a.name}
+        </button>
+      ))}
+    </div>
+  );
+}
+
 // ── PointForm ─────────────────────────────────────────────────────────────────
 
 interface PointFormProps {
@@ -271,6 +315,7 @@ export function PointForm({ pointId }: PointFormProps): JSX.Element {
       tags: draft.tags,
       title: draft.title.trim(),
       description: draft.description,
+      author_ids: draft.author_ids,
       materials: draft.materials,
       state: draft.state,
       photos: photos,
@@ -279,7 +324,6 @@ export function PointForm({ pointId }: PointFormProps): JSX.Element {
       ...(draft.dimensions.trim() ? { dimensions: draft.dimensions.trim() } : {}),
       ...(draft.state_checked_at ? { state_checked_at: draft.state_checked_at } : {}),
       ...(draft.year_created !== null ? { year_created: draft.year_created } : {}),
-      ...(draft.author_id ? { author_id: draft.author_id } : {}),
     };
 
     try {
@@ -291,7 +335,6 @@ export function PointForm({ pointId }: PointFormProps): JSX.Element {
   }
 
   const categories = categoriesData.value.filter((c) => c.status === 'active');
-  const authors = authorsData.value.filter((a) => a.status === 'active');
   const saving = pointsSaveState.value === 'saving';
 
   const accessibilityOptions: PointAccessibility[] = [
@@ -570,23 +613,13 @@ export function PointForm({ pointId }: PointFormProps): JSX.Element {
                 />
               </div>
 
-              <div class="pf-field">
-                <label class="pf-label" for="pf-author">
-                  Автор
-                </label>
-                <select
-                  id="pf-author"
-                  class="pf-select"
-                  value={draft.author_id}
-                  onChange={(e) => set('author_id', (e.target as HTMLSelectElement).value)}
-                >
-                  <option value="">— не указан —</option>
-                  {authors.map((a) => (
-                    <option key={a.id} value={a.id}>
-                      {a.name}
-                    </option>
-                  ))}
-                </select>
+              <div class="pf-field pf-field--full">
+                <label class="pf-label">Авторы</label>
+                <AuthorChips
+                  selected={draft.author_ids}
+                  onChange={(next) => set('author_ids', next)}
+                />
+                <p class="pf-hint">Соавторы равноправны. Порядок отображения = порядок выбора.</p>
               </div>
 
               <div class="pf-field">

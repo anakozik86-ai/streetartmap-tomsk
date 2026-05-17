@@ -151,7 +151,7 @@ export function AuthorsEditor(): JSX.Element {
     setLoadingDeleteId(id);
     if (pointsLoadState.value !== 'ready') await loadPoints();
     const refs = pointsData.value
-      .filter((p) => p.author_id === id)
+      .filter((p) => p.author_ids.includes(id))
       .map((p) => ({ id: p.id, label: p.title, tab: 'points' as const }));
     setLoadingDeleteId(null);
     if (refs.length > 0) {

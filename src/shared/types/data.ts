@@ -68,7 +68,11 @@ export interface Point extends Auditable {
   tags: string[];
   title: string;
   description: string;
-  author_id?: string;
+  /**
+   * Список авторов работы (равноправные соавторы). Пустой массив = автор(ы) не указан(ы).
+   * Порядок в массиве — порядок отображения в UI.
+   */
+  author_ids: string[];
   year_created?: number;
   dimensions?: string;
   materials: string[];

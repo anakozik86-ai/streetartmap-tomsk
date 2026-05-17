@@ -41,6 +41,7 @@
   },
   "popup": {
     "author": "Автор",
+    "authors": "Авторы",
     "year": "Год",
     "dimensions": "Размер",
     "materials": "Материалы",
@@ -77,10 +78,23 @@
     "tags": "Теги",
     "description": "Описание (Markdown)",
     "author": "Автор",
+    "authors": "Авторы",
     "year_created": "Год создания",
     "dimensions": "Размеры",
     "materials": "Материалы",
     "state": "Состояние",
     "state_checked_at": "Дата проверки"
+  },
+  "photo_uploader": {
+    "section": "Фотографии",
+    "dropzone_text": "Перетащите фото сюда или нажмите для выбора",
+    "dropzone_hint": "JPEG, PNG, WebP · до 3 размеров автоматически",
+    "uploading": "Загрузка…",
+    "caption_placeholder": "Подпись",
+    "credit_placeholder": "Автор фото",
+    "move_up": "Переместить вверх",
+    "move_down": "Переместить вниз",
+    "remove": "Удалить фото",
+    "no_id_hint": "Сохраните ID точки, чтобы загружать фотографии."
   }
 }

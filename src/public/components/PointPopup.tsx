@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'preact/hooks';
 import { selectedPoint } from '../state/selectedPoint.ts';
+import { authors as authorsSignal } from '../state/catalogState.ts';
 import { activeRouteIds, toggleRoute, routesForPoint } from '../state/routes.ts';
 import { loadRoutes } from '@shared/utils/loadData.ts';
 import type { Route } from '@shared/types/index.ts';
@@ -264,6 +265,12 @@ export function PointPopup() {
   const stateLabel = ru.states[p.state as keyof typeof ru.states] ?? ru.states.unknown;
   const stateClass = `point-popup__state point-popup__state--${p.state}`;
 
+  // Резолв авторов по id; неизвестные id молча пропускаем.
+  const authorById = new Map(authorsSignal.value.map((a) => [a.id, a]));
+  const authorNames = p.author_ids
+    .map((id) => authorById.get(id)?.name)
+    .filter((n): n is string => Boolean(n));
+
   const handleClose = () => {
     selectedPoint.value = null;
   };
@@ -299,6 +306,12 @@ export function PointPopup() {
           {p.description && <p class="point-popup__description">{p.description}</p>}
 
           <dl class="point-popup__meta">
+            {authorNames.length > 0 && (
+              <>
+                <dt>{authorNames.length > 1 ? ru.popup.authors : ru.popup.author}</dt>
+                <dd>{authorNames.join(', ')}</dd>
+              </>
+            )}
             {p.year_created !== undefined && (
               <>
                 <dt>{ru.popup.year}</dt>
