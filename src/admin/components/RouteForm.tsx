@@ -123,6 +123,24 @@ export function RouteForm({ routeId }: { routeId: string }): JSX.Element {
   // LRM не умеет менять addWaypoints/routeWhileDragging на лету.
   const recreateLrmRef = useRef<((addWaypoints: boolean) => void) | null>(null);
 
+  // --- история изменений (undo/redo) ---
+  // Хранит снимки { point_ids, via_waypoints }. Применение через setWaypoints
+  // на LRM. Флаг `applying` нужен чтобы waypointschanged-event, который сам
+  // эмитится при применении snapshot, не положил его обратно в историю.
+  type HistorySnapshot = {
+    point_ids: string[];
+    via_waypoints: [number, number][];
+  };
+  const HISTORY_LIMIT = 30;
+  const historyRef = useRef<{
+    snapshots: HistorySnapshot[];
+    index: number;
+    applying: boolean;
+  }>({ snapshots: [], index: -1, applying: false });
+  // historyVersion — счётчик, чтобы триггерить re-render кнопок Undo/Redo
+  // (disabled-состояние зависит от historyRef.index, а ref не реактивен).
+  const [historyVersion, setHistoryVersion] = useState(0);
+
   // --- загрузка данных ---
   useEffect(() => {
     loadPoints();
@@ -305,6 +323,14 @@ export function RouteForm({ routeId }: { routeId: string }): JSX.Element {
             const point_ids = extractAnchorIds(wps);
             const via_waypoints = extractViaCoords(wps);
             setDraft((d) => ({ ...d, point_ids, via_waypoints }));
+
+            // Любое изменение waypoints (клик по маркеру, drag via, ↑↓, ×,
+            // toggle режима, applySnapshot) эмитит waypointschanged. Применение
+            // через undo/redo помечаем флагом applying — иначе snapshot
+            // мгновенно вернётся обратно в историю и redo сломается.
+            if (!historyRef.current.applying) {
+              pushSnapshot({ point_ids, via_waypoints });
+            }
           });
 
           ctrl.on('routesfound', (e: unknown) => {
@@ -413,6 +439,110 @@ export function RouteForm({ routeId }: { routeId: string }): JSX.Element {
     }
   }
 
+  // --- история изменений: push/undo/redo/apply ---
+
+  function snapshotsEqual(a: HistorySnapshot, b: HistorySnapshot): boolean {
+    if (a.point_ids.length !== b.point_ids.length) return false;
+    if (a.via_waypoints.length !== b.via_waypoints.length) return false;
+    for (let i = 0; i < a.point_ids.length; i++) {
+      if (a.point_ids[i] !== b.point_ids[i]) return false;
+    }
+    for (let i = 0; i < a.via_waypoints.length; i++) {
+      const av = a.via_waypoints[i]!;
+      const bv = b.via_waypoints[i]!;
+      if (av[0] !== bv[0] || av[1] !== bv[1]) return false;
+    }
+    return true;
+  }
+
+  function pushSnapshot(s: HistorySnapshot): void {
+    const h = historyRef.current;
+    const last = h.snapshots[h.index];
+    if (last && snapshotsEqual(last, s)) return; // дубль
+
+    // Обрезаем «redo-future» при новом действии
+    h.snapshots = h.snapshots.slice(0, h.index + 1);
+    h.snapshots.push(s);
+    if (h.snapshots.length > HISTORY_LIMIT) {
+      h.snapshots.shift();
+    }
+    h.index = h.snapshots.length - 1;
+    setHistoryVersion((v) => v + 1);
+  }
+
+  function applySnapshot(s: HistorySnapshot): void {
+    if (!lrmRef.current) return;
+    const pointsById = new Map(pointsData.value.map((p) => [p.id, p] as const));
+    const anchorWps: L.Routing.Waypoint[] = [];
+    for (const id of s.point_ids) {
+      const p = pointsById.get(id);
+      if (!p) continue;
+      anchorWps.push(makeAnchorWaypoint(L.latLng(p.coords.lat, p.coords.lng), id));
+    }
+
+    let allWps: L.Routing.Waypoint[];
+    if (anchorWps.length >= 2 && s.via_waypoints.length > 0) {
+      allWps = [anchorWps[0]!];
+      for (const v of s.via_waypoints) {
+        allWps.push({ latLng: L.latLng(v[0], v[1]) });
+      }
+      for (let i = 1; i < anchorWps.length; i++) allWps.push(anchorWps[i]!);
+    } else {
+      allWps = anchorWps;
+    }
+
+    historyRef.current.applying = true;
+    lrmRef.current.setWaypoints(allWps);
+    // Reset флаг в следующем тике — waypointschanged эмитится синхронно при setWaypoints.
+    setTimeout(() => {
+      historyRef.current.applying = false;
+    }, 0);
+  }
+
+  function handleUndo(): void {
+    const h = historyRef.current;
+    if (h.index <= 0) return;
+    h.index--;
+    applySnapshot(h.snapshots[h.index]!);
+    setHistoryVersion((v) => v + 1);
+  }
+
+  function handleRedo(): void {
+    const h = historyRef.current;
+    if (h.index >= h.snapshots.length - 1) return;
+    h.index++;
+    applySnapshot(h.snapshots[h.index]!);
+    setHistoryVersion((v) => v + 1);
+  }
+
+  // Убирает все via-waypoints, оставляет только anchor'ы. OSRM перепрокладывает
+  // маршрут с нуля. Snapshot ляжет в историю автоматически через waypointschanged.
+  function handleClearLine(): void {
+    if (!lrmRef.current) return;
+    const anchors = onlyAnchors(lrmRef.current.getWaypoints());
+    lrmRef.current.setWaypoints(anchors);
+  }
+
+  // Удаление локального черновика из localStorage. Перезагружаем страницу,
+  // чтобы перечитать draft с GitHub без коллизий со старым state'ом и историей.
+  function handleDeleteDraft(): void {
+    if (
+      !confirm(
+        'Удалить локальный черновик этого маршрута? Все несохранённые правки будут потеряны и страница перезагрузится.',
+      )
+    ) {
+      return;
+    }
+    localStorage.removeItem(storageKey);
+    window.location.reload();
+  }
+
+  // historyVersion в условии гарантирует ре-evaluation после useState-обновления.
+  // Реальное значение читаем из historyRef (ref не реактивен сам по себе).
+  const canUndo = historyVersion >= 0 && historyRef.current.index > 0;
+  const canRedo =
+    historyVersion >= 0 && historyRef.current.index < historyRef.current.snapshots.length - 1;
+
   // --- инициализация LRM waypoints после гидратации (один раз) ---
   // Зависим и от draftHydrated, и от lrmReady — карта инициализируется
   // асинхронно (loadConfig), и гидратация draft может произойти раньше.
@@ -425,6 +555,27 @@ export function RouteForm({ routeId }: { routeId: string }): JSX.Element {
     if (draft.point_ids.length === 0) return;
     applyDraftToLrm(draft);
   }, [draftHydrated, lrmReady]);
+
+  // --- keyboard shortcuts: Ctrl+Z / Ctrl+Y для undo/redo ---
+  // Игнорируем когда фокус в input/textarea (не перехватывать ввод текста).
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement | null;
+      if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA')) return;
+      if (!(e.ctrlKey || e.metaKey)) return;
+      const key = e.key.toLowerCase();
+      if (key === 'z' && !e.shiftKey) {
+        e.preventDefault();
+        handleUndo();
+      } else if ((key === 'z' && e.shiftKey) || key === 'y') {
+        e.preventDefault();
+        handleRedo();
+      }
+    };
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // --- рендер маркеров точек на карте ---
   useEffect(() => {
@@ -640,6 +791,14 @@ export function RouteForm({ routeId }: { routeId: string }): JSX.Element {
             ← Маршруты
           </button>
           <div class="route-form__header-actions">
+            <button
+              class="admin-btn route-form__delete-draft-btn"
+              onClick={handleDeleteDraft}
+              disabled={isSaving}
+              title="Стереть локальный черновик и перезагрузить с сервера"
+            >
+              Удалить черновик
+            </button>
             <button class="admin-btn" onClick={handleCancel} disabled={isSaving}>
               Отмена
             </button>
@@ -838,23 +997,54 @@ export function RouteForm({ routeId }: { routeId: string }): JSX.Element {
 
       {/* Правая часть: карта */}
       <div class="route-form__map-wrap">
-        <button
-          type="button"
-          class={`route-form__edit-line-btn${lineEditMode ? ' is-on' : ''}`}
-          onClick={() => {
-            if (!recreateLrmRef.current) return;
-            const next = !lineEditMode;
-            recreateLrmRef.current(next);
-            setLineEditMode(next);
-          }}
-          title={
-            lineEditMode
-              ? 'Выйти из режима редактирования линии'
-              : 'Включить редактирование линии: drag по линии добавит промежуточную точку'
-          }
-        >
-          {lineEditMode ? '✓ Редактирую линию' : '✎ Редактировать линию'}
-        </button>
+        <div class="route-form__map-toolbar">
+          <button
+            type="button"
+            class="route-form__tool-btn"
+            onClick={handleUndo}
+            disabled={!canUndo}
+            title="Отменить (Ctrl+Z)"
+            aria-label="Отменить"
+          >
+            ⟲
+          </button>
+          <button
+            type="button"
+            class="route-form__tool-btn"
+            onClick={handleRedo}
+            disabled={!canRedo}
+            title="Повторить (Ctrl+Y)"
+            aria-label="Повторить"
+          >
+            ⟳
+          </button>
+          <button
+            type="button"
+            class="route-form__tool-btn"
+            onClick={handleClearLine}
+            disabled={draft.via_waypoints.length === 0}
+            title="Убрать все промежуточные точки коррекции линии"
+          >
+            Сбросить линию
+          </button>
+          <button
+            type="button"
+            class={`route-form__tool-btn${lineEditMode ? ' is-on' : ''}`}
+            onClick={() => {
+              if (!recreateLrmRef.current) return;
+              const next = !lineEditMode;
+              recreateLrmRef.current(next);
+              setLineEditMode(next);
+            }}
+            title={
+              lineEditMode
+                ? 'Выйти из режима редактирования линии'
+                : 'Включить редактирование линии: drag по линии добавит промежуточную точку'
+            }
+          >
+            {lineEditMode ? '✓ Редактирую линию' : '✎ Редактировать линию'}
+          </button>
+        </div>
         <div class="route-form__map" ref={mapContainerRef} />
       </div>
     </div>

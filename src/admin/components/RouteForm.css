@@ -64,16 +64,23 @@
   background: var(--surface-alt);
 }
 
-/* Toggle-кнопка «Редактировать линию» — поверх карты в правом верху.
-   Когда выключена — карта инертна, drag/scroll работают как обычно.
-   Когда включена — на сегментах линии маршрута появляются drag-handles,
-   drag по линии добавляет промежуточную точку (via-waypoint) и LRM
-   перепрокладывает путь через неё. */
-.route-form__edit-line-btn {
+/* Toolbar с кнопками управления маршрутом — поверх карты в правом верху.
+   Содержит: Undo, Redo, «Сбросить линию», «Редактировать линию».
+   z-index 500 — выше leaflet zoom-control (1000-я зона у нас в attribution-pill,
+   но эти кнопки в углу не конфликтуют). */
+.route-form__map-toolbar {
   position: absolute;
   top: 12px;
   right: 12px;
-  z-index: 500; /* выше leaflet zoom-control */
+  z-index: 500;
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  max-width: calc(100% - 24px);
+}
+
+.route-form__tool-btn {
   padding: 8px 14px;
   border-radius: 8px;
   border: 1px solid var(--border);
@@ -85,21 +92,39 @@
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
   transition:
     background var(--duration-fast) var(--ease-out),
-    border-color var(--duration-fast) var(--ease-out);
+    border-color var(--duration-fast) var(--ease-out),
+    opacity var(--duration-fast) var(--ease-out);
 }
 
-.route-form__edit-line-btn:hover {
+.route-form__tool-btn:hover:not(:disabled) {
   background: var(--surface-alt);
 }
 
-.route-form__edit-line-btn.is-on {
+.route-form__tool-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.route-form__tool-btn.is-on {
   background: var(--accent);
   color: var(--accent-text);
   border-color: var(--accent);
 }
 
-.route-form__edit-line-btn.is-on:hover {
+.route-form__tool-btn.is-on:hover:not(:disabled) {
   filter: brightness(0.95);
+}
+
+/* Кнопка «Удалить черновик» — мягкий красный текст без заливки.
+   Действие деструктивное, но не critical (есть confirm), поэтому не --danger. */
+.route-form__delete-draft-btn {
+  color: var(--danger, #c0392b);
+  border-color: transparent;
+  background: transparent;
+}
+
+.route-form__delete-draft-btn:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--danger, #c0392b) 10%, transparent);
 }
 
 /* В мобильном брейкпойнте map-wrap скрывается заодно с .route-form__map */
@@ -456,7 +481,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 10;
+  /* Выше leaflet-controls (1000) и нашего map-toolbar (500). */
+  z-index: 9999;
 }
 
 .route-form__restore-dialog {
