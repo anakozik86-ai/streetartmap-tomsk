@@ -141,6 +141,10 @@ export function RouteForm({ routeId }: { routeId: string }): JSX.Element {
   // (disabled-состояние зависит от historyRef.index, а ref не реактивен).
   const [historyVersion, setHistoryVersion] = useState(0);
 
+  // Failsafe-timer для сброса applying-флага, если routesfound не придёт
+  // (например, при <2 waypoints OSRM не вызывается, или сеть отвалилась).
+  const applyingTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
   // --- загрузка данных ---
   useEffect(() => {
     loadPoints();
@@ -348,6 +352,19 @@ export function RouteForm({ routeId }: { routeId: string }): JSX.Element {
               total_distance_m: Math.round(r.summary?.totalDistance ?? 0),
               total_duration_s: Math.round(r.summary?.totalTime ?? 0),
             }));
+
+            // Сбрасываем applying-флаг: routesfound значит OSRM закончил
+            // обработку нашего applySnapshot. Если LRM эмитит ещё
+            // waypointschanged после этого (snapping к дорогам и т.п.),
+            // он пойдёт в историю как новый snapshot — это уже намеренное
+            // действие OSRM, а не наш undo/redo.
+            if (historyRef.current.applying) {
+              historyRef.current.applying = false;
+              if (applyingTimerRef.current) {
+                clearTimeout(applyingTimerRef.current);
+                applyingTimerRef.current = null;
+              }
+            }
           });
 
           return ctrl;
@@ -406,6 +423,10 @@ export function RouteForm({ routeId }: { routeId: string }): JSX.Element {
       lrmRef.current = null;
       routerRef.current = null;
       markersLayerRef.current = null;
+      if (applyingTimerRef.current) {
+        clearTimeout(applyingTimerRef.current);
+        applyingTimerRef.current = null;
+      }
     };
   }, []);
 
@@ -491,12 +512,19 @@ export function RouteForm({ routeId }: { routeId: string }): JSX.Element {
       allWps = anchorWps;
     }
 
+    // applying держим до routesfound, который придёт через debounce 300ms + OSRM ~500ms.
+    // Без этого LRM эмитит ещё один waypointschanged после snapping к дорогам, и тот
+    // снимок попадает в историю как новый action → обрезает redo-future и ломает цепочку.
     historyRef.current.applying = true;
-    lrmRef.current.setWaypoints(allWps);
-    // Reset флаг в следующем тике — waypointschanged эмитится синхронно при setWaypoints.
-    setTimeout(() => {
+    if (applyingTimerRef.current) clearTimeout(applyingTimerRef.current);
+    // Failsafe: при <2 waypoints OSRM не вызывается, routesfound не эмитится,
+    // applying останется true навсегда. Снимаем через 2 сек.
+    applyingTimerRef.current = setTimeout(() => {
       historyRef.current.applying = false;
-    }, 0);
+      applyingTimerRef.current = null;
+    }, 2000);
+
+    lrmRef.current.setWaypoints(allWps);
   }
 
   function handleUndo(): void {
