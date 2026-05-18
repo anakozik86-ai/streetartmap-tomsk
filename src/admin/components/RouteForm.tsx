@@ -558,6 +558,12 @@ export function RouteForm({ routeId }: { routeId: string }): JSX.Element {
 
   // --- keyboard shortcuts: Ctrl+Z / Ctrl+Y для undo/redo ---
   // Игнорируем когда фокус в input/textarea (не перехватывать ввод текста).
+  // handleUndo/handleRedo пересоздаются каждый render — оборачиваем в ref,
+  // чтобы один раз подписаться на window и всегда вызывать актуальную версию.
+  const undoFnRef = useRef(handleUndo);
+  const redoFnRef = useRef(handleRedo);
+  undoFnRef.current = handleUndo;
+  redoFnRef.current = handleRedo;
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
       const target = e.target as HTMLElement | null;
@@ -566,15 +572,14 @@ export function RouteForm({ routeId }: { routeId: string }): JSX.Element {
       const key = e.key.toLowerCase();
       if (key === 'z' && !e.shiftKey) {
         e.preventDefault();
-        handleUndo();
+        undoFnRef.current();
       } else if ((key === 'z' && e.shiftKey) || key === 'y') {
         e.preventDefault();
-        handleRedo();
+        redoFnRef.current();
       }
     };
     window.addEventListener('keydown', handler);
     return () => window.removeEventListener('keydown', handler);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // --- рендер маркеров точек на карте ---
