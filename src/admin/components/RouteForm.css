@@ -51,10 +51,62 @@
 
 /* ---- Карта ---- */
 
+.route-form__map-wrap {
+  flex: 1;
+  min-width: 0;
+  position: relative;
+  display: flex;
+}
+
 .route-form__map {
   flex: 1;
   min-width: 0;
   background: var(--surface-alt);
+}
+
+/* Toggle-кнопка «Редактировать линию» — поверх карты в правом верху.
+   Когда выключена — карта инертна, drag/scroll работают как обычно.
+   Когда включена — на сегментах линии маршрута появляются drag-handles,
+   drag по линии добавляет промежуточную точку (via-waypoint) и LRM
+   перепрокладывает путь через неё. */
+.route-form__edit-line-btn {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 500; /* выше leaflet zoom-control */
+  padding: 8px 14px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+  transition:
+    background var(--duration-fast) var(--ease-out),
+    border-color var(--duration-fast) var(--ease-out);
+}
+
+.route-form__edit-line-btn:hover {
+  background: var(--surface-alt);
+}
+
+.route-form__edit-line-btn.is-on {
+  background: var(--accent);
+  color: var(--accent-text);
+  border-color: var(--accent);
+}
+
+.route-form__edit-line-btn.is-on:hover {
+  filter: brightness(0.95);
+}
+
+/* В мобильном брейкпойнте map-wrap скрывается заодно с .route-form__map */
+@media (max-width: 599px) {
+  .route-form__map-wrap {
+    display: none;
+  }
 }
 
 /* ---- Header (sticky) ---- */
@@ -433,8 +485,16 @@
   justify-content: flex-end;
 }
 
-/* ---- Скрываем стандартный UI LRM (show:false и так его не добавляет,
-        но defensive на случай если версия LRM поведёт иначе) ---- */
+/* ---- LRM UI ----
+ *
+ * Сам диалог справа (`.leaflet-routing-container`) нам никогда не нужен —
+ * используем `show: false`, но скрываем CSS defensive (разные версии LRM).
+ *
+ * Все остальные элементы LRM (drag-handles на сегментах линии, pending-tooltip
+ * с кнопками confirm/cancel) рисуются ТОЛЬКО когда LRM-control создан с
+ * `addWaypoints: true` — это происходит при включении кнопки «Редактировать линию».
+ * В обычном режиме `addWaypoints: false` и эти элементы не появляются.
+ */
 .leaflet-routing-container {
   display: none !important;
 }

@@ -102,6 +102,7 @@ export function RouteForm({ routeId }: { routeId: string }): JSX.Element {
   const [searchQuery, setSearchQuery] = useState('');
   const [draftHydrated, setDraftHydrated] = useState(false);
   const [lrmReady, setLrmReady] = useState(false);
+  const [lineEditMode, setLineEditMode] = useState(false);
   const [showRestorePrompt, setShowRestorePrompt] = useState<RouteDraft | null>(null);
   const [validationError, setValidationError] = useState<string | null>(null);
 
@@ -115,6 +116,12 @@ export function RouteForm({ routeId }: { routeId: string }): JSX.Element {
   const lrmRef = useRef<L.Routing.RoutingControl | null>(null);
   const routerRef = useRef<DebouncedRouter | null>(null);
   const markersLayerRef = useRef<L.LayerGroup | null>(null);
+
+  // Реф на функцию пересоздания LRM с другим флагом addWaypoints.
+  // Нужен потому что переключение режима вызывается из JSX-обработчика, а
+  // setup LRM живёт внутри async useEffect — обычной closure не достать.
+  // LRM не умеет менять addWaypoints/routeWhileDragging на лету.
+  const recreateLrmRef = useRef<((addWaypoints: boolean) => void) | null>(null);
 
   // --- загрузка данных ---
   useEffect(() => {
@@ -268,47 +275,75 @@ export function RouteForm({ routeId }: { routeId: string }): JSX.Element {
         const markersLayer = L.layerGroup().addTo(map);
 
         const router = createDebouncedRouter();
-        const lrm = L.Routing.control({
-          waypoints: [],
-          router,
-          show: false,
-          addWaypoints: true,
-          routeWhileDragging: false,
-          fitSelectedRoutes: false,
-          lineOptions: {
-            styles: [
-              { color: '#000000', weight: 5, opacity: 0.15 },
-              { color: '#b8ff3d', weight: 3, opacity: 1 },
-            ],
-          },
-          createMarker: () => false,
-        }).addTo(map);
+        routerRef.current = router;
 
-        // LRM = source of truth для waypoints → синхронизируем draft
-        lrm.on('waypointschanged', () => {
-          const wps = lrm.getWaypoints();
-          const point_ids = extractAnchorIds(wps);
-          const via_waypoints = extractViaCoords(wps);
-          setDraft((d) => ({ ...d, point_ids, via_waypoints }));
-        });
+        // Локальный helper: создаёт LRM-control с указанным режимом
+        // редактирования и навешивает обработчики waypointschanged/routesfound.
+        // Используется и при первой инициализации, и при toggle режима.
+        function attachLrm(addWaypoints: boolean): L.Routing.RoutingControl {
+          const ctrl = L.Routing.control({
+            waypoints: [],
+            router,
+            show: false,
+            // true — на сегментах появляются drag-handles, drag по линии добавляет
+            //   via-waypoint (можно скорректировать путь между anchor'ами).
+            // false — линия инертна, drag/scroll по карте не задевают LRM.
+            addWaypoints,
+            routeWhileDragging: false,
+            fitSelectedRoutes: false,
+            lineOptions: {
+              styles: [
+                { color: '#000000', weight: 5, opacity: 0.15 },
+                { color: '#b8ff3d', weight: 3, opacity: 1 },
+              ],
+            },
+            createMarker: () => false,
+          }).addTo(map);
 
-        // Обновляем geometry и статистику после построения маршрута
-        lrm.on('routesfound', (e: unknown) => {
-          const ev = e as { routes: L.Routing.IRoute[] };
-          const r = ev.routes[0];
-          if (!r) return;
-          const geometry: RouteGeometry = {
-            type: 'LineString',
-            // LRM coordinates: L.LatLng ([lat, lng]). GeoJSON хранит [lng, lat].
-            coordinates: r.coordinates?.map((c): [number, number] => [c.lng, c.lat]) ?? [],
-          };
-          setDraft((d) => ({
-            ...d,
-            geometry,
-            total_distance_m: Math.round(r.summary?.totalDistance ?? 0),
-            total_duration_s: Math.round(r.summary?.totalTime ?? 0),
-          }));
-        });
+          ctrl.on('waypointschanged', () => {
+            const wps = ctrl.getWaypoints();
+            const point_ids = extractAnchorIds(wps);
+            const via_waypoints = extractViaCoords(wps);
+            setDraft((d) => ({ ...d, point_ids, via_waypoints }));
+          });
+
+          ctrl.on('routesfound', (e: unknown) => {
+            const ev = e as { routes: L.Routing.IRoute[] };
+            const r = ev.routes[0];
+            if (!r) return;
+            const geometry: RouteGeometry = {
+              type: 'LineString',
+              // LRM coordinates: L.LatLng ([lat, lng]). GeoJSON хранит [lng, lat].
+              coordinates: r.coordinates?.map((c): [number, number] => [c.lng, c.lat]) ?? [],
+            };
+            setDraft((d) => ({
+              ...d,
+              geometry,
+              total_distance_m: Math.round(r.summary?.totalDistance ?? 0),
+              total_duration_s: Math.round(r.summary?.totalTime ?? 0),
+            }));
+          });
+
+          return ctrl;
+        }
+
+        const lrm = attachLrm(false); // стартуем в режиме «инертной линии»
+
+        // Функция переключения режима — пересоздаёт LRM с новым флагом,
+        // сохраняя текущие waypoints. Доступна через ref для JSX-кнопки.
+        recreateLrmRef.current = (addWaypoints: boolean) => {
+          if (!mapRef.current || !lrmRef.current) return;
+          const wps = lrmRef.current.getWaypoints();
+          lrmRef.current.off('waypointschanged');
+          lrmRef.current.off('routesfound');
+          mapRef.current.removeControl(lrmRef.current);
+
+          const next = attachLrm(addWaypoints);
+          lrmRef.current = next;
+          // Восстанавливаем waypoints — новый control триггерит waypointschanged
+          // → routesfound, draft синхронизируется автоматически.
+          next.setWaypoints(wps);
+        };
 
         mapRef.current = map;
         lrmRef.current = lrm;
@@ -802,7 +837,26 @@ export function RouteForm({ routeId }: { routeId: string }): JSX.Element {
       </aside>
 
       {/* Правая часть: карта */}
-      <div class="route-form__map" ref={mapContainerRef} />
+      <div class="route-form__map-wrap">
+        <button
+          type="button"
+          class={`route-form__edit-line-btn${lineEditMode ? ' is-on' : ''}`}
+          onClick={() => {
+            if (!recreateLrmRef.current) return;
+            const next = !lineEditMode;
+            recreateLrmRef.current(next);
+            setLineEditMode(next);
+          }}
+          title={
+            lineEditMode
+              ? 'Выйти из режима редактирования линии'
+              : 'Включить редактирование линии: drag по линии добавит промежуточную точку'
+          }
+        >
+          {lineEditMode ? '✓ Редактирую линию' : '✎ Редактировать линию'}
+        </button>
+        <div class="route-form__map" ref={mapContainerRef} />
+      </div>
     </div>
   );
 }
