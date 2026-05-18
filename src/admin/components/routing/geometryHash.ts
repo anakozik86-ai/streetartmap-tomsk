@@ -25,7 +25,18 @@ export async function computeGeometryHash(
     })
     .join('|');
 
+  // Defensive: пропускаем невалидные элементы (например, старый формат [lat,lng]).
+  // Симметрично scripts/validate-data.ts → geometryHashFor.
   const viaStr = viaWaypoints
+    .filter(
+      (v): v is RouteViaWaypoint =>
+        v !== null &&
+        typeof v === 'object' &&
+        !Array.isArray(v) &&
+        typeof (v as RouteViaWaypoint).after === 'number' &&
+        typeof (v as RouteViaWaypoint).lat === 'number' &&
+        typeof (v as RouteViaWaypoint).lng === 'number',
+    )
     .map((v) => `${v.after}@${v.lat.toFixed(6)},${v.lng.toFixed(6)}`)
     .join('|');
 

@@ -347,6 +347,11 @@ function checkUnique<T extends { id: string }>(file: string, items: T[]): void {
  *
  * Формат: ANCHORS:{id1}:{lat6},{lng6}|{id2}:{lat6},{lng6}|VIA:{after}@{vlat6},{vlng6}|...
  * via_waypoints — RouteViaWaypoint с полем `after` (индекс anchor'а).
+ *
+ * Defensive: невалидные элементы via (например, старый формат [lat,lng]
+ * или null) отбрасываются — нужно чтобы validate-data не крашился TypeError'ом
+ * на старых данных в data/routes.json. Параллельно AJV-валидация выдаст ошибку
+ * на этот же массив, и пользователь увидит конкретную причину.
  */
 export function geometryHashFor(
   pointIds: string[],
@@ -361,6 +366,15 @@ export function geometryHashFor(
     .join('|');
 
   const viaStr = (viaWaypoints ?? [])
+    .filter(
+      (v): v is RouteViaWaypoint =>
+        v !== null &&
+        typeof v === 'object' &&
+        !Array.isArray(v) &&
+        typeof (v as RouteViaWaypoint).after === 'number' &&
+        typeof (v as RouteViaWaypoint).lat === 'number' &&
+        typeof (v as RouteViaWaypoint).lng === 'number',
+    )
     .map((v) => `${v.after}@${v.lat.toFixed(6)},${v.lng.toFixed(6)}`)
     .join('|');
 

@@ -24,53 +24,6 @@
       "vidy-ryb",
       "vcwall"
     ],
-    "via_waypoints": [
-      {
-        "after": 2,
-        "lat": 56.46791431278002,
-        "lng": 84.9533230140527
-      },
-      {
-        "after": 3,
-        "lat": 56.469118312216196,
-        "lng": 84.95109209935293
-      },
-      {
-        "after": 3,
-        "lat": 56.46934482026826,
-        "lng": 84.95063077075034
-      },
-      {
-        "after": 4,
-        "lat": 56.46991541351235,
-        "lng": 84.94849699887531
-      },
-      {
-        "after": 16,
-        "lat": 56.49761590804885,
-        "lng": 84.94044218597276
-      },
-      {
-        "after": 16,
-        "lat": 56.498612840054875,
-        "lng": 84.93968849070092
-      },
-      {
-        "after": 16,
-        "lat": 56.4980956379995,
-        "lng": 84.94010947364555
-      },
-      {
-        "after": 16,
-        "lat": 56.4977845638013,
-        "lng": 84.94032675516536
-      },
-      {
-        "after": 16,
-        "lat": 56.50166718662645,
-        "lng": 84.93750888545534
-      }
-    ],
     "geometry": {
       "type": "LineString",
       "coordinates": [
@@ -2388,9 +2341,9 @@
         ]
       ]
     },
-    "geometry_hash": "c83902a34cd7f853f73174aa07825689ceeda84f25ab4ca614a54c9aee819b14",
-    "total_distance_m": 7453,
-    "total_duration_s": 6148,
+    "geometry_hash": "2950b991cae8f66cc0f394f4a79c9412a6a7ceeb82110c40f96b5d99b14befbc",
+    "total_distance_m": 6910,
+    "total_duration_s": 5668,
     "created_at": "2026-05-18T06:11:01.057Z",
     "created_by": "anakozik86-ai",
     "updated_at": "2026-05-18T14:10:31.227Z",
