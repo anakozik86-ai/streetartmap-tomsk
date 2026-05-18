@@ -67,31 +67,11 @@
   width: 18px;
   height: 18px;
   display: block;
-  object-fit: contain;
-  user-select: none;
-  -webkit-user-drag: none;
-}
-
-/* ---- Переключение light/dark версии PNG-иконок категорий ---- */
-/* По умолчанию показываем светлую (на светлой теме); в светлой теме оба img
-   занимают одну ячейку flex-контейнера — скрываем dark. */
-.cat-icon--dark {
-  display: none !important;
-}
-[data-theme='dark'] .cat-icon--light {
-  display: none !important;
-}
-[data-theme='dark'] .cat-icon--dark {
-  display: block !important;
-}
-/* Системная тёмная тема, если пользователь не выставил data-theme явно */
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme]) .cat-icon--light {
-    display: none !important;
-  }
-  :root:not([data-theme]) .cat-icon--dark {
-    display: block !important;
-  }
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
 
 /* ---- Hover ---- */

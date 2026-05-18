@@ -82,9 +82,11 @@
   width: 16px;
   height: 16px;
   display: block;
-  object-fit: contain;
-  user-select: none;
-  -webkit-user-drag: none;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
 
 .filter-panel__item-dot {
@@ -368,9 +370,11 @@
     width: 14px;
     height: 14px;
     display: block;
-    object-fit: contain;
-    user-select: none;
-    -webkit-user-drag: none;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
   }
 
   .filter-sheet__chip-dot {
