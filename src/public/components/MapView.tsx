@@ -11,72 +11,9 @@ import { activeCategories, activeCollections, showLost } from '../state/filters.
 import { activeRouteIds } from '../state/routes.ts';
 import { categories, collections } from '../state/catalogState.ts';
 import { createRouteLayer } from './RouteLayer.ts';
-import './SmoothWheelZoom.ts'; // регистрирует L.Map handler smoothWheelZoom
-
-interface TileConfig {
-  url: string;
-  subdomains: string;
-  maxZoom: number;
-}
-
-const TILE_LAYERS: Record<'light' | 'dark', TileConfig> = {
-  light: {
-    url: 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',
-    subdomains: 'abcd',
-    maxZoom: 19,
-  },
-  dark: {
-    url: 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
-    subdomains: 'abcd',
-    maxZoom: 19,
-  },
-};
+import { createTileLayer, createAttributionControl } from '../map/mapSetup.ts';
 
 export const mapLoadError = signal<string | null>(null);
-
-function createTileLayer(theme: 'light' | 'dark'): L.TileLayer {
-  const cfg = TILE_LAYERS[theme];
-  return L.tileLayer(cfg.url, {
-    subdomains: cfg.subdomains,
-    maxZoom: cfg.maxZoom,
-    keepBuffer: 6,
-    updateWhenIdle: false,
-    updateWhenZooming: true,
-  });
-}
-
-function createAttributionControl(): L.Control {
-  const control = new L.Control({ position: 'bottomleft' });
-  control.onAdd = () => {
-    const container = L.DomUtil.create('div', 'attribution-pill');
-    container.setAttribute('aria-label', 'Источники карты');
-
-    const icon = L.DomUtil.create('span', 'attribution-pill__icon', container);
-    icon.textContent = 'i';
-    icon.setAttribute('aria-hidden', 'true');
-
-    const content = L.DomUtil.create('span', 'attribution-pill__content', container);
-    content.innerHTML =
-      '<a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OSM</a>' +
-      ', ' +
-      '<a href="https://carto.com/attributions" target="_blank" rel="noopener">CARTO</a>';
-
-    // Tap-toggle для тач-устройств (hover не работает на мобайле)
-    L.DomEvent.on(container, 'click', (e) => {
-      L.DomEvent.stopPropagation(e);
-      container.classList.toggle('is-open');
-    });
-
-    // Закрывать при клике снаружи
-    document.addEventListener('click', () => {
-      container.classList.remove('is-open');
-    });
-
-    L.DomEvent.disableScrollPropagation(container);
-    return container;
-  };
-  return control;
-}
 
 interface FilterState {
   activeCategories: ReadonlySet<string>;

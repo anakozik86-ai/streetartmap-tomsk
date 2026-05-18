@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'preact/hooks';
 import type { JSX } from 'preact';
 import L from 'leaflet';
 import type { Route, Point, ContentStatus, RouteGeometry } from '@shared/types/data.ts';
+import { loadConfig } from '@shared/utils/loadConfig.ts';
 import { navigate } from '../state/router.ts';
 import {
   routesData,
@@ -13,6 +14,8 @@ import {
 import { pointsData, pointsLoadState, loadPoints } from '../state/pointsState.ts';
 import { createPointIcon } from '../../public/markers/createMarker.ts';
 import { categories, collections, loadCatalog } from '../../public/state/catalogState.ts';
+import { themeMode } from '../../public/hooks/useTheme.ts';
+import { createTileLayer, createAttributionControl } from '../../public/map/mapSetup.ts';
 import { createDebouncedRouter, type DebouncedRouter } from './routing/debouncedRouter.ts';
 import {
   makeAnchorWaypoint,
@@ -21,6 +24,7 @@ import {
   onlyAnchors,
 } from './routing/waypointHelpers.ts';
 import { computeGeometryHash } from './routing/geometryHash.ts';
+import { effect } from '@preact/signals';
 import './RouteForm.css';
 
 // ── типы ──────────────────────────────────────────────────────────────────────
@@ -85,10 +89,6 @@ function slugify(s: string): string {
     .slice(0, 64);
 }
 
-const CARTO_LIGHT = 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png';
-const CARTO_ATTRIBUTION = '&copy; OSM &copy; CARTO';
-const TOMSK_CENTER: [number, number] = [56.4847, 84.9482];
-
 // ── компонент ─────────────────────────────────────────────────────────────────
 
 export function RouteForm({ routeId }: { routeId: string }): JSX.Element {
@@ -101,6 +101,7 @@ export function RouteForm({ routeId }: { routeId: string }): JSX.Element {
   const [isSaving, setIsSaving] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [draftHydrated, setDraftHydrated] = useState(false);
+  const [lrmReady, setLrmReady] = useState(false);
   const [showRestorePrompt, setShowRestorePrompt] = useState<RouteDraft | null>(null);
   const [validationError, setValidationError] = useState<string | null>(null);
 
@@ -206,84 +207,140 @@ export function RouteForm({ routeId }: { routeId: string }): JSX.Element {
   }, [storageKey]);
 
   // --- инициализация Leaflet карты (один раз) ---
+  // Используем тот же setup что в публичной MapView: те же тайлы (с переключением темы),
+  // те же minZoom/maxBounds/zoomSnap из config.json, тот же SmoothWheelZoom handler,
+  // attribution-pill и zoom control bottomright. Поверх — LRM-routing-control и layer
+  // с маркерами точек.
   useEffect(() => {
     if (!mapContainerRef.current || mapRef.current) return;
 
-    const map = L.map(mapContainerRef.current, {
-      center: TOMSK_CENTER,
-      zoom: 13,
-      zoomControl: true,
-    });
+    const container = mapContainerRef.current;
+    let cancelled = false;
+    let resizeObserver: ResizeObserver | null = null;
+    let tileLayer: L.TileLayer | null = null;
+    let themeEffectDispose: (() => void) | null = null;
 
-    L.tileLayer(CARTO_LIGHT, {
-      attribution: CARTO_ATTRIBUTION,
-      maxZoom: 19,
-      subdomains: 'abcd',
-    }).addTo(map);
+    (async () => {
+      try {
+        const config = await loadConfig();
+        if (cancelled) return;
 
-    const markersLayer = L.layerGroup().addTo(map);
+        const bounds = config.city.bounds
+          ? L.latLngBounds(
+              [config.city.bounds.sw.lat, config.city.bounds.sw.lng],
+              [config.city.bounds.ne.lat, config.city.bounds.ne.lng],
+            )
+          : undefined;
 
-    const router = createDebouncedRouter();
-    const lrm = L.Routing.control({
-      waypoints: [],
-      router,
-      show: false,
-      addWaypoints: true,
-      routeWhileDragging: false,
-      fitSelectedRoutes: false,
-      lineOptions: {
-        styles: [
-          { color: '#000000', weight: 5, opacity: 0.15 },
-          { color: '#b8ff3d', weight: 3, opacity: 1 },
-        ],
-      },
-      createMarker: () => false,
-    }).addTo(map);
+        const map = L.map(container, {
+          center: [config.city.center.lat, config.city.center.lng],
+          zoom: config.city.default_zoom,
+          zoomControl: false,
+          attributionControl: false,
+          ...(bounds ? { maxBounds: bounds, maxBoundsViscosity: 1.0 } : {}),
+          minZoom: 13,
+          zoomSnap: 0,
+          zoomDelta: 0.5,
+          scrollWheelZoom: false,
+          smoothWheelZoom: true,
+          smoothSensitivity: 1,
+        });
 
-    // LRM = source of truth для waypoints → синхронизируем draft
-    lrm.on('waypointschanged', () => {
-      const wps = lrm.getWaypoints();
-      const point_ids = extractAnchorIds(wps);
-      const via_waypoints = extractViaCoords(wps);
-      setDraft((d) => ({ ...d, point_ids, via_waypoints }));
-    });
+        createAttributionControl().addTo(map);
+        L.control.zoom({ position: 'bottomright' }).addTo(map);
 
-    // Обновляем geometry и статистику после построения маршрута
-    lrm.on('routesfound', (e: unknown) => {
-      const ev = e as { routes: L.Routing.IRoute[] };
-      const r = ev.routes[0];
-      if (!r) return;
-      const geometry: RouteGeometry = {
-        type: 'LineString',
-        // LRM coordinates: L.LatLng ([lat, lng]). GeoJSON хранит [lng, lat].
-        coordinates: r.coordinates?.map((c): [number, number] => [c.lng, c.lat]) ?? [],
-      };
-      setDraft((d) => ({
-        ...d,
-        geometry,
-        total_distance_m: Math.round(r.summary?.totalDistance ?? 0),
-        total_duration_s: Math.round(r.summary?.totalTime ?? 0),
-      }));
-    });
+        tileLayer = createTileLayer(themeMode.value);
+        tileLayer.addTo(map);
 
-    mapRef.current = map;
-    lrmRef.current = lrm;
-    routerRef.current = router;
-    markersLayerRef.current = markersLayer;
+        // Подписка на переключение темы (как в публичной карте).
+        themeEffectDispose = effect(() => {
+          const theme = themeMode.value;
+          if (!mapRef.current) return;
+          if (tileLayer) mapRef.current.removeLayer(tileLayer);
+          tileLayer = createTileLayer(theme);
+          tileLayer.addTo(mapRef.current);
+          requestAnimationFrame(() => mapRef.current?.invalidateSize());
+        });
 
-    // ResizeObserver — карта корректно перерисовывается при изменении размера контейнера
-    const resizeObserver = new ResizeObserver(() => {
-      map.invalidateSize();
-    });
-    resizeObserver.observe(mapContainerRef.current);
+        // Принудительный пересчёт размера после монтирования.
+        requestAnimationFrame(() => map.invalidateSize());
+
+        const markersLayer = L.layerGroup().addTo(map);
+
+        const router = createDebouncedRouter();
+        const lrm = L.Routing.control({
+          waypoints: [],
+          router,
+          show: false,
+          addWaypoints: true,
+          routeWhileDragging: false,
+          fitSelectedRoutes: false,
+          lineOptions: {
+            styles: [
+              { color: '#000000', weight: 5, opacity: 0.15 },
+              { color: '#b8ff3d', weight: 3, opacity: 1 },
+            ],
+          },
+          createMarker: () => false,
+        }).addTo(map);
+
+        // LRM = source of truth для waypoints → синхронизируем draft
+        lrm.on('waypointschanged', () => {
+          const wps = lrm.getWaypoints();
+          const point_ids = extractAnchorIds(wps);
+          const via_waypoints = extractViaCoords(wps);
+          setDraft((d) => ({ ...d, point_ids, via_waypoints }));
+        });
+
+        // Обновляем geometry и статистику после построения маршрута
+        lrm.on('routesfound', (e: unknown) => {
+          const ev = e as { routes: L.Routing.IRoute[] };
+          const r = ev.routes[0];
+          if (!r) return;
+          const geometry: RouteGeometry = {
+            type: 'LineString',
+            // LRM coordinates: L.LatLng ([lat, lng]). GeoJSON хранит [lng, lat].
+            coordinates: r.coordinates?.map((c): [number, number] => [c.lng, c.lat]) ?? [],
+          };
+          setDraft((d) => ({
+            ...d,
+            geometry,
+            total_distance_m: Math.round(r.summary?.totalDistance ?? 0),
+            total_duration_s: Math.round(r.summary?.totalTime ?? 0),
+          }));
+        });
+
+        mapRef.current = map;
+        lrmRef.current = lrm;
+        routerRef.current = router;
+        markersLayerRef.current = markersLayer;
+
+        // ResizeObserver — карта корректно перерисовывается при изменении размера контейнера
+        // (в т.ч. когда mobile-stub скрывается и .route-form__map становится видимым).
+        resizeObserver = new ResizeObserver(() => {
+          map.invalidateSize();
+        });
+        resizeObserver.observe(container);
+
+        // Сигнализируем что LRM готов — это нужно чтобы applyDraftToLrm-useEffect
+        // мог отработать, если гидратация draft случилась РАНЬШЕ async-init карты.
+        setLrmReady(true);
+      } catch (e) {
+        console.error('Failed to init map in RouteForm', e);
+      }
+    })();
 
     return () => {
-      resizeObserver.disconnect();
-      router.dispose();
-      lrm.off('waypointschanged');
-      lrm.off('routesfound');
-      map.removeControl(lrm);
-      map.remove();
+      cancelled = true;
+      themeEffectDispose?.();
+      resizeObserver?.disconnect();
+      routerRef.current?.dispose();
+      lrmRef.current?.off('waypointschanged');
+      lrmRef.current?.off('routesfound');
+      if (mapRef.current && lrmRef.current) {
+        mapRef.current.removeControl(lrmRef.current);
+      }
+      mapRef.current?.remove();
       mapRef.current = null;
       lrmRef.current = null;
       routerRef.current = null;
@@ -292,6 +349,9 @@ export function RouteForm({ routeId }: { routeId: string }): JSX.Element {
   }, []);
 
   // --- применение draft к LRM (вызывается явно, не через useEffect) ---
+  // Карта остаётся отцентрированной по config.city.center (как на публичной).
+  // Раньше тут был fitBounds на anchorWps, но он вызывал залипание зума при
+  // инициализации в момент когда контейнер был 0×0 (mobile-stub / docked DevTools).
   function applyDraftToLrm(d: RouteDraft): void {
     if (!lrmRef.current) return;
     const pointsById = new Map(pointsData.value.map((p) => [p.id, p] as const));
@@ -316,23 +376,20 @@ export function RouteForm({ routeId }: { routeId: string }): JSX.Element {
     } else {
       lrmRef.current.setWaypoints(anchorWps);
     }
-
-    if (anchorWps.length > 0 && mapRef.current) {
-      const bounds = L.latLngBounds(anchorWps.map((wp) => wp.latLng));
-      mapRef.current.fitBounds(bounds, { padding: [40, 40] });
-    }
   }
 
   // --- инициализация LRM waypoints после гидратации (один раз) ---
+  // Зависим и от draftHydrated, и от lrmReady — карта инициализируется
+  // асинхронно (loadConfig), и гидратация draft может произойти раньше.
   const lrmInitialized = useRef(false);
   useEffect(() => {
-    if (!draftHydrated) return;
+    if (!draftHydrated || !lrmReady) return;
     if (!lrmRef.current) return;
     if (lrmInitialized.current) return;
     lrmInitialized.current = true;
     if (draft.point_ids.length === 0) return;
     applyDraftToLrm(draft);
-  }, [draftHydrated]);
+  }, [draftHydrated, lrmReady]);
 
   // --- рендер маркеров точек на карте ---
   useEffect(() => {
@@ -520,7 +577,7 @@ export function RouteForm({ routeId }: { routeId: string }): JSX.Element {
     <div class="route-form">
       {/* Мобайл: вместо формы — заглушка (панель и карта скрыты через CSS) */}
       <div class="route-form__mobile-stub">
-        Редактирование маршрутов доступно только на десктопе (≥768px).
+        Редактирование маршрутов доступно только на десктопе (≥600px).
       </div>
 
       {/* Диалог восстановления черновика */}

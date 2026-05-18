@@ -3,6 +3,7 @@ import { render } from 'preact';
 import '../public/styles/tokens.css';
 import '../public/styles/base.css';
 import '../public/styles/markers.css';
+import '../public/styles/map.css';
 import './components/Modal.css';
 import './components/AdminForm.css';
 import './components/AdminTable.css';
