@@ -11,7 +11,7 @@ import { activeCategories, activeCollections, showLost } from '../state/filters.
 import { activeRouteIds } from '../state/routes.ts';
 import { categories, collections } from '../state/catalogState.ts';
 import { createRouteLayer } from './RouteLayer.ts';
-import { createTileLayer, createAttributionControl } from '../map/mapSetup.ts';
+import { createBasemapLayer, createAttributionControl } from '../map/mapSetup.ts';
 
 export const mapLoadError = signal<string | null>(null);
 
@@ -106,7 +106,7 @@ export function MapView() {
     if (!container) return;
 
     let map: L.Map | null = null;
-    let tileLayer: L.TileLayer | null = null;
+    let tileLayer: L.Layer | null = null;
     let markersLayer: L.LayerGroup | null = null;
     let markerById = new Map<string, L.Marker>();
     const routeLayers = new Map<string, L.LayerGroup>();
@@ -166,7 +166,7 @@ export function MapView() {
         createAttributionControl().addTo(map);
         L.control.zoom({ position: 'bottomright' }).addTo(map);
 
-        tileLayer = createTileLayer(themeMode.value);
+        tileLayer = createBasemapLayer(themeMode.value);
         tileLayer.addTo(map);
 
         // Принудительный пересчёт размера после монтирования —
@@ -251,7 +251,7 @@ export function MapView() {
             const theme = themeMode.value;
             if (!map) return;
             if (tileLayer) map.removeLayer(tileLayer);
-            tileLayer = createTileLayer(theme);
+            tileLayer = createBasemapLayer(theme);
             tileLayer.addTo(map);
             // После смены тайлового слоя принудительно пересчитываем размер —
             // иначе карта может остаться обрезанной (Leaflet не видит изменений DOM)
