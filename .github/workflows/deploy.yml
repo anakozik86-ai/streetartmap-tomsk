@@ -48,6 +48,7 @@ jobs:
         run: pnpm build:nocheck
         env:
           VITE_BASE_PATH: /streetartmap-tomsk/
+          VITE_PROTOMAPS_KEY: ${{ secrets.VITE_PROTOMAPS_KEY }}
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
