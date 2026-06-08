@@ -51,7 +51,9 @@ export default defineConfig({
     outDir: 'dist',
     emptyOutDir: true,
     target: 'es2022',
-    sourcemap: true,
+    // Прод без сорсмапов: не отдаём исходники и не раздуваем артефакт Pages.
+    // Для отладки прод-сборки временно поставить 'hidden'.
+    sourcemap: false,
   },
 
   server: {

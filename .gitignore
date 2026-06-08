@@ -5,6 +5,9 @@ node_modules/
 dist/
 *.tsbuildinfo
 
+# Локальные инструменты (не нужны для сборки/рантайма)
+pmtiles.exe
+
 # Окружение
 .env
 .env.local

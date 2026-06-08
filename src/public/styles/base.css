@@ -20,7 +20,6 @@ html {
   color-scheme: light;
 }
 
-[data-theme='dark'] html,
 html[data-theme='dark'] {
   color-scheme: dark;
 }

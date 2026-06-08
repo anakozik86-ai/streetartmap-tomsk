@@ -149,9 +149,8 @@ export function MapView() {
           zoom: config.city.default_zoom,
           zoomControl: false,
           attributionControl: false,
-          // maxBoundsViscosity: 1.0 убран — он вызывал «прыжок» карты обратно к центру
-          // при зуме до уровня, когда viewport выходил за границы города.
-          // Мягкая граница (0.5) позволяет немного выйти за bounds без резкого возврата.
+          // Жёсткая граница города: viscosity 1.0 «прилипает» к краю bounds,
+          // не давая увести viewport за пределы города.
           ...(bounds ? { maxBounds: bounds, maxBoundsViscosity: 1.0 } : {}),
           // minZoom: 12 — на меньшем уровне CartoDB начинает показывать английские названия
           minZoom: 13,
@@ -166,8 +165,9 @@ export function MapView() {
         createAttributionControl().addTo(map);
         L.control.zoom({ position: 'bottomright' }).addTo(map);
 
-        tileLayer = createBasemapLayer(themeMode.value);
-        tileLayer.addTo(map);
+        // Тайловый слой создаётся и пересоздаётся в theme-эффекте ниже. Эффект
+        // исполняется синхронно при регистрации, поэтому подложка появляется
+        // сразу — без двойного создания слоя.
 
         // Принудительный пересчёт размера после монтирования —
         // контейнер может ещё не иметь финальных размеров в момент L.map()
@@ -211,6 +211,11 @@ export function MapView() {
             void activeCollections.value;
             void showLost.value;
             void activeRouteIds.value;
+            // Каталог грузится отдельно (FilterPanel → loadCatalog). renderMarkers
+            // читает categories/collections, поэтому подписываемся и на них —
+            // иначе при позднем приходе каталога маркеры не отрисуются до смены фильтра.
+            void categories.value;
+            void collections.value;
             rebuildMarkers();
           }),
         );

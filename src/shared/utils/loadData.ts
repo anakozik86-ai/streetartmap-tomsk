@@ -10,12 +10,18 @@ export function loadJsonArray<T>(filename: string): Promise<T[]> {
   const existing = cache.get(filename);
   if (existing) return existing as Promise<T[]>;
 
-  const promise = fetch(`${import.meta.env.BASE_URL}data/${filename}`).then((res) => {
-    if (!res.ok) {
-      throw new Error(`Failed to load ${filename}: ${res.status} ${res.statusText}`);
-    }
-    return res.json();
-  });
+  const promise = fetch(`${import.meta.env.BASE_URL}data/${filename}`)
+    .then((res) => {
+      if (!res.ok) {
+        throw new Error(`Failed to load ${filename}: ${res.status} ${res.statusText}`);
+      }
+      return res.json();
+    })
+    .catch((err) => {
+      // Не кэшируем сбой — позволяем повторить попытку после временной ошибки сети.
+      cache.delete(filename);
+      throw err;
+    });
   cache.set(filename, promise);
   return promise as Promise<T[]>;
 }

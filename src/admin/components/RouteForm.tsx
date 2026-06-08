@@ -301,7 +301,10 @@ export function RouteForm({ routeId }: { routeId: string }): JSX.Element {
         });
 
         // Принудительный пересчёт размера после монтирования.
-        requestAnimationFrame(() => map.invalidateSize());
+        // Гард cancelled — на случай анмаунта в тот же кадр (карта уже remove()'нута).
+        requestAnimationFrame(() => {
+          if (!cancelled) map.invalidateSize();
+        });
 
         const markersLayer = L.layerGroup().addTo(map);
 
@@ -744,6 +747,12 @@ export function RouteForm({ routeId }: { routeId: string }): JSX.Element {
     }
     if (draft.point_ids.length < 2) {
       setValidationError('Минимум 2 точки в маршруте');
+      return;
+    }
+    if (!draft.geometry) {
+      // Без геометрии (OSRM не ответил / нет сети) на публичную карту уедет
+      // битый маршрут — RouteLayer ждёт LineString. Не даём сохранить.
+      setValidationError('Линия маршрута не построена — проверьте сеть и дождитесь маршрутизации');
       return;
     }
     if (!lrmRef.current) return;

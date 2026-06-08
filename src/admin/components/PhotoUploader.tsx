@@ -138,14 +138,21 @@ export function PhotoUploader({ pointId, photos, onChange }: Props): JSX.Element
   const [items, setItems] = useState<PhotoItem[]>(() => photos.map((p) => ({ ...p })));
   const [dragOver, setDragOver] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const isMounted = useRef(false);
+  const didMount = useRef(false);
+  // Защёлка «идёт загрузка» — синхронная, чтобы достоверно блокировать повторный
+  // сброс файлов до завершения текущего батча (см. processFiles).
+  const busyRef = useRef(false);
+  // Зеркало items для cleanup на размонтировании (эффект с [] видит только items
+  // на момент монтирования, а нам нужны актуальные blob-URL).
+  const itemsRef = useRef<PhotoItem[]>(items);
+  itemsRef.current = items;
   const owner = repoOwner.value;
   const repo = repoName.value;
 
   // Sync parent only after mount (skip initial render to avoid wiping existing photos)
   useEffect(() => {
-    if (!isMounted.current) {
-      isMounted.current = true;
+    if (!didMount.current) {
+      didMount.current = true;
       return;
     }
     const committed = items
@@ -154,6 +161,16 @@ export function PhotoUploader({ pointId, photos, onChange }: Props): JSX.Element
     onChange(committed);
   }, [items]);
 
+  // На размонтировании освобождаем все blob-URL превью — иначе утечка памяти.
+  useEffect(
+    () => () => {
+      for (const it of itemsRef.current) {
+        if (it.previewUrl) URL.revokeObjectURL(it.previewUrl);
+      }
+    },
+    [],
+  );
+
   function syncParent(next: PhotoItem[]): void {
     setItems(next);
   }
@@ -161,52 +178,59 @@ export function PhotoUploader({ pointId, photos, onChange }: Props): JSX.Element
   async function processFiles(files: FileList | File[]): Promise<void> {
     const arr = Array.from(files);
     if (!arr.length) return;
+    // Один батч за раз: пока идёт загрузка, повторный сброс игнорируем — иначе
+    // startIndex и имена файлов нового батча столкнутся с текущим и затрут фото.
+    if (busyRef.current) return;
+    busyRef.current = true;
+    try {
+      // Build placeholder items immediately for UI feedback
+      const startIndex = items.length;
+      const placeholders: PhotoItem[] = arr.map((file, i) => ({
+        filename: makeBaseName(pointId, startIndex + i),
+        width: 0,
+        height: 0,
+        previewUrl: URL.createObjectURL(file),
+        uploading: true,
+      }));
 
-    // Build placeholder items immediately for UI feedback
-    const startIndex = items.length;
-    const placeholders: PhotoItem[] = arr.map((file, i) => ({
-      filename: makeBaseName(pointId, startIndex + i),
-      width: 0,
-      height: 0,
-      previewUrl: URL.createObjectURL(file),
-      uploading: true,
-    }));
+      const withPlaceholders = [...items, ...placeholders];
+      setItems(withPlaceholders);
 
-    const withPlaceholders = [...items, ...placeholders];
-    setItems(withPlaceholders);
-
-    // Upload each file; update its placeholder on completion
-    await Promise.all(
-      arr.map(async (file, i) => {
-        const idx = startIndex + i;
-        try {
-          const result = await uploadPhoto(file, pointId, idx, pat.value, owner, repo);
-          setItems((prev) => {
-            const next = [...prev];
-            const placeholder = next[idx];
-            if (placeholder) {
-              if (placeholder.previewUrl) URL.revokeObjectURL(placeholder.previewUrl);
-              next[idx] = {
-                filename: result.filename,
-                width: result.width,
-                height: result.height,
-                caption: '',
-                credit: '',
-              };
-            }
-            return next;
-          });
-        } catch (err) {
-          const msg = err instanceof Error ? err.message : 'Ошибка загрузки';
-          setItems((prev) => {
-            const next = [...prev];
-            const placeholder = next[idx];
-            if (placeholder) next[idx] = { ...placeholder, uploading: false, error: msg };
-            return next;
-          });
-        }
-      }),
-    );
+      // Upload each file; update its placeholder on completion
+      await Promise.all(
+        arr.map(async (file, i) => {
+          const idx = startIndex + i;
+          try {
+            const result = await uploadPhoto(file, pointId, idx, pat.value, owner, repo);
+            setItems((prev) => {
+              const next = [...prev];
+              const placeholder = next[idx];
+              if (placeholder) {
+                if (placeholder.previewUrl) URL.revokeObjectURL(placeholder.previewUrl);
+                next[idx] = {
+                  filename: result.filename,
+                  width: result.width,
+                  height: result.height,
+                  caption: '',
+                  credit: '',
+                };
+              }
+              return next;
+            });
+          } catch (err) {
+            const msg = err instanceof Error ? err.message : 'Ошибка загрузки';
+            setItems((prev) => {
+              const next = [...prev];
+              const placeholder = next[idx];
+              if (placeholder) next[idx] = { ...placeholder, uploading: false, error: msg };
+              return next;
+            });
+          }
+        }),
+      );
+    } finally {
+      busyRef.current = false;
+    }
   }
 
   function handleFileInput(e: Event): void {

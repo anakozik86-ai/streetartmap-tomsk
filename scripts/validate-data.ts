@@ -10,6 +10,9 @@
  *     указывают на существующие неархивированные записи.
  *  5. Состояние маршрутов: geometry_hash совпадает с пересчитанным
  *     (несовпадение — warning, не ошибка).
+ *  6. Фото: для каждого фото точки на диске есть все три размера
+ *     (full/medium/thumb) в images/{id}/ — иначе 404 в рантайме.
+ *  7. Координаты точек попадают в city.bounds (если bounds заданы).
  *
  * Выходит с кодом 0 если всё ок, 1 если есть errors. Warnings не блокируют.
  *
@@ -36,6 +39,8 @@ import type {
 // ----- настройка -----
 
 const DATA_DIR = resolve(process.cwd(), 'data');
+const ROOT_DIR = process.cwd();
+const PHOTO_SIZES = ['full', 'medium', 'thumb'] as const;
 const SLUG_RE = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const HEX_COLOR_RE = /^#[0-9a-fA-F]{6}$/;
 
@@ -390,6 +395,7 @@ function main(): void {
     const valid = ajv.validate(configSchema, config);
     if (!valid) formatAjvErrors('config.json', ajv.errors ?? null);
   }
+  const cityBounds = config?.city.bounds;
 
   const categories = readJson<Category[]>('categories.json') ?? [];
   const collections = readJson<Collection[]>('collections.json') ?? [];
@@ -456,6 +462,29 @@ function main(): void {
       seenAuthors.add(aid);
       if (!activeAuthors.has(aid))
         err(`points.json[id=${p.id}]`, `author_id "${aid}" не существует или архивирован`);
+    }
+
+    // Фото: все три размера должны лежать на диске — иначе 404 в рантайме.
+    for (const photo of p.photos ?? []) {
+      for (const size of PHOTO_SIZES) {
+        const rel = `images/${p.id}/${photo.filename}-${size}.jpg`;
+        if (!existsSync(resolve(ROOT_DIR, rel))) {
+          err(`points.json[id=${p.id}]`, `файл фото не найден: ${rel}`);
+        }
+      }
+    }
+
+    // Координаты должны попадать в границы города (если bounds заданы).
+    if (cityBounds) {
+      const { lat, lng } = p.coords;
+      if (
+        lat < cityBounds.sw.lat ||
+        lat > cityBounds.ne.lat ||
+        lng < cityBounds.sw.lng ||
+        lng > cityBounds.ne.lng
+      ) {
+        err(`points.json[id=${p.id}]`, `координаты (${lat}, ${lng}) вне границ города`);
+      }
     }
   }
 

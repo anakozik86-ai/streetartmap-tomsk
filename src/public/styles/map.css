@@ -171,3 +171,53 @@
   z-index: 1000;
   pointer-events: none;
 }
+
+/* ---- Мобайл: единый размер контролов (40px) ---- */
+@media (max-width: 640px) {
+  /* Зум — горизонтально, кнопки + и - в одну строку */
+  .leaflet-control-zoom {
+    display: flex;
+    flex-direction: row;
+    border-radius: var(--radius-pill) !important;
+  }
+  .leaflet-control-zoom a {
+    width: var(--control-h) !important;
+    height: var(--control-h) !important;
+    line-height: var(--control-h) !important;
+    border-bottom: none !important;
+    border-right-width: 1px !important;
+  }
+  .leaflet-control-zoom a:first-child {
+    border-radius: var(--radius-pill) 0 0 var(--radius-pill) !important;
+  }
+  .leaflet-control-zoom a:last-child {
+    border-right: none !important;
+    border-radius: 0 var(--radius-pill) var(--radius-pill) 0 !important;
+  }
+
+  /* Атрибуция — всегда раскрыта, без кнопки «i»: только две строки
+     «OSM,» / «Protomaps». Размер совпадает с блоком зума (2× высоты контрола),
+     чтобы нижние боковые окошки были одинаковыми. */
+  .attribution-pill {
+    width: calc(2 * var(--control-h));
+    height: var(--control-h);
+    max-width: none;
+    justify-content: center;
+    cursor: default;
+    box-shadow: var(--shadow-md);
+  }
+  /* кнопку-«i» убираем */
+  .attribution-pill__icon {
+    display: none;
+  }
+  .attribution-pill__content {
+    opacity: 1;
+    padding: 0;
+    max-width: 72px;
+    font-size: 12px;
+    line-height: 1.15;
+    text-align: center;
+    /* перенос на 2 строки: ширины хватает на «Protomaps», но не на всю строку */
+    white-space: normal;
+  }
+}

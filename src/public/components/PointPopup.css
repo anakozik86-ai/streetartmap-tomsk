@@ -350,7 +350,7 @@
 .pp-lightbox {
   position: fixed;
   inset: 0;
-  z-index: var(--z-lightbox, 9000);
+  z-index: var(--z-lightbox);
   background: color-mix(in srgb, #000 88%, transparent);
   display: flex;
   align-items: center;

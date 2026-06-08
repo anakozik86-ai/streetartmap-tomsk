@@ -294,6 +294,16 @@ export function PointForm({ pointId }: PointFormProps): JSX.Element {
       return;
     }
 
+    const { lat, lng } = draft.coords;
+    if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
+      setSaveError('Укажите широту и долготу');
+      return;
+    }
+    if (lat < -90 || lat > 90 || lng < -180 || lng > 180) {
+      setSaveError('Координаты вне допустимого диапазона');
+      return;
+    }
+
     const now = new Date().toISOString();
 
     // Build Point — only include optional fields if non-empty
@@ -486,11 +496,11 @@ export function PointForm({ pointId }: PointFormProps): JSX.Element {
                   class="pf-input pf-input--mono"
                   type="number"
                   step="0.000001"
-                  value={draft.coords.lat}
+                  value={Number.isFinite(draft.coords.lat) ? draft.coords.lat : ''}
                   onInput={(e) =>
                     set('coords', {
                       ...draft.coords,
-                      lat: parseFloat((e.target as HTMLInputElement).value) || 0,
+                      lat: parseFloat((e.target as HTMLInputElement).value),
                     })
                   }
                 />
@@ -505,11 +515,11 @@ export function PointForm({ pointId }: PointFormProps): JSX.Element {
                   class="pf-input pf-input--mono"
                   type="number"
                   step="0.000001"
-                  value={draft.coords.lng}
+                  value={Number.isFinite(draft.coords.lng) ? draft.coords.lng : ''}
                   onInput={(e) =>
                     set('coords', {
                       ...draft.coords,
-                      lng: parseFloat((e.target as HTMLInputElement).value) || 0,
+                      lng: parseFloat((e.target as HTMLInputElement).value),
                     })
                   }
                 />

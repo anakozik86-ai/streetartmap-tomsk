@@ -7,7 +7,25 @@ export interface GitHubFile {
 }
 
 export async function getFile(owner: string, repo: string, path: string): Promise<GitHubFile> {
-  return request<GitHubFile>(pat.value, `/repos/${owner}/${repo}/contents/${path}`);
+  const file = await request<GitHubFile>(pat.value, `/repos/${owner}/${repo}/contents/${path}`);
+  // Contents API возвращает пустой content для файлов > 1 МБ. В этом случае
+  // догружаем содержимое через Blobs API по SHA (лимит 100 МБ) — иначе
+  // decodeFileJson упал бы на JSON.parse("") при росте points.json.
+  if (!file.content && file.sha) {
+    const blob = await request<{ content: string }>(
+      pat.value,
+      `/repos/${owner}/${repo}/git/blobs/${file.sha}`,
+    );
+    return { sha: file.sha, content: blob.content };
+  }
+  return file;
+}
+
+/** Декодирует base64-JSON файл из GitHub Contents API в типизированное значение. */
+export function decodeFileJson<T>(file: GitHubFile): T {
+  const binary = atob(file.content.replace(/\n/g, ''));
+  const bytes = Uint8Array.from(binary, (c) => c.charCodeAt(0));
+  return JSON.parse(new TextDecoder().decode(bytes)) as T;
 }
 
 export async function putFile(

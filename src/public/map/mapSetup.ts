@@ -6,8 +6,10 @@
  * controls, smoothWheelZoom, bounds — всё в одном месте.
  */
 import L from 'leaflet';
+import { addProtocol } from 'maplibre-gl';
 import '@maplibre/maplibre-gl-leaflet'; // регистрирует L.maplibreGL
 import 'maplibre-gl/dist/maplibre-gl.css';
+import { Protocol } from 'pmtiles';
 import { layers, namedFlavor } from '@protomaps/basemaps';
 import '../components/SmoothWheelZoom.ts'; // регистрирует L.Map handler smoothWheelZoom
 
@@ -47,15 +49,32 @@ export function createTileLayer(theme: MapTheme): L.TileLayer {
   });
 }
 
-// ── Vector basemap под буклет (только публичная карта) ──────────────────────
-// dark = MapLibre GL (WebGL, плавно) через maplibre-gl-leaflet; light = CartoDB raster.
-//
-// Тайлы Protomaps. Два режима источника:
-//   1) API: бесплатный ключ VITE_PROTOMAPS_KEY в .env (лимиты free-tier, ключ в бандле).
-//   2) Self-host .pmtiles: НЕ просто URL — для MapLibre надо зарегать протокол
-//      pmtiles:// (lib `pmtiles`: maplibregl.addProtocol('pmtiles', p.tile)),
-//      затем source.url = 'pmtiles://${BASE_URL}tiles/tomsk.pmtiles'. См. docs.protomaps.com/pmtiles/maplibre.
-const TILES_URL = `https://api.protomaps.com/tiles/v4/{z}/{x}/{y}.mvt?key=${import.meta.env.VITE_PROTOMAPS_KEY}`;
+// ── Векторная подложка под буклет (только публичная карта) ──────────────────
+// Self-host: тайлы в static/tiles/tomsk.pmtiles → ${BASE_URL}tiles/tomsk.pmtiles.
+// api.protomaps.com отдаёт только IPv6 и в РФ часто недоступен, поэтому тайлы
+// раздаём со своего origin, а протокол pmtiles:// регистрируем разово.
+const PMTILES_URL = `pmtiles://${import.meta.env.BASE_URL}tiles/tomsk.pmtiles`;
+
+// Шрифты и спрайты Protomaps — с jsDelivr (доступен по IPv4, в отличие от
+// api.protomaps.com). @main без тегов; при желании можно запинить на commit.
+const ASSETS_BASE = 'https://cdn.jsdelivr.net/gh/protomaps/basemaps-assets@main';
+const GLYPHS_URL = `${ASSETS_BASE}/fonts/{fontstack}/{range}.pbf`;
+const SPRITE_URL: Record<MapTheme, string> = {
+  dark: `${ASSETS_BASE}/sprites/v4/black`,
+  light: `${ASSETS_BASE}/sprites/v4/white`,
+};
+
+// Протокол pmtiles:// — один раз на модуль. try/catch — на случай HMR.
+let pmtilesRegistered = false;
+function ensurePmtilesProtocol(): void {
+  if (pmtilesRegistered) return;
+  pmtilesRegistered = true;
+  try {
+    addProtocol('pmtiles', new Protocol().tile);
+  } catch {
+    // уже зарегистрирован — игнорируем
+  }
+}
 
 // Палитра под буклет. Принцип: подложка нейтральная и приглушённая, а лаймовый
 // #b8ff3d отдан ТОЛЬКО линии маршрута (Leaflet SVG поверх GL-canvas) — чтобы он
@@ -85,55 +104,129 @@ function darkFlavor() {
     link: '#2b2f23',
     major: '#34382b',
     highway: '#3e4330',
+    // Подписи — ярче нейтрального серого, чтобы читались на почти чёрном фоне.
+    // Иерархия: магистрали ярче улиц, номера домов приглушены.
+    roads_label_major: '#cccccc',
+    roads_label_minor: '#b4b4b4',
+    address_label: '#8a8a8a',
+    city_label: '#d2d2d2',
+    subplace_label: '#a6a6a6',
   };
 }
 
-// Светлая: тёплая бумага, зелёные вода/парки, дороги нейтральные.
+// Светлая: шалфейная зелёная гамма (приглушённый серо-зелёный), как тёмная — но
+// светлая. Фон/земля/здания/дороги с зелёным подтоном, вода/парки насыщеннее.
 function lightFlavor() {
   return {
     ...namedFlavor('white'),
-    background: '#f3f1e9',
-    earth: '#f3f1e9',
-    water: '#cbe0d2',
-    park_a: '#dfeacf',
-    park_b: '#dfeacf',
-    wood_a: '#d8e6c8',
-    wood_b: '#d8e6c8',
-    scrub_a: '#e3edd6',
-    scrub_b: '#e3edd6',
-    buildings: '#e7e4d6',
-    minor_service: '#ece9db',
-    pedestrian: '#ece9db',
-    other: '#ece9db',
-    minor_a: '#e6e3d4',
-    minor_b: '#e6e3d4',
-    link: '#ddd8c6',
-    major: '#d6d1be',
-    highway: '#cbc5af',
+    // Свежая зелёная гамма: чуть ярче и контрастнее шалфея, но мягкая.
+    // Земля — зелёный крем, дороги почти белые (читаемая сеть), парки/вода
+    // насыщеннее для живости, подписи темнее для контраста.
+    background: '#e9f0df',
+    earth: '#e9f0df',
+    water: '#b2d1bb',
+    park_a: '#cce1b8',
+    park_b: '#cce1b8',
+    wood_a: '#c1d7ad',
+    wood_b: '#c1d7ad',
+    scrub_a: '#d4e3c5',
+    scrub_b: '#d4e3c5',
+    buildings: '#dfe6d0',
+    minor_service: '#f1f5ea',
+    pedestrian: '#f1f5ea',
+    other: '#f1f5ea',
+    minor_a: '#f1f5ea',
+    minor_b: '#f1f5ea',
+    link: '#eef3e4',
+    major: '#f5f8ef',
+    highway: '#f8faf3',
+    // Подписи — тёмно-зелёные, обводка из namedFlavor('white') (светлая).
+    roads_label_major: '#2b3925',
+    roads_label_minor: '#3b4c34',
+    address_label: '#515f48',
+    city_label: '#2b3925',
+    subplace_label: '#3b4c34',
   };
+}
+
+type StyleLayer = ReturnType<typeof layers>[number];
+
+/**
+ * Точечная подстройка слоёв подписей поверх стандартного набора Protomaps:
+ *  - номера домов (address_label): крупнее и видны с z16 (а не z18), шрифт Regular;
+ *  - имена жилых улиц (roads_labels_minor): появляются с z13 и крупнее;
+ *  - магистрали (roads_labels_major): чуть крупнее.
+ * Цвета подписей задаются во flavor (dark/lightFlavor), здесь — только геометрия.
+ */
+function tuneLabelLayers(input: StyleLayer[]): StyleLayer[] {
+  const tuned = input.map((l): StyleLayer => {
+    if (l.type !== 'symbol') return l;
+    if (l.id === 'address_label') {
+      return {
+        ...l,
+        minzoom: 16,
+        layout: {
+          ...l.layout,
+          'text-font': ['Noto Sans Regular'],
+          'text-size': ['interpolate', ['linear'], ['zoom'], 16, 11, 18, 14, 20, 17],
+        },
+        paint: { ...l.paint, 'text-halo-width': 1.25 },
+      } as StyleLayer;
+    }
+    if (l.id === 'roads_labels_minor') {
+      return {
+        ...l,
+        minzoom: 13,
+        layout: {
+          ...l.layout,
+          'text-size': ['interpolate', ['linear'], ['zoom'], 13, 11, 16, 13, 19, 15],
+        },
+      } as StyleLayer;
+    }
+    if (l.id === 'roads_labels_major') {
+      return {
+        ...l,
+        layout: {
+          ...l.layout,
+          'text-size': ['interpolate', ['linear'], ['zoom'], 11, 12, 16, 14],
+        },
+      } as StyleLayer;
+    }
+    return l;
+  });
+
+  // Номера домов — наименьший приоритет: имена улиц/мест выигрывают коллизии.
+  // MapLibre размещает подписи в порядке слоёв (раньше в массиве = выше приоритет),
+  // поэтому сдвигаем address_label в конец массива.
+  const idx = tuned.findIndex((l) => l.id === 'address_label');
+  if (idx >= 0) tuned.push(tuned.splice(idx, 1)[0]!);
+  return tuned;
 }
 
 function bookletStyle(theme: MapTheme) {
   const flavor = theme === 'dark' ? darkFlavor() : lightFlavor();
   return {
     version: 8 as const,
+    glyphs: GLYPHS_URL,
+    sprite: SPRITE_URL[theme],
     sources: {
       protomaps: {
         type: 'vector' as const,
-        tiles: [TILES_URL],
-        maxzoom: 15,
-        attribution: '© OpenStreetMap, Protomaps',
+        url: PMTILES_URL,
+        attribution: '© OpenStreetMap',
       },
     },
-    // layers() из @protomaps/basemaps строит полный набор слоёв из flavor;
-    // выкидываем все symbol-слои → ноль подписей/шилдов/иконок (на обеих темах).
-    layers: layers('protomaps', flavor, { lang: 'en' }).filter((l) => l.type !== 'symbol'),
+    // Полный набор слоёв Protomaps, включая подписи (symbol). lang: 'ru' —
+    // русские названия улиц и мест там, где они есть в OSM.
+    // tuneLabelLayers — размеры/minzoom/приоритет номеров и улиц.
+    layers: tuneLabelLayers(layers('protomaps', flavor, { lang: 'ru' })),
   };
 }
 
-// Обе темы теперь на MapLibre GL (WebGL). createTileLayer/TILE_LAYERS остаются
-// только для admin-редактора маршрутов (RouteForm), его не трогаем.
+// Публичная карта — MapLibre GL (вектор, self-host pmtiles).
+// createTileLayer/TILE_LAYERS остаются для admin-редактора маршрутов (RouteForm).
 export function createBasemapLayer(theme: MapTheme): L.Layer {
+  ensurePmtilesProtocol();
   // preserveDrawingBuffer пробрасывается в конструктор MapLibre Map, но отсутствует
   // в типах LeafletMaplibreGLOptions → каст. Без него WebGL-canvas печатается
   // пустым в Ctrl+P → PDF. style оставляем типизированным в самом литерале.
@@ -150,7 +243,7 @@ export function createBasemapLayer(theme: MapTheme): L.Layer {
  */
 export function createAttributionControl(): L.Control {
   const control = new L.Control({ position: 'bottomleft' });
-  control.onAdd = () => {
+  control.onAdd = (map) => {
     const container = L.DomUtil.create('div', 'attribution-pill');
     container.setAttribute('aria-label', 'Источники карты');
 
@@ -159,10 +252,9 @@ export function createAttributionControl(): L.Control {
     icon.setAttribute('aria-hidden', 'true');
 
     const content = L.DomUtil.create('span', 'attribution-pill__content', container);
+    // Публичная карта: self-host векторные тайлы Protomaps поверх данных OSM.
     content.innerHTML =
       '<a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OSM</a>' +
-      ', ' +
-      '<a href="https://carto.com/attributions" target="_blank" rel="noopener">CARTO</a>' +
       ', ' +
       '<a href="https://protomaps.com" target="_blank" rel="noopener">Protomaps</a>';
 
@@ -171,9 +263,11 @@ export function createAttributionControl(): L.Control {
       container.classList.toggle('is-open');
     });
 
-    document.addEventListener('click', () => {
-      container.classList.remove('is-open');
-    });
+    // Закрытие при клике вне пилюли. Слушатель снимаем на unload карты
+    // (Leaflet вызывает fire('unload') в map.remove()) — иначе утечёт при ремаунте.
+    const onDocClick = () => container.classList.remove('is-open');
+    document.addEventListener('click', onDocClick);
+    map.once('unload', () => document.removeEventListener('click', onDocClick));
 
     L.DomEvent.disableScrollPropagation(container);
     return container;

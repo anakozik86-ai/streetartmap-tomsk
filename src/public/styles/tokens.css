@@ -55,6 +55,7 @@
   --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
   --duration-fast: 120ms;
   --duration-base: 200ms;
+  --duration-normal: 260ms;
   --duration-slow: 320ms;
 
   /* ---- z-index слои ---- */
@@ -63,6 +64,7 @@
   --z-header: 1000;
   --z-popup: 2000;
   --z-modal: 3000;
+  --z-lightbox: 4000;
 
   /* ---- safe-area для notch / home indicator ---- */
   --safe-top: env(safe-area-inset-top, 0);
@@ -103,5 +105,13 @@
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme]) {
     color-scheme: dark;
+  }
+}
+
+/* ---- Мобайл: единая высота плавающих «окошек» (логотип, переключатель темы,
+   атрибуция, кнопка фильтров, зум) — один размер для всех пяти контролов. ---- */
+@media (max-width: 640px) {
+  :root {
+    --control-h: 44px;
   }
 }

@@ -119,21 +119,31 @@
   fill: none;
 }
 
-/* ---- Мобайл: крупные touch-targets ---- */
+/* ---- Мобайл: крупные touch-targets, единая высота с остальными контролами ---- */
 @media (max-width: 640px) {
+  /* Логотип — общая высота контролов, текст по центру по вертикали */
+  .logo {
+    display: inline-flex;
+    align-items: center;
+    height: var(--control-h);
+    padding: 0 1rem;
+  }
+
+  /* Переключатель темы — та же высота; опции подогнаны под трек 3px (38 + 3·2 = 44) */
   .theme-toggle {
-    padding: 6px;
-    gap: 4px;
+    height: var(--control-h);
+    padding: 3px;
+    gap: 3px;
   }
 
   .theme-toggle__option {
-    width: 48px;
-    height: 48px;
+    width: 38px;
+    height: 38px;
   }
 
   .theme-toggle__option svg {
-    width: 26px;
-    height: 26px;
+    width: 22px;
+    height: 22px;
     stroke-width: 2.25;
   }
 }

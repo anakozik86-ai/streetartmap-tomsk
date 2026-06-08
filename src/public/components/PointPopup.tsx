@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'preact/hooks';
+import { useState, useEffect, useCallback, useRef } from 'preact/hooks';
 import { selectedPoint } from '../state/selectedPoint.ts';
 import { authors as authorsSignal } from '../state/catalogState.ts';
 import { activeRouteIds, toggleRoute, routesForPoint } from '../state/routes.ts';
@@ -143,12 +143,20 @@ function Lightbox({ pointId, photos, initialIndex, onClose }: LightboxProps) {
 
   const prev = useCallback(() => setIndex((i) => (i - 1 + total) % total), [total]);
   const next = useCallback(() => setIndex((i) => (i + 1) % total), [total]);
+  const closeBtnRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
-      if (e.key === 'Escape') onClose();
-      else if (e.key === 'ArrowLeft') prev();
-      else if (e.key === 'ArrowRight') next();
+      // stopPropagation, чтобы Escape закрыл только лайтбокс, а не всю карточку
+      // (в MapView висит window-обработчик Escape → selectedPoint = null).
+      if (e.key === 'Escape') {
+        e.stopPropagation();
+        onClose();
+      } else if (e.key === 'ArrowLeft') {
+        prev();
+      } else if (e.key === 'ArrowRight') {
+        next();
+      }
     }
     document.addEventListener('keydown', onKey);
     // Prevent body scroll
@@ -158,6 +166,14 @@ function Lightbox({ pointId, photos, initialIndex, onClose }: LightboxProps) {
       document.body.style.overflow = '';
     };
   }, [onClose, prev, next]);
+
+  // a11y: при открытии переносим фокус в модалку (кнопка закрытия),
+  // при закрытии возвращаем фокус на элемент, активный до открытия.
+  useEffect(() => {
+    const prevFocused = document.activeElement as HTMLElement | null;
+    closeBtnRef.current?.focus();
+    return () => prevFocused?.focus?.();
+  }, []);
 
   return (
     <div
@@ -170,6 +186,7 @@ function Lightbox({ pointId, photos, initialIndex, onClose }: LightboxProps) {
       }}
     >
       <button
+        ref={closeBtnRef}
         class="pp-lightbox__close"
         type="button"
         onClick={onClose}
