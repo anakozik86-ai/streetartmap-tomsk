@@ -33,21 +33,10 @@
     />
 
     <!-- FOUC prevention: выставляем тему до рендера -->
+    <!-- ВРЕМЕННО (печать буклета): форсируем тёмную тему до рендера, т.к.
+         переключатель скрыт. Позже вернуть чтение localStorage/системы. -->
     <script>
-      (function () {
-        try {
-          var stored = localStorage.getItem('streetartmap.theme');
-          var theme;
-          if (stored === 'light' || stored === 'dark') {
-            theme = stored;
-          } else {
-            theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-          }
-          document.documentElement.dataset.theme = theme;
-        } catch (e) {
-          /* localStorage недоступен — оставим светлую */
-        }
-      })();
+      document.documentElement.dataset.theme = 'dark';
     </script>
   </head>
   <body>
