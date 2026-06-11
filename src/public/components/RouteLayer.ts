@@ -34,7 +34,7 @@ export function createRouteLayer(opts: RouteLayerOptions): L.LayerGroup {
   // Подложка для контрастности на любом тайле
   L.polyline(latlngs, {
     color: '#000000',
-    weight: 5,
+    weight: 7.5, // ВРЕМЕННО (печать): в 1.5× толще (было 5)
     opacity: 0.15,
     interactive: false,
     bubblingMouseEvents: false,
@@ -44,7 +44,7 @@ export function createRouteLayer(opts: RouteLayerOptions): L.LayerGroup {
   // Основная линия (акцент)
   L.polyline(latlngs, {
     color: route.color ?? '#b8ff3d',
-    weight: 3,
+    weight: 4.5, // ВРЕМЕННО (печать): в 1.5× толще (было 3)
     opacity: 0.9,
     interactive: false,
     bubblingMouseEvents: false,

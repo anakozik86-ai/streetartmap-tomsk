@@ -1,4 +1,4 @@
-import { defineConfig } from 'vite';
+import { defineConfig, type Plugin } from 'vite';
 import preact from '@preact/preset-vite';
 import { viteStaticCopy } from 'vite-plugin-static-copy';
 import { resolve } from 'node:path';
@@ -6,12 +6,35 @@ import { fileURLToPath } from 'node:url';
 
 const __dirname = fileURLToPath(new URL('.', import.meta.url));
 
+// Dev-only: `/admin` без слеша попадает в SPA-fallback и отдаёт корневой
+// index.html (публичную карту). Редиректим на `/admin/`, где Vite отдаёт
+// admin/index.html. В проде (GitHub Pages) такой проблемы нет.
+function adminTrailingSlashRedirect(): Plugin {
+  return {
+    name: 'admin-trailing-slash-redirect',
+    apply: 'serve',
+    configureServer(server) {
+      server.middlewares.use((req, res, next) => {
+        const url = req.url ?? '';
+        if (url === '/admin' || url.startsWith('/admin?') || url.startsWith('/admin#')) {
+          res.statusCode = 302;
+          res.setHeader('Location', '/admin/' + url.slice('/admin'.length));
+          res.end();
+          return;
+        }
+        next();
+      });
+    },
+  };
+}
+
 export default defineConfig({
   // Базовый путь: '/' в dev, '/streetartmap-tomsk/' (или иное) в проде GitHub Pages.
   // Контролируется переменной VITE_BASE_PATH в .github/workflows/deploy.yml.
   base: process.env.VITE_BASE_PATH ?? '/',
 
   plugins: [
+    adminTrailingSlashRedirect(),
     preact(),
     viteStaticCopy({
       // data/ и images/ лежат в корне репо как первоисточник;

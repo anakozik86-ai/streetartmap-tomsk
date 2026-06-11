@@ -26,7 +26,7 @@
   {
     "id": "mosaic",
     "name": "Мозаика",
-    "icon": "grid-3x3",
+    "icon": "layout-grid",
     "description": "Плиточные и керамические работы.",
     "order": 3,
     "status": "active",

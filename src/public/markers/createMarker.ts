@@ -2,7 +2,8 @@ import L from 'leaflet';
 import type { Category, Collection, Point } from '@shared/types/index.ts';
 import { renderIconSvg, resolveIcon } from './icons.ts';
 
-export const MARKER_SIZE = 36;
+// ВРЕМЕННО (печать буклета): метки увеличены (было 36). Позже вернуть 36.
+export const MARKER_SIZE = 48;
 
 /**
  * Признак «утраченной» работы.

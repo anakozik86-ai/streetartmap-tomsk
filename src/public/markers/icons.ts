@@ -9,6 +9,7 @@
 import {
   Box,
   Grid3x3,
+  LayoutGrid,
   MoreHorizontal,
   Paintbrush,
   Palette,
@@ -30,6 +31,7 @@ const REGISTRY: Readonly<Record<string, unknown>> = {
   sticker: Sticker,
   box: Box,
   'grid-3x3': Grid3x3,
+  'layout-grid': LayoutGrid,
   palette: Palette,
   'more-horizontal': MoreHorizontal,
 };
