@@ -21,10 +21,7 @@ function loadStoredMode(): ThemeMode {
 }
 
 /** Активный режим темы (выбор пользователя). */
-// ВРЕМЕННО (печать буклета): форсируем тёмную тему на старте, т.к. навигация
-// (переключатель темы) скрыта. Позже вернуть: signal(loadStoredMode()).
-export const themeMode = signal<ThemeMode>('dark');
-void loadStoredMode;
+export const themeMode = signal<ThemeMode>(loadStoredMode());
 
 // Применение к <html> и сохранение выбора
 effect(() => {

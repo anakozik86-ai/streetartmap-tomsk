@@ -69,18 +69,22 @@
   }
 
   /* ---- Маркеры ---- */
-  /* ВРЕМЕННО (печать буклета): метки 48px — совпадает с экранным
-     (MARKER_SIZE=48), iconAnchor=24 ставит Leaflet — margin не правим. */
+  /* Уменьшаем чуть-чуть (с 36 до 26px), чтобы маршрут не перекрывался,
+     но точки всё ещё были опознаваемы как ориентир. */
   .marker {
-    width: 48px !important;
-    height: 48px !important;
+    width: 26px !important;
+    height: 26px !important;
   }
   .marker__icon {
-    width: 24px !important;
-    height: 24px !important;
+    width: 13px !important;
+    height: 13px !important;
   }
-  .marker__ring {
-    padding: 6px !important;
+  /* Поправляем смещение, потому что Leaflet ставит iconAnchor=18,18
+     (половина от 36); при изменении размера через CSS центр маркера
+     сместится. Компенсируем translate. */
+  .leaflet-marker-icon.marker {
+    margin-left: -13px !important;
+    margin-top: -13px !important;
   }
 
   /* Hover/active state не нужен на печати */
@@ -99,11 +103,11 @@
   /* На бумаге тонкая линия теряется. Утолщаем подложку и основную.
      stroke-width перебивает inline weight из RouteLayer.ts. */
   .leaflet-overlay-pane svg .route-line--shadow {
-    stroke-width: 12 !important;
+    stroke-width: 8 !important;
     stroke-opacity: 0.25 !important;
   }
   .leaflet-overlay-pane svg .route-line--main {
-    stroke-width: 7.5 !important;
+    stroke-width: 5 !important;
     stroke-opacity: 1 !important;
   }
 

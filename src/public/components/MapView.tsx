@@ -132,15 +132,6 @@ export function MapView() {
 
         allPoints = points;
         allRoutes = routes;
-
-        // ВРЕМЕННО (печать буклета): оба маршрута всегда включены. Порядок
-        // [for-explorers, main-route] — основной добавляется последним и лежит
-        // ПОВЕРХ «Для искателей» в SVG-слое. Позже удалить этот блок.
-        const routeOrder = ['for-explorers', 'main-route'].filter((id) =>
-          allRoutes.some((r) => r.id === id && r.status === 'published'),
-        );
-        activeRouteIds.value = new Set(routeOrder);
-
         maxVisibleColors = config.features.max_visible_collection_colors;
         if (config.features.show_lost_works_default && !showLost.value) {
           showLost.value = true;

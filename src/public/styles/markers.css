@@ -28,9 +28,8 @@
   /* Явный размер необходим: глобальный box-sizing: border-box из base.css
      может конфликтовать с инлайновым width/height который ставит Leaflet,
      что приводит к смещению iconAnchor при пересоздании маркеров */
-  /* ВРЕМЕННО (печать буклета): увеличены от исходных 36px. Позже вернуть 36px. */
-  width: 48px !important;
-  height: 48px !important;
+  width: 36px !important;
+  height: 36px !important;
 }
 
 /* z-index вместо riseOnHover: true — без побочного margin-top от Leaflet */
@@ -43,8 +42,7 @@
   width: 100%;
   height: 100%;
   border-radius: 50%;
-  /* ВРЕМЕННО (печать): кольцо толще, чтобы цвет коллекции читался. Было 3px. */
-  padding: 6px;
+  padding: 3px;
   background: var(--border-strong);
   box-shadow: var(--shadow-md);
   transform-origin: center center;
@@ -66,9 +64,8 @@
 }
 
 .marker__icon {
-  /* ВРЕМЕННО (печать): увеличены от исходных 18px. */
-  width: 24px;
-  height: 24px;
+  width: 18px;
+  height: 18px;
   display: block;
   fill: none;
   stroke: currentColor;
