@@ -160,15 +160,14 @@ function tuneLabelLayers(input: StyleLayer[]): StyleLayer[] {
   // Однострочная подпись: только русское (или дефолтное) имя. Заменяет
   // дефолтный двухстрочный `format` Protomaps (lang:'ru'), который при
   // равенстве name:ru === name печатал имя дважды («Томск II / Томск II»).
-  const SINGLE_LINE = ['coalesce', ['get', 'name:ru'], ['get', 'name']] as unknown as string;
-
-  // Исключаем подписи с «(дублёр)» и подобными суффиксами из OSM-данных.
-  // index-of возвращает -1 если подстрока не найдена → фильтр пропускает только их.
-  const NO_DUBLER = [
-    '<',
-    ['index-of', 'дублёр', ['downcase', ['coalesce', ['get', 'name:ru'], ['get', 'name'], '']]],
-    0,
-  ] as unknown as boolean;
+  // Если имя содержит «дублёр» — возвращаем пустую строку, иначе русское/дефолтное имя.
+  // Это expression-стиль: не трогает layer.filter (который у Protomaps legacy-формат).
+  const SINGLE_LINE = [
+    'case',
+    ['>', ['index-of', 'дублёр', ['downcase', ['coalesce', ['get', 'name:ru'], ['get', 'name'], '']]], -1],
+    '',
+    ['coalesce', ['get', 'name:ru'], ['get', 'name']],
+  ] as unknown as string;
 
   const tuned = input.map((l): StyleLayer => {
     if (l.type !== 'symbol') return l;
@@ -177,7 +176,6 @@ function tuneLabelLayers(input: StyleLayer[]): StyleLayer[] {
       return {
         ...l,
         minzoom: 16,
-        filter: l.filter ? ['all', l.filter, NO_DUBLER] : NO_DUBLER,
         layout: {
           ...l.layout,
           'text-font': ['Noto Sans Regular'],
@@ -190,7 +188,6 @@ function tuneLabelLayers(input: StyleLayer[]): StyleLayer[] {
       return {
         ...l,
         minzoom: 13,
-        filter: l.filter ? ['all', l.filter, NO_DUBLER] : NO_DUBLER,
         layout: {
           ...l.layout,
           'text-field': SINGLE_LINE,
@@ -201,7 +198,6 @@ function tuneLabelLayers(input: StyleLayer[]): StyleLayer[] {
     if (l.id === 'roads_labels_major') {
       return {
         ...l,
-        filter: l.filter ? ['all', l.filter, NO_DUBLER] : NO_DUBLER,
         layout: {
           ...l.layout,
           'text-field': SINGLE_LINE,
@@ -213,7 +209,6 @@ function tuneLabelLayers(input: StyleLayer[]): StyleLayer[] {
     // чтобы убрать дубли двухстрочного формата.
     return {
       ...l,
-      filter: l.filter ? ['all', l.filter, NO_DUBLER] : NO_DUBLER,
       layout: { ...l.layout, 'text-field': SINGLE_LINE },
     } as StyleLayer;
   });
