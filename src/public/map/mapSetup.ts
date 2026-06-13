@@ -81,16 +81,13 @@ function ensurePmtilesProtocol(): void {
 // не конкурировал по тону с дорогами. Дороги обесцвечены (тёплый тёмно/светло-серый),
 // вода/парки слегка зелёные для идентичности. Всё тюнится здесь.
 
-// ВРЕМЕННО (печать буклета): тёмная гамма сохранена, но яркость и насыщенность
-// подняты, а светлота между слоями разнесена сильнее — раньше всё было почти
-// чёрным (#0d0f0c…#3e4330) и на бумаге сливалось в пятно. Та же тёмно-зелёная
-// схема, просто читаемее на печати. Позже вернуть исходные тёмные значения (git).
+// Тёмная: чёрная база, дороги нейтрально-серые и тусклые.
 function darkFlavor() {
   return {
     ...namedFlavor('black'),
     background: '#161a12',
-    earth: '#2b3324', // земля заметно светлее — даёт фон под дорогами
-    water: '#6fa04a', // ВСЯ вода — приглушённый зелёный в нашей гамме (не яркий лайм)
+    earth: '#2b3324',
+    water: '#6fa04a', // приглушённый зелёный в нашей гамме
     park_a: '#314d2c',
     park_b: '#314d2c',
     wood_a: '#314d2c',
@@ -98,7 +95,7 @@ function darkFlavor() {
     scrub_a: '#314d2c',
     scrub_b: '#314d2c',
     buildings: '#3a4330',
-    // ВРЕМЕННО (печать): дороги чёрные — резкий контраст на тёмно-зелёной земле.
+    // Дороги чёрные — резкий контраст на тёмно-зелёной земле
     minor_service: '#000000',
     pedestrian: '#000000',
     other: '#000000',
@@ -107,8 +104,6 @@ function darkFlavor() {
     link: '#000000',
     major: '#000000',
     highway: '#000000',
-    // Подписи скрыты целиком (фильтр symbol-слоёв в bookletStyle),
-    // цвета оставлены на случай возврата.
     roads_label_major: '#cccccc',
     roads_label_minor: '#b4b4b4',
     address_label: '#8a8a8a',
@@ -162,12 +157,27 @@ type StyleLayer = ReturnType<typeof layers>[number];
  * Цвета подписей задаются во flavor (dark/lightFlavor), здесь — только геометрия.
  */
 function tuneLabelLayers(input: StyleLayer[]): StyleLayer[] {
+  // Однострочная подпись: только русское (или дефолтное) имя. Заменяет
+  // дефолтный двухстрочный `format` Protomaps (lang:'ru'), который при
+  // равенстве name:ru === name печатал имя дважды («Томск II / Томск II»).
+  const SINGLE_LINE = ['coalesce', ['get', 'name:ru'], ['get', 'name']] as unknown as string;
+
+  // Исключаем подписи с «(дублёр)» и подобными суффиксами из OSM-данных.
+  // index-of возвращает -1 если подстрока не найдена → фильтр пропускает только их.
+  const NO_DUBLER = [
+    '<',
+    ['index-of', 'дублёр', ['downcase', ['coalesce', ['get', 'name:ru'], ['get', 'name'], '']]],
+    0,
+  ] as unknown as boolean;
+
   const tuned = input.map((l): StyleLayer => {
     if (l.type !== 'symbol') return l;
+    // Номера домов — отдельное поле (addr_housenumber), text-field не трогаем.
     if (l.id === 'address_label') {
       return {
         ...l,
         minzoom: 16,
+        filter: l.filter ? ['all', l.filter, NO_DUBLER] : NO_DUBLER,
         layout: {
           ...l.layout,
           'text-font': ['Noto Sans Regular'],
@@ -180,8 +190,10 @@ function tuneLabelLayers(input: StyleLayer[]): StyleLayer[] {
       return {
         ...l,
         minzoom: 13,
+        filter: l.filter ? ['all', l.filter, NO_DUBLER] : NO_DUBLER,
         layout: {
           ...l.layout,
+          'text-field': SINGLE_LINE,
           'text-size': ['interpolate', ['linear'], ['zoom'], 13, 11, 16, 13, 19, 15],
         },
       } as StyleLayer;
@@ -189,13 +201,21 @@ function tuneLabelLayers(input: StyleLayer[]): StyleLayer[] {
     if (l.id === 'roads_labels_major') {
       return {
         ...l,
+        filter: l.filter ? ['all', l.filter, NO_DUBLER] : NO_DUBLER,
         layout: {
           ...l.layout,
+          'text-field': SINGLE_LINE,
           'text-size': ['interpolate', ['linear'], ['zoom'], 11, 12, 16, 14],
         },
       } as StyleLayer;
     }
-    return l;
+    // Прочие подписи (места, города, районы, вода) — тоже в одну строку,
+    // чтобы убрать дубли двухстрочного формата.
+    return {
+      ...l,
+      filter: l.filter ? ['all', l.filter, NO_DUBLER] : NO_DUBLER,
+      layout: { ...l.layout, 'text-field': SINGLE_LINE },
+    } as StyleLayer;
   });
 
   // Номера домов — наименьший приоритет: имена улиц/мест выигрывают коллизии.
@@ -219,12 +239,10 @@ function bookletStyle(theme: MapTheme) {
         attribution: '© OpenStreetMap',
       },
     },
-    // ВРЕМЕННО (печать буклета): убираем ВСЕ текстовые подписи (symbol-слои) —
-    // улицы, дома, города. Только подложка + маркеры. Позже вернуть:
-    //   layers: tuneLabelLayers(layers('protomaps', flavor, { lang: 'ru' })),
-    layers: tuneLabelLayers(layers('protomaps', flavor, { lang: 'ru' })).filter(
-      (l) => l.type !== 'symbol',
-    ),
+    // Полный набор слоёв Protomaps, включая подписи (symbol). lang: 'ru' —
+    // русские названия улиц и мест там, где они есть в OSM.
+    // tuneLabelLayers — размеры/minzoom/приоритет номеров и улиц.
+    layers: tuneLabelLayers(layers('protomaps', flavor, { lang: 'ru' })),
   };
 }
 
