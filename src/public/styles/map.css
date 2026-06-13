@@ -97,22 +97,29 @@
 .leaflet-control-zoom {
   border: none !important;
   box-shadow: var(--shadow-md) !important;
-  border-radius: var(--radius-md) !important;
-  overflow: hidden;
+  border-radius: var(--radius-pill) !important;
+  background: var(--surface) !important;
+  padding: 4px !important;
+  display: flex !important;
+  flex-direction: row !important;
+  gap: 2px !important;
   margin: 0 !important;
 }
 
 .leaflet-control-zoom a {
-  background: var(--surface) !important;
-  color: var(--text) !important;
-  border-color: var(--border) !important;
-  border-bottom-width: 1px !important;
+  background: transparent !important;
+  color: var(--text-muted) !important;
+  border: none !important;
   font-family: var(--font-body) !important;
   font-weight: 600 !important;
   font-size: 18px !important;
   width: 36px !important;
   height: 36px !important;
-  line-height: 36px !important;
+  line-height: 1 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  border-radius: var(--radius-pill) !important;
   transition:
     background-color var(--duration-fast) var(--ease-out),
     color var(--duration-fast) var(--ease-out);
@@ -123,19 +130,8 @@
   color: var(--text) !important;
 }
 
-.leaflet-control-zoom a:first-child {
-  border-top-left-radius: var(--radius-md) !important;
-  border-top-right-radius: var(--radius-md) !important;
-}
-
-.leaflet-control-zoom a:last-child {
-  border-bottom: none !important;
-  border-bottom-left-radius: var(--radius-md) !important;
-  border-bottom-right-radius: var(--radius-md) !important;
-}
-
 .leaflet-control-zoom a.leaflet-disabled {
-  background: var(--surface) !important;
+  background: transparent !important;
   color: var(--text-subtle) !important;
   cursor: not-allowed;
 }
@@ -174,25 +170,15 @@
 
 /* ---- Мобайл: единый размер контролов (40px) ---- */
 @media (max-width: 640px) {
-  /* Зум — горизонтально, кнопки + и - в одну строку */
+  /* Зум — мобайл: чуть крупнее кнопки под touch */
   .leaflet-control-zoom {
-    display: flex;
-    flex-direction: row;
-    border-radius: var(--radius-pill) !important;
+    padding: 3px !important;
+    gap: 3px !important;
   }
   .leaflet-control-zoom a {
-    width: var(--control-h) !important;
-    height: var(--control-h) !important;
-    line-height: var(--control-h) !important;
-    border-bottom: none !important;
-    border-right-width: 1px !important;
-  }
-  .leaflet-control-zoom a:first-child {
-    border-radius: var(--radius-pill) 0 0 var(--radius-pill) !important;
-  }
-  .leaflet-control-zoom a:last-child {
-    border-right: none !important;
-    border-radius: 0 var(--radius-pill) var(--radius-pill) 0 !important;
+    width: 38px !important;
+    height: 38px !important;
+    line-height: 38px !important;
   }
 
   /* Атрибуция — всегда раскрыта, без кнопки «i»: только две строки

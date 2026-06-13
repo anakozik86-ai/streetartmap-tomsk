@@ -53,11 +53,16 @@
     box-shadow var(--duration-fast) var(--ease-out);
   white-space: nowrap;
   user-select: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 220px;
+  box-sizing: border-box;
 }
 
 .logo:hover {
   background: var(--surface-alt);
-  color: var(--text);
+  color: #6fa04a;
   transform: translateY(-1px);
   box-shadow: var(--shadow-lg);
 }
@@ -101,12 +106,12 @@
 }
 
 .theme-toggle__option.is-active {
-  color: var(--accent-text);
-  background: var(--accent);
+  color: #000000;
+  background: #6fa04a;
 }
 
 .theme-toggle__option.is-active:hover {
-  background: var(--accent-hover);
+  background: #5e8f3c;
 }
 
 .theme-toggle__option svg {
@@ -125,8 +130,10 @@
   .logo {
     display: inline-flex;
     align-items: center;
+    justify-content: center;
     height: var(--control-h);
     padding: 0 1rem;
+    width: auto;
   }
 
   /* Переключатель темы — та же высота; опции подогнаны под трек 3px (38 + 3·2 = 44) */

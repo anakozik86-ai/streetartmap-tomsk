@@ -156,7 +156,7 @@ type StyleLayer = ReturnType<typeof layers>[number];
  *  - магистрали (roads_labels_major): чуть крупнее.
  * Цвета подписей задаются во flavor (dark/lightFlavor), здесь — только геометрия.
  */
-function tuneLabelLayers(input: StyleLayer[]): StyleLayer[] {
+function tuneLabelLayers(input: StyleLayer[], theme: MapTheme): StyleLayer[] {
   // Однострочная подпись: только русское (или дефолтное) имя. Заменяет
   // дефолтный двухстрочный `format` Protomaps (lang:'ru'), который при
   // равенстве name:ru === name печатал имя дважды («Томск II / Томск II»).
@@ -169,19 +169,52 @@ function tuneLabelLayers(input: StyleLayer[]): StyleLayer[] {
     ['coalesce', ['get', 'name:ru'], ['get', 'name']],
   ] as unknown as string;
 
+  // Единый цвет всего текста — одинаковый для всех подписей в теме.
+  const TEXT_COLOR = theme === 'dark' ? '#cccccc' : '#2b3925';
+
+  // Водный слой — по ID (содержит 'water') или по source-layer 'water'.
+  // Охватывает все варианты Protomaps: water_name, water_label, ocean_label и т.д.
+  const isWaterLayer = (l: StyleLayer) =>
+    l.id.includes('water') || ('source-layer' in l && (l as { 'source-layer'?: string })['source-layer'] === 'water');
+
   const tuned = input.map((l): StyleLayer => {
     if (l.type !== 'symbol') return l;
+
+    // Базовый минималистичный вид: убираем обводку, единый шрифт, единый цвет,
+    // скрываем icon (road shields) чтобы не было чёрных прямоугольников.
+    const baseLayout: Record<string, unknown> = {
+      ...l.layout,
+      'text-font': ['Noto Sans Regular'],
+    };
+    const basePaint: Record<string, unknown> = {
+      ...l.paint,
+      'text-color': TEXT_COLOR,
+      'text-halo-width': 0,
+      'text-halo-color': 'rgba(0,0,0,0)',
+      'icon-opacity': 0,
+    };
+
+    // Текст на воде — тот же цвет, что у остальных подписей.
+    if (isWaterLayer(l)) {
+      return {
+        ...l,
+        layout: { ...baseLayout, 'text-field': SINGLE_LINE },
+        paint: basePaint,
+      } as StyleLayer;
+    }
+
     // Номера домов — отдельное поле (addr_housenumber), text-field не трогаем.
     if (l.id === 'address_label') {
       return {
         ...l,
         minzoom: 16,
         layout: {
-          ...l.layout,
-          'text-font': ['Noto Sans Regular'],
+          ...baseLayout,
           'text-size': ['interpolate', ['linear'], ['zoom'], 16, 11, 18, 14, 20, 17],
+          'text-anchor': 'center',
+          'symbol-placement': 'point',
         },
-        paint: { ...l.paint, 'text-halo-width': 1.25 },
+        paint: basePaint,
       } as StyleLayer;
     }
     if (l.id === 'roads_labels_minor') {
@@ -189,27 +222,29 @@ function tuneLabelLayers(input: StyleLayer[]): StyleLayer[] {
         ...l,
         minzoom: 13,
         layout: {
-          ...l.layout,
+          ...baseLayout,
           'text-field': SINGLE_LINE,
           'text-size': ['interpolate', ['linear'], ['zoom'], 13, 11, 16, 13, 19, 15],
         },
+        paint: basePaint,
       } as StyleLayer;
     }
     if (l.id === 'roads_labels_major') {
       return {
         ...l,
         layout: {
-          ...l.layout,
+          ...baseLayout,
           'text-field': SINGLE_LINE,
           'text-size': ['interpolate', ['linear'], ['zoom'], 11, 12, 16, 14],
         },
+        paint: basePaint,
       } as StyleLayer;
     }
-    // Прочие подписи (места, города, районы, вода) — тоже в одну строку,
-    // чтобы убрать дубли двухстрочного формата.
+    // Прочие подписи (места, города, районы) — одна строка, без обводки.
     return {
       ...l,
-      layout: { ...l.layout, 'text-field': SINGLE_LINE },
+      layout: { ...baseLayout, 'text-field': SINGLE_LINE },
+      paint: basePaint,
     } as StyleLayer;
   });
 
@@ -237,7 +272,7 @@ function bookletStyle(theme: MapTheme) {
     // Полный набор слоёв Protomaps, включая подписи (symbol). lang: 'ru' —
     // русские названия улиц и мест там, где они есть в OSM.
     // tuneLabelLayers — размеры/minzoom/приоритет номеров и улиц.
-    layers: tuneLabelLayers(layers('protomaps', flavor, { lang: 'ru' })),
+    layers: tuneLabelLayers(layers('protomaps', flavor, { lang: 'ru' }), theme),
   };
 }
 
