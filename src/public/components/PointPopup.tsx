@@ -292,7 +292,7 @@ export function PointPopup() {
       const target = e.target as HTMLElement;
       // Если тач начался внутри прокручиваемого body и он уже прокручен — не перехватываем
       if (body?.contains(target) && (body?.scrollTop ?? 0) > 4) return;
-      startY = e.touches[0].clientY;
+      startY = e.touches[0]!.clientY;
       isDragging = true;
       wasDragged = false;
       el!.style.animation = 'none';
@@ -301,7 +301,7 @@ export function PointPopup() {
 
     function onMove(e: TouchEvent) {
       if (!isDragging) return;
-      const dy = e.touches[0].clientY - startY;
+      const dy = e.touches[0]!.clientY - startY;
       if (dy <= 0) {
         // Тянут вверх — отдаём управление скроллу тела
         isDragging = false;
@@ -319,7 +319,7 @@ export function PointPopup() {
       if (!isDragging) return;
       isDragging = false;
       const match = el!.style.transform.match(/translateY\((\d+(?:\.\d+)?)px\)/);
-      const dy = match ? parseFloat(match[1]) : 0;
+      const dy = match ? parseFloat(match[1]!) : 0;
       el!.style.animation = '';
       el!.style.transition = '';
       el!.style.transform = '';

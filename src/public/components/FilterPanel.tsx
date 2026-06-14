@@ -52,14 +52,14 @@ export function FilterPanel() {
       if (!sheetOpen) return;
       const body = el!.querySelector('.filter-sheet__body') as HTMLElement | null;
       if (body && body.scrollTop > 2) return;
-      startY = e.touches[0].clientY;
+      startY = e.touches[0]!.clientY;
       isDragging = true;
       el!.style.transition = 'none';
     }
 
     function onMove(e: TouchEvent) {
       if (!isDragging) return;
-      const dy = e.touches[0].clientY - startY;
+      const dy = e.touches[0]!.clientY - startY;
       if (dy <= 0) { isDragging = false; el!.style.transform = ''; el!.style.transition = ''; return; }
       e.preventDefault();
       el!.style.transform = `translateY(${dy}px)`;
@@ -69,7 +69,7 @@ export function FilterPanel() {
       if (!isDragging) return;
       isDragging = false;
       const match = el!.style.transform.match(/translateY\((\d+(?:\.\d+)?)px\)/);
-      const dy = match ? parseFloat(match[1]) : 0;
+      const dy = match ? parseFloat(match[1]!) : 0;
       el!.style.transform = '';
       el!.style.transition = '';
       if (dy > 80) setSheetOpen(false);
