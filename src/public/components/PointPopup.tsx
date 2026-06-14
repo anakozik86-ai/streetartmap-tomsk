@@ -261,6 +261,7 @@ export function PointPopup() {
   const p = selectedPoint.value;
   const [pointRoutes, setPointRoutes] = useState<Route[]>([]);
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
+  const popupRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!p) {
@@ -276,6 +277,82 @@ export function PointPopup() {
         setPointRoutes([]);
       });
   }, [p?.id]);
+
+  // drag-to-close: свайп вниз с любого места шторки (фото, ручка, хедер)
+  useEffect(() => {
+    const el = popupRef.current;
+    if (!el) return;
+
+    let startY = 0;
+    let isDragging = false;
+    let wasDragged = false; // чтобы не открывать лайтбокс после свайпа
+
+    function onStart(e: TouchEvent) {
+      const body = el!.querySelector('.point-popup__body') as HTMLElement | null;
+      const target = e.target as HTMLElement;
+      // Если тач начался внутри прокручиваемого body и он уже прокручен — не перехватываем
+      if (body?.contains(target) && (body?.scrollTop ?? 0) > 4) return;
+      startY = e.touches[0].clientY;
+      isDragging = true;
+      wasDragged = false;
+      el!.style.animation = 'none';
+      el!.style.transition = 'none';
+    }
+
+    function onMove(e: TouchEvent) {
+      if (!isDragging) return;
+      const dy = e.touches[0].clientY - startY;
+      if (dy <= 0) {
+        // Тянут вверх — отдаём управление скроллу тела
+        isDragging = false;
+        el!.style.transform = '';
+        el!.style.animation = '';
+        el!.style.transition = '';
+        return;
+      }
+      wasDragged = dy > 8;
+      e.preventDefault();
+      el!.style.transform = `translateY(${dy}px)`;
+    }
+
+    function onEnd() {
+      if (!isDragging) return;
+      isDragging = false;
+      const match = el!.style.transform.match(/translateY\((\d+(?:\.\d+)?)px\)/);
+      const dy = match ? parseFloat(match[1]) : 0;
+      el!.style.animation = '';
+      el!.style.transition = '';
+      el!.style.transform = '';
+      if (dy > 80) {
+        selectedPoint.value = null;
+      }
+    }
+
+    // Блокируем открытие лайтбокса если был свайп — ищем фрейм динамически,
+    // чтобы не хранить устаревшую ссылку при ре-рендере слайдера.
+    function onPhotoClick(e: Event) {
+      if (!wasDragged) return;
+      const frame = el!.querySelector('.pp-slider__frame');
+      if (!frame?.contains(e.target as Node)) return;
+      e.stopPropagation();
+      e.preventDefault();
+      wasDragged = false;
+    }
+
+    el.addEventListener('touchstart', onStart, { passive: true });
+    el.addEventListener('touchmove', onMove, { passive: false });
+    el.addEventListener('touchend', onEnd, { passive: true });
+    el.addEventListener('touchcancel', onEnd, { passive: true });
+    el.addEventListener('click', onPhotoClick, { capture: true });
+
+    return () => {
+      el.removeEventListener('touchstart', onStart);
+      el.removeEventListener('touchmove', onMove);
+      el.removeEventListener('touchend', onEnd);
+      el.removeEventListener('touchcancel', onEnd);
+      el.removeEventListener('click', onPhotoClick, { capture: true });
+    };
+  }, [p?.id]); // re-run when point changes so popupRef.current is guaranteed non-null
 
   if (!p) return null;
 
@@ -294,7 +371,10 @@ export function PointPopup() {
 
   return (
     <>
-      <div class="point-popup" role="dialog" aria-modal="true" aria-label={p.title}>
+      <div ref={popupRef} class="point-popup" role="dialog" aria-modal="true" aria-label={p.title}>
+        {/* drag handle — visible on mobile only, overlaid at top */}
+        <div class="point-popup__handle" aria-hidden="true" />
+
         <div class="point-popup__header">
           <button
             class="point-popup__close"

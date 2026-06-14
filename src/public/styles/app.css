@@ -115,8 +115,8 @@
 }
 
 .theme-toggle__option svg {
-  width: 18px;
-  height: 18px;
+  width: 20px;
+  height: 20px;
   stroke: currentColor;
   stroke-width: 2;
   stroke-linecap: round;
@@ -149,8 +149,8 @@
   }
 
   .theme-toggle__option svg {
-    width: 22px;
-    height: 22px;
+    width: 24px;
+    height: 24px;
     stroke-width: 2.25;
   }
 }

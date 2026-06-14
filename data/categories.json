@@ -38,7 +38,7 @@
   {
     "id": "other",
     "name": "Другое",
-    "icon": "palette",
+    "icon": "more-horizontal",
     "description": "Ярн-бомбинг, световое искусство, реверс-граффити и редкие техники.",
     "order": 4,
     "status": "active",

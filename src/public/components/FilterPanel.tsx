@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'preact/hooks';
+import { useEffect, useRef, useState } from 'preact/hooks';
 import {
   loadCatalog,
   categories,
@@ -35,10 +35,57 @@ export function FilterPanel() {
   }, []);
 
   const [sheetOpen, setSheetOpen] = useState(false);
+  const sheetRef = useRef<HTMLDivElement>(null);
 
   const activeCount = countActiveFilters();
 
   const closeSheet = () => setSheetOpen(false);
+
+  useEffect(() => {
+    const el = sheetRef.current;
+    if (!el) return;
+
+    let startY = 0;
+    let isDragging = false;
+
+    function onStart(e: TouchEvent) {
+      if (!sheetOpen) return;
+      const body = el!.querySelector('.filter-sheet__body') as HTMLElement | null;
+      if (body && body.scrollTop > 2) return;
+      startY = e.touches[0].clientY;
+      isDragging = true;
+      el!.style.transition = 'none';
+    }
+
+    function onMove(e: TouchEvent) {
+      if (!isDragging) return;
+      const dy = e.touches[0].clientY - startY;
+      if (dy <= 0) { isDragging = false; el!.style.transform = ''; el!.style.transition = ''; return; }
+      e.preventDefault();
+      el!.style.transform = `translateY(${dy}px)`;
+    }
+
+    function onEnd() {
+      if (!isDragging) return;
+      isDragging = false;
+      const match = el!.style.transform.match(/translateY\((\d+(?:\.\d+)?)px\)/);
+      const dy = match ? parseFloat(match[1]) : 0;
+      el!.style.transform = '';
+      el!.style.transition = '';
+      if (dy > 80) setSheetOpen(false);
+    }
+
+    el.addEventListener('touchstart', onStart, { passive: true });
+    el.addEventListener('touchmove', onMove, { passive: false });
+    el.addEventListener('touchend', onEnd, { passive: true });
+    el.addEventListener('touchcancel', onEnd, { passive: true });
+    return () => {
+      el.removeEventListener('touchstart', onStart);
+      el.removeEventListener('touchmove', onMove);
+      el.removeEventListener('touchend', onEnd);
+      el.removeEventListener('touchcancel', onEnd);
+    };
+  }, [sheetOpen]);
 
   return (
     <>
@@ -71,30 +118,42 @@ export function FilterPanel() {
           })}
         </section>
 
-        {collections.value.length > 0 && (
-          <section class="filter-panel__section">
-            <p class="filter-panel__label">{ru.filters.festivals}</p>
-            {collections.value.map((col) => {
-              const active = activeCollections.value.has(col.id);
-              return (
-                <button
-                  key={col.id}
-                  type="button"
-                  class={`filter-panel__item${active ? ' is-active' : ''}`}
-                  aria-pressed={active}
-                  onClick={() => toggleCollection(col.id)}
-                >
-                  <span
-                    class="filter-panel__item-dot"
-                    style={{ background: col.color }}
-                    aria-hidden="true"
-                  />
-                  <span class="filter-panel__item-label">{col.name}</span>
-                </button>
-              );
-            })}
-          </section>
-        )}
+        <section class="filter-panel__section">
+          {collections.value.length > 0 && <p class="filter-panel__label">{ru.filters.festivals}</p>}
+          {collections.value.map((col) => {
+            const active = activeCollections.value.has(col.id);
+            return (
+              <button
+                key={col.id}
+                type="button"
+                class={`filter-panel__item${active ? ' is-active' : ''}`}
+                aria-pressed={active}
+                onClick={() => toggleCollection(col.id)}
+              >
+                <span
+                  class="filter-panel__item-dot"
+                  style={{ background: col.color }}
+                  aria-hidden="true"
+                />
+                <span class="filter-panel__item-label">{col.name}</span>
+              </button>
+            );
+          })}
+          <button
+            type="button"
+            class={`filter-panel__item${showLost.value ? ' is-active' : ''}`}
+            aria-pressed={showLost.value}
+            onClick={() => {
+              showLost.value = !showLost.value;
+            }}
+          >
+            <span
+              class="filter-panel__item-dot filter-panel__item-dot--lost"
+              aria-hidden="true"
+            />
+            <span class="filter-panel__item-label">{ru.filters.show_lost}</span>
+          </button>
+        </section>
 
         {routes.value.length > 0 && (
           <section class="filter-panel__section">
@@ -115,19 +174,6 @@ export function FilterPanel() {
             })}
           </section>
         )}
-
-        <section class="filter-panel__section filter-panel__section--lost">
-          <button
-            type="button"
-            class={`filter-panel__item${showLost.value ? ' is-active' : ''}`}
-            aria-pressed={showLost.value}
-            onClick={() => {
-              showLost.value = !showLost.value;
-            }}
-          >
-            <span class="filter-panel__item-label">{ru.filters.show_lost}</span>
-          </button>
-        </section>
 
         {hasActiveFilters.value && (
           <button type="button" class="filter-panel__reset" onClick={resetFilters}>
@@ -160,6 +206,7 @@ export function FilterPanel() {
       {/* Bottom sheet */}
       {sheetOpen && <div class="filter-sheet-backdrop" onClick={closeSheet} aria-hidden="true" />}
       <div
+        ref={sheetRef}
         class={`filter-sheet${sheetOpen ? ' is-open' : ''}`}
         role="dialog"
         aria-modal="true"
@@ -212,33 +259,43 @@ export function FilterPanel() {
             </div>
           </section>
 
-          {/* Коллекции */}
-          {collections.value.length > 0 && (
-            <section class="filter-sheet__section">
-              <p class="filter-sheet__label">{ru.filters.festivals}</p>
-              <div class="filter-sheet__chips">
-                {collections.value.map((col) => {
-                  const active = activeCollections.value.has(col.id);
-                  return (
-                    <button
-                      key={col.id}
-                      type="button"
-                      class={`filter-sheet__chip${active ? ' is-active' : ''}`}
-                      aria-pressed={active}
-                      onClick={() => toggleCollection(col.id)}
-                    >
-                      <span
-                        class="filter-sheet__chip-dot"
-                        style={{ background: col.color }}
-                        aria-hidden="true"
-                      />
-                      {col.name}
-                    </button>
-                  );
-                })}
-              </div>
-            </section>
-          )}
+          {/* Коллекции + утраченные */}
+          <section class="filter-sheet__section">
+            {collections.value.length > 0 && <p class="filter-sheet__label">{ru.filters.festivals}</p>}
+            <div class="filter-sheet__chips">
+              {collections.value.map((col) => {
+                const active = activeCollections.value.has(col.id);
+                return (
+                  <button
+                    key={col.id}
+                    type="button"
+                    class={`filter-sheet__chip${active ? ' is-active' : ''}`}
+                    aria-pressed={active}
+                    onClick={() => toggleCollection(col.id)}
+                  >
+                    <span
+                      class="filter-sheet__chip-dot"
+                      style={{ background: col.color }}
+                      aria-hidden="true"
+                    />
+                    {col.name}
+                  </button>
+                );
+              })}
+              <button
+                type="button"
+                class={`filter-sheet__chip${showLost.value ? ' is-active' : ''}`}
+                aria-pressed={showLost.value}
+                onClick={() => { showLost.value = !showLost.value; }}
+              >
+                <span
+                  class="filter-sheet__chip-dot filter-sheet__chip-dot--lost"
+                  aria-hidden="true"
+                />
+                {ru.filters.show_lost}
+              </button>
+            </div>
+          </section>
 
           {/* Маршруты */}
           {routes.value.length > 0 && (
@@ -262,22 +319,6 @@ export function FilterPanel() {
               </div>
             </section>
           )}
-
-          {/* Утраченные */}
-          <section class="filter-sheet__section">
-            <div class="filter-sheet__chips">
-              <button
-                type="button"
-                class={`filter-sheet__chip${showLost.value ? ' is-active' : ''}`}
-                aria-pressed={showLost.value}
-                onClick={() => {
-                  showLost.value = !showLost.value;
-                }}
-              >
-                {ru.filters.show_lost}
-              </button>
-            </div>
-          </section>
         </div>
       </div>
     </>

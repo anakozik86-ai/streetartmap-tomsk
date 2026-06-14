@@ -149,11 +149,8 @@ export function MapView() {
           zoom: config.city.default_zoom,
           zoomControl: false,
           attributionControl: false,
-          // Жёсткая граница города: viscosity 1.0 «прилипает» к краю bounds,
-          // не давая увести viewport за пределы города.
           ...(bounds ? { maxBounds: bounds, maxBoundsViscosity: 1.0 } : {}),
-          // minZoom: 12 — на меньшем уровне CartoDB начинает показывать английские названия
-          minZoom: 13,
+          minZoom: 11,
           zoomSnap: 0,
           zoomDelta: 0.5,
           // Отключаем стандартный wheel zoom — его заменяет smoothWheelZoom handler
